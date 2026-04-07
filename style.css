@@ -397,6 +397,26 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   padding: 3px 10px; border-radius: 50px; font-weight: 700; font-family: 'Cinzel', serif;
 }
 
+.steam-store-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--card-border);
+  color: var(--cream-dim);
+  border-radius: 50px;
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  text-decoration: none;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.steam-store-btn:hover {
+  background: rgba(255,255,255,.08);
+  border-color: var(--gold-dark);
+  color: var(--gold);
+  transform: translateY(-1px);
+}
+
 .card-stock { font-family: 'Cinzel', serif; font-size: .82rem; }
 .stock-ok   { color: var(--jade); }
 .stock-low  { color: var(--ember); }
