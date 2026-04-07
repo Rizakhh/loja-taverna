@@ -5,7 +5,7 @@
    - Cards: id, nome, preço, tags, video, data, comprador
    ════════════════════════════════════════════════════════════ */
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 9;
 const TWITCH_CHANNEL = 'rizakh';
 
 let todosProdutos = [];
