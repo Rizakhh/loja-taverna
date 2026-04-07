@@ -109,8 +109,10 @@ function renderizarPagina() {
   if (filtrado.length === 0) {
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';
-    if (document.getElementById('pagination-controls')) document.getElementById('pagination-controls').style.display = 'none';
-    if (document.getElementById('pagination-info')) document.getElementById('pagination-info').style.display = 'none';
+    const pgCtrl = document.getElementById('pagination-controls');
+    const pgInfo = document.getElementById('pagination-info');
+    if (pgCtrl) pgCtrl.style.display = 'none';
+    if (pgInfo) pgInfo.style.display = 'none';
     return;
   }
 
@@ -125,23 +127,25 @@ function renderizarPagina() {
     btn.addEventListener('click', () => copiarComando(btn));
   });
 
-  // Pagination UI
-  const info  = document.getElementById('pagination-info');
-  const ctrl  = document.getElementById('pagination-controls');
-  const txt   = document.getElementById('pagination-text');
-  const dots  = document.getElementById('page-dots');
+  // Pagination UI — busca por ID único (fora do grid)
+  const info   = document.getElementById('pagination-info');
+  const txt    = document.getElementById('pagination-text');
+  const dots   = document.getElementById('page-dots');
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
 
-  if (info) {
+  if (info && txt) {
     info.style.display = 'block';
     txt.textContent = `Pagina ${paginaAtual} de ${totalPaginas} — ${filtrado.length} itens`;
   }
-  if (ctrl) {
-    ctrl.style.display = totalPaginas > 1 ? 'flex' : 'none';
+
+  const pgCtrl = document.getElementById('pagination-controls');
+  if (pgCtrl) {
+    pgCtrl.style.display = totalPaginas > 1 ? 'flex' : 'none';
     if (btnPrev) btnPrev.disabled = paginaAtual <= 1;
     if (btnNext) btnNext.disabled = paginaAtual >= totalPaginas;
   }
+
   if (dots) {
     let html = '';
     for (let i = 1; i <= totalPaginas; i++) {
