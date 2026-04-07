@@ -189,9 +189,16 @@ function cardHTML(p) {
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Price — formatados com separador de milhar (1.000, 10.000)
+  // Steam store button
+  const steamSearchUrl = `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
+  const steamBtn = p.vendido
+    ? ''
+    : `<a class="steam-store-btn" href="${steamSearchUrl}" target="_blank" rel="noopener">🏪 Ver na Loja</a>`;
+
+  // Formatacao de numero (1.000, 10.000)
   function fmt(n) { return n.toLocaleString('pt-BR'); }
 
+  // Price
   let precoHtml = '';
   if (p.isSale) {
     precoHtml = `<div class="card-price">
@@ -201,6 +208,7 @@ function cardHTML(p) {
       </div>
       <span class="price-original">${fmt(p.preco)}</span>
       <span class="price-badge">-${p.desconto}%</span>
+      ${steamBtn}
     </div>`;
   } else {
     precoHtml = `<div class="card-price">
@@ -208,6 +216,7 @@ function cardHTML(p) {
         <span class="price-icon">💎</span>
         <span class="price-current">${fmt(p.precoFinal)}</span>
       </div>
+      ${steamBtn}
     </div>`;
   }
 
