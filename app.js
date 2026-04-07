@@ -189,11 +189,9 @@ function cardHTML(p) {
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Steam store button
+  // Steam store button — sempre visivel
   const steamSearchUrl = `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
-  const steamBtn = p.vendido
-    ? ''
-    : `<a class="steam-store-btn" href="${steamSearchUrl}" target="_blank" rel="noopener">🏪 Ver na Loja</a>`;
+  const steamBtnHtml = `<a class="steam-store-btn" href="${steamSearchUrl}" target="_blank" rel="noopener">🏪 Ver na Loja</a>`;
 
   // Formatacao de numero (1.000, 10.000)
   function fmt(n) { return n.toLocaleString('pt-BR'); }
@@ -208,7 +206,6 @@ function cardHTML(p) {
       </div>
       <span class="price-original">${fmt(p.preco)}</span>
       <span class="price-badge">-${p.desconto}%</span>
-      ${steamBtn}
     </div>`;
   } else {
     precoHtml = `<div class="card-price">
@@ -216,7 +213,6 @@ function cardHTML(p) {
         <span class="price-icon">💎</span>
         <span class="price-current">${fmt(p.precoFinal)}</span>
       </div>
-      ${steamBtn}
     </div>`;
   }
 
@@ -239,9 +235,9 @@ function cardHTML(p) {
   if (p.vendido) {
     estoqueHtml = '<div class="card-stock stock-zero">Vendido</div>';
   } else if (p.estoque <= 2 && p.estoque > 0) {
-    estoqueHtml = `<div class="card-stock stock-low">Ultimas ${p.estoque} unid.</div>`;
+    estoqueHtml = `<div class="card-stock stock-low">Restam ${p.estoque}</div>`;
   } else if (p.estoque > 0) {
-    estoqueHtml = `<div class="card-stock stock-ok">${p.estoque} em estoque</div>`;
+    estoqueHtml = `<div class="card-stock stock-ok">Disponivel</div>`;
   } else {
     estoqueHtml = '<div class="card-stock stock-zero">Esgotado</div>';
   }
@@ -260,7 +256,10 @@ function cardHTML(p) {
     <div class="card-tags">${tags}</div>
     <div class="card-video">${videoHtml}</div>
     <div class="card-body">
-      <div class="card-id">ID: ${escHtml(p.id)}</div>
+      <div class="card-top-row">
+        <div class="card-id">ID: ${escHtml(p.id)}</div>
+        ${steamBtnHtml}
+      </div>
       <div class="card-name">${escHtml(p.nome)}</div>
       ${precoHtml}
       ${estoqueHtml}
