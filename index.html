@@ -5,25 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taverna do Rizakh — Loja</title>
 
-  <!-- Fonts: Cinzel (medieval RPG) + Crimson Text (corpo) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Produtos sincronizados com chaves.txt - atualizados automaticamente -->
-  <script id="produtos-data" type="application/json">
-[
-  {"id":"eldenring","nome":"Elden Ring","preco":10000,"precoFinal":10000,"desconto":0,"youtubeId":"E3Huy2cdih0","isNovo":false,"estoque":0},
-  {"id":"hollowknight","nome":"Hollow Knight","preco":1000,"precoFinal":1000,"desconto":0,"youtubeId":"","isNovo":true,"estoque":1}
-]
-  </script>
 </head>
 <body>
 
-  <!-- ═══ HERO — Banner Principal ═══ -->
+  <!-- ═══ HERO ═══ -->
   <header class="hero">
-    <!-- Ornamento topo -->
     <div class="hero-ornament-top">
       <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
@@ -34,18 +23,14 @@
     </div>
 
     <div class="hero-content">
-      <div class="hero-badge">🏰 LOJA OFICIAL</div>
+      <div class="hero-badge">GUILD SHOP</div>
 
       <div class="hero-emblem">
         <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-          <!-- Escudo medieval estilizado -->
           <path d="M40 5 L65 18 L65 45 Q65 65 40 75 Q15 65 15 45 L15 18 Z"
             fill="#1a1040" stroke="#ffd700" stroke-width="2"/>
-          <!-- Espada central -->
           <path d="M40 14 L40 58 M32 24 L48 24" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Divisor inferior do escudo -->
           <path d="M22 40 Q40 34 58 40" stroke="#ffd700" stroke-width="1" fill="none" opacity=".5"/>
-          <!-- Coroa no topo -->
           <path d="M32 18 L36 12 L40 16 L44 12 L48 18" stroke="#ffd700" stroke-width="1.5" fill="none"/>
         </svg>
       </div>
@@ -56,26 +41,25 @@
       </h1>
 
       <p class="hero-tagline">
-        <span class="rune-char">⚜</span>
-        Troque seus pontos de stream por recompensas épicas
-        <span class="rune-char">⚜</span>
+        <span class="rune-char">*</span>
+        Troque seus pontos de stream por recompensas epicas
+        <span class="rune-char">*</span>
       </p>
 
-      <!-- Estatísticas da loja -->
       <div class="hero-stats">
         <div class="stat-item">
-          <span class="stat-value" id="stat-produtos">—</span>
+          <span class="stat-value" id="stat-produtos">--</span>
           <span class="stat-label">Produtos</span>
         </div>
-        <div class="stat-divider">◆</div>
+        <div class="stat-divider">+</div>
         <div class="stat-item">
-          <span class="stat-value" id="stat-promocoes">—</span>
-          <span class="stat-label">Promoções</span>
+          <span class="stat-value" id="stat-promocoes">--</span>
+          <span class="stat-label">Promocoes</span>
         </div>
-        <div class="stat-divider">◆</div>
+        <div class="stat-divider">+</div>
         <div class="stat-item">
-          <span class="stat-value" id="stat-pts-min">—</span>
-          <span class="stat-label">Menor Preço</span>
+          <span class="stat-value" id="stat-pts-min">--</span>
+          <span class="stat-label">Menor Preco</span>
         </div>
       </div>
 
@@ -84,15 +68,14 @@
           <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
           </svg>
-          Ao Vivo na Twitch
+          Ao Vivo
         </a>
         <button class="btn-hero-scroll" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
-          Ver Recompensas ↓
+          Ver Recompensas
         </button>
       </div>
     </div>
 
-    <!-- Ornamento bottom -->
     <div class="hero-ornament-bottom">
       <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 10 Q25 20 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
@@ -111,46 +94,40 @@
 
       <div class="steps-rpg">
         <div class="step-rpg">
-          <div class="step-rune">Ⅰ</div>
-          <div class="step-icon-wrap">📿</div>
+          <div class="step-rune">I</div>
+          <div class="step-icon-wrap">E</div>
           <h3>Registre-se</h3>
           <div class="step-cmd">!email seu@email.com</div>
-          <p>Cadastre seu e-mail para receber as chaves de forma segura</p>
+          <p>Cadastre seu e-mail para receber as chaves</p>
         </div>
-
         <div class="step-connector">
           <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
         </div>
-
         <div class="step-rpg">
-          <div class="step-rune">Ⅱ</div>
-          <div class="step-icon-wrap">🗺️</div>
-          <h3>Explore a Loja</h3>
+          <div class="step-rune">II</div>
+          <div class="step-icon-wrap">M</div>
+          <h3>Explore</h3>
           <div class="step-cmd">!loja item &lt;id&gt;</div>
-          <p>Veja detalhes de cada produto disponível na taverna</p>
+          <p>Veja detalhes de cada produto</p>
         </div>
-
         <div class="step-connector">
           <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
         </div>
-
         <div class="step-rpg">
-          <div class="step-rune">Ⅲ</div>
-          <div class="step-icon-wrap">⚔️</div>
+          <div class="step-rune">III</div>
+          <div class="step-icon-wrap">C</div>
           <h3>Compre</h3>
           <div class="step-cmd">!loja comprar &lt;id&gt;</div>
-          <p>Use seus pontos de stream para adquirir recompensas épicas</p>
+          <p>Use seus pontos de stream</p>
         </div>
-
         <div class="step-connector">
           <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
         </div>
-
         <div class="step-rpg">
-          <div class="step-rune">Ⅳ</div>
-          <div class="step-icon-wrap">🔑</div>
+          <div class="step-rune">IV</div>
+          <div class="step-icon-wrap">X</div>
           <h3>Receba</h3>
-          <p>Sua chave chega no e-mail e via whisper (Twitch)!</p>
+          <p>Sua chave chega por e-mail e whisper!</p>
         </div>
       </div>
     </div>
@@ -161,7 +138,7 @@
     <div class="container">
       <h2 class="section-title-decorated">
         <span class="title-line"></span>
-        Transmissão Ao Vivo
+        <a href="https://twitch.tv/rizakh" target="_blank" class="live-link">Transmissao Ao Vivo</a>
         <span class="title-line"></span>
       </h2>
 
@@ -187,7 +164,7 @@
     </div>
   </section>
 
-  <!-- ═══ LOJA — RECOMPENSAS ═══ -->
+  <!-- ═══ LOJA ═══ -->
   <section class="shop-section" id="shop">
     <div class="container">
 
@@ -210,22 +187,27 @@
       </div>
 
       <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">Todos os Itens</button>
-        <button class="filter-btn" data-filter="disponivel">Disponíveis</button>
-        <button class="filter-btn" data-filter="sale">Em Promoção</button>
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="disponivel">Disponiveis</button>
+        <button class="filter-btn" data-filter="sale">Promocao</button>
         <button class="filter-btn" data-filter="novo">Novidades</button>
       </div>
 
-      <div id="shop-grid" class="shop-grid">
-        <div class="loading-state">
-          <div class="spinner-rune">⚜</div>
-          <p>Carregando recompensas...</p>
-        </div>
+      <div id="pagination-info" class="pagination-info" style="display:none">
+        <span id="pagination-text"></span>
+      </div>
+
+      <div id="shop-grid" class="shop-grid"></div>
+
+      <div id="pagination-controls" class="pagination-controls" style="display:none">
+        <button id="btn-prev" class="btn-page" onclick="goPage(-1)">Anterior</button>
+        <div id="page-dots" class="page-dots"></div>
+        <button id="btn-next" class="btn-page" onclick="goPage(1)">Proxima</button>
       </div>
 
       <div id="empty-state" class="empty-state" style="display:none">
-        <div class="empty-icon">🏚️</div>
-        <p>Nenhuma recompensa disponível no momento.<br><small>Volte em breve, aventureiro!</small></p>
+        <div class="empty-icon">X</div>
+        <p>Nenhuma recompensa disponivel no momento.<br><small>Volte em breve!</small></p>
       </div>
     </div>
   </section>
@@ -240,10 +222,10 @@
     </div>
     <div class="container footer-content">
       <div class="footer-brand">
-        <span class="footer-seal">⚔️</span>
+        <span class="footer-seal">+</span>
         <div>
           <div class="footer-title">Taverna do Rizakh</div>
-          <div class="footer-subtitle">Guild Shop — Sistema de Recompensas</div>
+          <div class="footer-subtitle">Guild Shop</div>
         </div>
       </div>
 
@@ -267,13 +249,19 @@
       </div>
 
       <div class="footer-copyright">
-        ⚔️ Taverna do Rizakh — Todos os direitos reservados<br>
-        <small> twitch.tv/rizakh</small>
+        Taverna do Rizakh - Guild Shop<br>
+        <small>twitch.tv/rizakh</small>
       </div>
     </div>
   </footer>
 
   <div id="toast" class="toast"></div>
+
+  <!-- Produtos sincronizados automaticamente pelo sync-watch.ps1 -->
+  <script id="produtos-data" type="application/json">
+[]
+  </script>
+
   <script src="app.js"></script>
 </body>
 </html>

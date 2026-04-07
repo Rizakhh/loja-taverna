@@ -739,3 +739,133 @@ h1, h2, h3 {
   .shop-title-wrap { flex-direction: column; }
   .ornament-divider svg { width: 80px; }
 }
+
+/* ═══ PAGINATION ═══ */
+.pagination-info {
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Cinzel', serif;
+  font-size: .82rem;
+  color: var(--cream-dim);
+  letter-spacing: 1px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btn-page {
+  padding: 9px 24px;
+  background: transparent;
+  border: 1px solid var(--gold-dark);
+  color: var(--gold);
+  border-radius: 50px;
+  font-family: 'Cinzel', serif;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: .5px;
+}
+.btn-page:hover:not(:disabled) {
+  background: rgba(255,215,0,.1);
+  border-color: var(--gold);
+}
+.btn-page:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.page-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.page-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  cursor: pointer;
+  transition: all var(--transition);
+  opacity: .5;
+}
+.page-dot:hover { opacity: .8; }
+.page-dot.active {
+  background: var(--gold);
+  opacity: 1;
+  transform: scale(1.3);
+}
+
+/* ═══ CARD PRICE — estilo botao ═══ */
+.price-current {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.price-original {
+  font-size: .88rem;
+  color: var(--cream-dim);
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+.price-badge {
+  font-size: .72rem;
+  background: var(--crimson);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  margin-left: 8px;
+}
+
+.price-sale-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* ═══ CARD EXTRA INFO ═══ */
+.card-extra {
+  margin-top: -4px;
+}
+
+.added-info {
+  font-size: .75rem;
+  color: var(--gold-dark);
+  font-family: 'Cinzel', serif;
+  font-style: italic;
+  letter-spacing: .3px;
+}
+
+.sold-info {
+  font-size: .78rem;
+  color: var(--gray-sold);
+  font-family: 'Cinzel', serif;
+  font-style: italic;
+  background: rgba(85,85,112,.15);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(85,85,112,.3);
+}
+
+/* ═══ LIVE LINK ═══ */
+.live-link {
+  color: var(--gold);
+  text-decoration: none;
+  transition: opacity var(--transition);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.live-link:hover { opacity: .7; text-decoration: none; }
