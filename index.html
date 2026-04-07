@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taverna do Rizakh — Guild Shop</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -111,6 +111,14 @@
           <div class="step-cmd">!loja comprar &lt;id&gt;</div>
           <p>Troque sua honra por chaves lendarias</p>
         </div>
+        <div class="step-arrow">➤</div>
+        <div class="step-card">
+          <div class="step-number">IV</div>
+          <div class="step-icon">📬</div>
+          <h3>Receber</h3>
+          <div class="step-cmd">!loja chave &lt;id&gt;</div>
+          <p>Receba sua chave por whisper (Twitch) ou e-mail (YouTube)</p>
+        </div>
       </div>
     </div>
   </section>
@@ -148,10 +156,11 @@
       </div>
 
       <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">Todos</button>
-        <button class="filter-btn" data-filter="disponivel">Disponiveis</button>
-        <button class="filter-btn" data-filter="sale">Promocao</button>
-        <button class="filter-btn" data-filter="novo">Novidades</button>
+        <button class="filter-btn active" data-filter="all">Todos <span class="filter-count" data-count="all">--</span></button>
+        <button class="filter-btn" data-filter="disponivel">Disponiveis <span class="filter-count" data-count="disponivel">--</span></button>
+        <button class="filter-btn" data-filter="sale">Promocao <span class="filter-count" data-count="sale">--</span></button>
+        <button class="filter-btn" data-filter="novo">Novidades <span class="filter-count" data-count="novo">--</span></button>
+        <button class="filter-btn" data-filter="vendido">Vendidos <span class="filter-count" data-count="vendido">--</span></button>
       </div>
 
       <div id="pagination-info" class="pagination-info"></div>
