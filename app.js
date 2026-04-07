@@ -61,6 +61,7 @@ function carregarProdutos() {
     console.log('[Loja] Paginas:', totalPaginas);
     renderizarPagina();
     atualizarStats(todosProdutos);
+    atualizarFiltros();
   } catch (e) {
     console.error('[Loja] ERRO no parse ou renderizacao:', e);
     mostrarEmpty();
@@ -92,7 +93,8 @@ function filtrar(lista) {
   switch (filtroAtivo) {
     case 'disponivel': return lista.filter(p => !p.vendido);
     case 'sale':       return lista.filter(p => p.isSale);
-    case 'novo':        return lista.filter(p => p.isNovo);
+    case 'novo':       return lista.filter(p => p.isNovo);
+    case 'vendido':    return lista.filter(p => p.vendido);
     default:           return lista;
   }
 }
@@ -227,8 +229,8 @@ function cardHTML(p) {
 
   // Buy button
   const btnHtml = p.vendido
-    ? '<button class="btn-buy" disabled>Esgotado</button>'
-    : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}">Comprar</button>`;
+    ? '<button class="btn-buy" disabled><span>🔒</span> Esgotado</button>'
+    : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}"><span>🔑</span> Comprar</button>`;
 
   const filterAttr = ['all'];
   if (!p.vendido) filterAttr.push('disponivel');
@@ -300,6 +302,24 @@ function atualizarStats(produtos) {
   if (et) et.textContent = disp.length;
   if (ep) ep.textContent = promo.length;
   if (em && menor !== Infinity) em.textContent = menor;
+}
+
+// ── Atualizar contadores dos filtros ───────────────────────
+function atualizarFiltros() {
+  const total     = todosProdutos.length;
+  const disp      = todosProdutos.filter(p => !p.vendido).length;
+  const promo     = todosProdutos.filter(p => p.isSale).length;
+  const novo      = todosProdutos.filter(p => p.isNovo).length;
+  const vendidos  = todosProdutos.filter(p => p.vendido).length;
+
+  const counts = { all: total, disponivel: disp, sale: promo, novo: novo, vendido: vendidos };
+
+  document.querySelectorAll('.filter-count').forEach(el => {
+    const key = el.dataset.count;
+    if (key && counts[key] !== undefined) {
+      el.textContent = counts[key];
+    }
+  });
 }
 
 // ── Empty state ─────────────────────────────────────────────
