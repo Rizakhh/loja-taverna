@@ -374,18 +374,22 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 .card-name { font-family: 'Cinzel', serif; font-size: 1.15rem; color: var(--gold); line-height: 1.3; font-weight: 700; }
 
 .card-price { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.price-current {
-  font-family: 'Inter', 'Space Grotesk', 'Cinzel', sans-serif;
-  font-size: 1.65rem;
-  font-weight: 800;
-  color: var(--gold);
-  background: linear-gradient(135deg, rgba(255,215,0,.15), rgba(255,215,0,.05));
+.price-box {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(255,215,0,.18), rgba(255,215,0,.08));
   border: 1px solid var(--gold-dark);
   border-radius: 12px;
-  padding: 6px 18px;
+  padding: 6px 14px 6px 10px;
+  box-shadow: 0 2px 12px rgba(255,215,0,.12), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.price-icon { font-size: 1.1rem; filter: drop-shadow(0 0 4px rgba(255,215,0,.4)); }
+.price-current {
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
   letter-spacing: -0.5px;
-  text-shadow: 0 0 20px rgba(255,215,0,.3);
-  box-shadow: 0 2px 12px rgba(255,215,0,.1), inset 0 1px 0 rgba(255,255,255,.05);
+  text-shadow: 0 0 16px rgba(255,215,0,.3);
 }
 .price-original { font-size: .9rem; color: var(--cream-dim); text-decoration: line-through; }
 .price-badge {
