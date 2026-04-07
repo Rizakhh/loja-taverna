@@ -29,11 +29,22 @@ function initTwitchPlayer() {
 
 // ── Carregar produtos ────────────────────────────────────────
 function carregarProdutos() {
+  console.log('[Loja] Iniciando carregarProdutos...');
   const script = document.getElementById('produtos-data');
-  if (!script) { mostrarEmpty(); return; }
+  if (!script) {
+    console.error('[Loja] ERRO: script produtos-data NAO encontrado no DOM');
+    mostrarEmpty();
+    return;
+  }
+  console.log('[Loja] script encontrado, textContent:', script.textContent.substring(0, 100));
   try {
     const dados = JSON.parse(script.textContent);
-    if (!dados || dados.length === 0) { mostrarEmpty(); return; }
+    console.log('[Loja] JSON parseado, quantidade:', dados ? dados.length : 'null');
+    if (!dados || dados.length === 0) {
+      console.warn('[Loja] dados vazios ou array vazio');
+      mostrarEmpty();
+      return;
+    }
 
     todosProdutos = dados.map(p => Object.assign({}, p, {
       vendido: p.estoque === 0 || p.status === 'vendido',
@@ -41,13 +52,17 @@ function carregarProdutos() {
       isSale:  p.desconto > 0 && !p.vendido
     }));
 
+    console.log('[Loja] todosProdutos processado:', todosProdutos.length, 'itens');
+    todosProdutos.forEach(p => console.log('  -', p.id, p.nome, 'vendido:', p.vendido));
+
     todosProdutos.sort(cmpProdutos);
     paginaAtual = 1;
     totalPaginas = Math.max(1, Math.ceil(todosProdutos.length / ITEMS_PER_PAGE));
+    console.log('[Loja] Paginas:', totalPaginas);
     renderizarPagina();
     atualizarStats(todosProdutos);
   } catch (e) {
-    console.error('[Loja] Erro ao carregar produtos:', e);
+    console.error('[Loja] ERRO no parse ou renderizacao:', e);
     mostrarEmpty();
   }
 }
