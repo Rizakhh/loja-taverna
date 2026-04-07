@@ -4,77 +4,215 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taverna do Rizakh — Loja</title>
+
+  <!-- Fonts: Cinzel (medieval RPG) + Crimson Text (corpo) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Dados dos produtos (fallback estático quando API local não disponível) -->
+  <!-- Atualizado automaticamente quando chaves.txt muda -->
+  <script id="produtos-data" type="application/json">
+[
+  {"id":"steam10","nome":"Gift Card Steam R$10","preco":500,"precoFinal":500,"desconto":0,"youtubeId":"","isNovo":true,"estoque":3},
+  {"id":"steam20","nome":"Gift Card Steam R$20","preco":900,"precoFinal":810,"desconto":10,"youtubeId":"","isNovo":false,"estoque":2},
+  {"id":"eldenring","nome":"Elden Ring","preco":5000,"precoFinal":3500,"desconto":30,"youtubeId":"","isNovo":false,"estoque":1}
+]
+  </script>
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════════ HERO -->
+  <!-- ═══ HERO — Banner Principal ═══ -->
   <header class="hero">
-    <div class="hero-overlay"></div>
+    <!-- Ornamento topo -->
+    <div class="hero-ornament-top">
+      <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
+        <circle cx="100" cy="10" r="4" fill="#ffd700" opacity=".6"/>
+        <circle cx="60" cy="10" r="2" fill="#ffd700" opacity=".4"/>
+        <circle cx="140" cy="10" r="2" fill="#ffd700" opacity=".4"/>
+      </svg>
+    </div>
+
     <div class="hero-content">
-      <div class="tavern-seal">⚔️</div>
-      <h1 class="hero-title">Taverna do Rizakh</h1>
-      <p class="hero-subtitle">Gaste seus pontos de fidelidade e leve um game para casa!</p>
-      <div class="hero-cta">
+      <div class="hero-badge">🏰 LOJA OFICIAL</div>
+
+      <div class="hero-emblem">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <!-- Escudo medieval estilizado -->
+          <path d="M40 5 L65 18 L65 45 Q65 65 40 75 Q15 65 15 45 L15 18 Z"
+            fill="#1a1040" stroke="#ffd700" stroke-width="2"/>
+          <!-- Espada central -->
+          <path d="M40 14 L40 58 M32 24 L48 24" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Divisor inferior do escudo -->
+          <path d="M22 40 Q40 34 58 40" stroke="#ffd700" stroke-width="1" fill="none" opacity=".5"/>
+          <!-- Coroa no topo -->
+          <path d="M32 18 L36 12 L40 16 L44 12 L48 18" stroke="#ffd700" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="hero-title-main">Taverna do Rizakh</span>
+        <span class="hero-title-sub">Guild Shop</span>
+      </h1>
+
+      <p class="hero-tagline">
+        <span class="rune-char">⚜</span>
+        Troque seus pontos de stream por recompensas épicas
+        <span class="rune-char">⚜</span>
+      </p>
+
+      <!-- Estatísticas da loja -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-produtos">—</span>
+          <span class="stat-label">Produtos</span>
+        </div>
+        <div class="stat-divider">◆</div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-promocoes">—</span>
+          <span class="stat-label">Promoções</span>
+        </div>
+        <div class="stat-divider">◆</div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-pts-min">—</span>
+          <span class="stat-label">Menor Preço</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
         <a href="https://twitch.tv/rizakh" target="_blank" class="btn-hero-live">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
+          </svg>
           Ao Vivo na Twitch
         </a>
+        <button class="btn-hero-scroll" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+          Ver Recompensas ↓
+        </button>
       </div>
+    </div>
+
+    <!-- Ornamento bottom -->
+    <div class="hero-ornament-bottom">
+      <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 10 Q25 20 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
+      </svg>
     </div>
   </header>
 
-  <!-- ══════════════════════════════════════════════ COMO RESGATAR -->
-  <section class="instructions-section">
+  <!-- ═══ COMO PARTICIPAR ═══ -->
+  <section class="how-section">
     <div class="container">
-      <h2 class="section-title"><span class="rune">᚛</span> Como Resgatar <span class="rune">᚜</span></h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">1</div>
-          <div class="step-icon">📧</div>
-          <h3>Registre seu E-mail</h3>
-          <p>No chat da Twitch ou YouTube:<br><code>!email seuemail@exemplo.com</code></p>
+      <h2 class="section-title-decorated">
+        <span class="title-line"></span>
+        Como Participar
+        <span class="title-line"></span>
+      </h2>
+
+      <div class="steps-rpg">
+        <div class="step-rpg">
+          <div class="step-rune">Ⅰ</div>
+          <div class="step-icon-wrap">📿</div>
+          <h3>Registre-se</h3>
+          <div class="step-cmd">!email seu@email.com</div>
+          <p>Cadastre seu e-mail para receber as chaves de forma segura</p>
         </div>
-        <div class="step-card">
-          <div class="step-num">2</div>
-          <div class="step-icon">🏪</div>
-          <h3>Veja os Itens</h3>
-          <p>Use <code>!loja</code> para ver os produtos ou <code>!loja item &lt;id&gt;</code> para detalhes.</p>
+
+        <div class="step-connector">
+          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
         </div>
-        <div class="step-card">
-          <div class="step-num">3</div>
-          <div class="step-icon">💰</div>
+
+        <div class="step-rpg">
+          <div class="step-rune">Ⅱ</div>
+          <div class="step-icon-wrap">🗺️</div>
+          <h3>Explore a Loja</h3>
+          <div class="step-cmd">!loja item &lt;id&gt;</div>
+          <p>Veja detalhes de cada produto disponível na taverna</p>
+        </div>
+
+        <div class="step-connector">
+          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
+        </div>
+
+        <div class="step-rpg">
+          <div class="step-rune">Ⅲ</div>
+          <div class="step-icon-wrap">⚔️</div>
           <h3>Compre</h3>
-          <p>Use <code>!loja comprar &lt;id&gt;</code> no chat para comprar instantly!</p>
+          <div class="step-cmd">!loja comprar &lt;id&gt;</div>
+          <p>Use seus pontos de stream para adquirir recompensas épicas</p>
         </div>
-        <div class="step-card">
-          <div class="step-num">4</div>
-          <div class="step-icon">🔑</div>
-          <h3>Receba a Chave</h3>
-          <p>A chave chega no seu e-mail (e whisper se Twitch) em instantes!</p>
+
+        <div class="step-connector">
+          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
+        </div>
+
+        <div class="step-rpg">
+          <div class="step-rune">Ⅳ</div>
+          <div class="step-icon-wrap">🔑</div>
+          <h3>Receba</h3>
+          <p>Sua chave chega no e-mail e via whisper (Twitch)!</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════ LOJA -->
-  <section class="shop-section">
+  <!-- ═══ TWITCH LIVE EMBED ═══ -->
+  <section class="live-section">
     <div class="container">
-      <div class="shop-header">
-        <h2 class="section-title"><span class="rune">᚛</span> Itens à Venda <span class="rune">᚜</span></h2>
-        <div class="demo-toggle" id="demo-toggle" style="display:none">
-          <label class="toggle-label">
-            <input type="checkbox" id="demo-check" />
-            <span class="toggle-slider"></span>
-            <span class="toggle-text">Modo demonstração</span>
-          </label>
+      <h2 class="section-title-decorated">
+        <span class="title-line"></span>
+        Transmissão Ao Vivo
+        <span class="title-line"></span>
+      </h2>
+
+      <div class="player-frame">
+        <div class="player-frame-corner tl"></div>
+        <div class="player-frame-corner tr"></div>
+        <div class="player-frame-corner bl"></div>
+        <div class="player-frame-corner br"></div>
+        <div class="player-wrapper">
+          <iframe
+            id="twitch-player"
+            src=""
+            frameborder="0"
+            allowfullscreen
+            allow="autoplay; fullscreen"
+            scrolling="no">
+          </iframe>
+        </div>
+        <div class="player-live-badge">
+          <span class="live-dot"></span> AO VIVO
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ LOJA — RECOMPENSAS ═══ -->
+  <section class="shop-section" id="shop">
+    <div class="container">
+
+      <div class="shop-title-wrap">
+        <div class="ornament-divider">
+          <svg viewBox="0 0 300 30" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 15 L120 15 M180 15 L300 15" stroke="#ffd700" stroke-width="1" opacity=".4"/>
+            <path d="M130 15 L150 5 L150 25 Z M170 15 L150 5 L150 25 Z" fill="#ffd700" opacity=".5"/>
+            <circle cx="150" cy="15" r="3" fill="#ffd700" opacity=".7"/>
+          </svg>
+        </div>
+        <h2 class="shop-title">Recompensas da Guild</h2>
+        <div class="ornament-divider">
+          <svg viewBox="0 0 300 30" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 15 L120 15 M180 15 L300 15" stroke="#ffd700" stroke-width="1" opacity=".4"/>
+            <path d="M130 15 L150 5 L150 25 Z M170 15 L150 5 L150 25 Z" fill="#ffd700" opacity=".5"/>
+            <circle cx="150" cy="15" r="3" fill="#ffd700" opacity=".7"/>
+          </svg>
         </div>
       </div>
 
       <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn active" data-filter="all">Todos os Itens</button>
         <button class="filter-btn" data-filter="disponivel">Disponíveis</button>
         <button class="filter-btn" data-filter="sale">Em Promoção</button>
         <button class="filter-btn" data-filter="novo">Novidades</button>
@@ -82,40 +220,57 @@
 
       <div id="shop-grid" class="shop-grid">
         <div class="loading-state">
-          <div class="spinner"></div>
-          <p>Carregando itens da taverna...</p>
+          <div class="spinner-rune">⚜</div>
+          <p>Carregando recompensas...</p>
         </div>
       </div>
 
       <div id="empty-state" class="empty-state" style="display:none">
-        <span class="empty-icon">🏚️</span>
-        <p>Nenhum item disponível no momento.<br>Volte em breve, aventureiro!</p>
+        <div class="empty-icon">🏚️</div>
+        <p>Nenhuma recompensa disponível no momento.<br><small>Volte em breve, aventureiro!</small></p>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════ FOOTER -->
+  <!-- ═══ FOOTER ═══ -->
   <footer class="footer">
-    <div class="container">
-      <div class="footer-seal">⚔️ Taverna do Rizakh ⚔️</div>
-      <p class="footer-sub">Seus pontos valem tesouros reais!</p>
+    <div class="footer-ornament">
+      <svg viewBox="0 0 600 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0 20 Q75 5 150 20 T300 20 T450 20 T600 20" stroke="#ffd700" stroke-width="1" fill="none" opacity=".25"/>
+        <path d="M0 20 Q75 35 150 20 T300 20 T450 20 T600 20" stroke="#ffd700" stroke-width="1" fill="none" opacity=".15"/>
+      </svg>
+    </div>
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <span class="footer-seal">⚔️</span>
+        <div>
+          <div class="footer-title">Taverna do Rizakh</div>
+          <div class="footer-subtitle">Guild Shop — Sistema de Recompensas</div>
+        </div>
+      </div>
+
       <div class="footer-social">
-        <a href="https://twitch.tv/rizakh" target="_blank" class="social-btn twitch" title="Twitch">
+        <a href="https://twitch.tv/rizakh" target="_blank" class="social-btn twitch">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
           Twitch
         </a>
-        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-btn twitter" title="Twitter / X">
+        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-btn twitter">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Twitter
         </a>
-        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-btn instagram" title="Instagram">
+        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-btn instagram">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
           Instagram
         </a>
-        <a href="mailto:rizakh.rph@gmail.com" class="social-btn email" title="E-mail">
+        <a href="mailto:rizakh.rph@gmail.com" class="social-btn email">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
           E-mail
         </a>
+      </div>
+
+      <div class="footer-copyright">
+        ⚔️ Taverna do Rizakh — Todos os direitos reservados<br>
+        <small> twitch.tv/rizakh</small>
       </div>
     </div>
   </footer>
