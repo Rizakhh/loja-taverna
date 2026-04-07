@@ -11,9 +11,13 @@
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Dados fallback (usado quando /api/produtos não está disponível localmente) -->
-  <!-- Sincronizar manualmente com chaves.txt quando necessário -->
-  <script id="produtos-data" type="application/json">[]</script>
+  <!-- Produtos sincronizados com chaves.txt - atualizados automaticamente -->
+  <script id="produtos-data" type="application/json">
+[
+  {"id":"eldenring","nome":"Elden Ring","preco":10000,"precoFinal":10000,"desconto":0,"youtubeId":"E3Huy2cdih0","isNovo":false,"estoque":0},
+  {"id":"hollowknight","nome":"Hollow Knight","preco":1000,"precoFinal":1000,"desconto":0,"youtubeId":"","isNovo":true,"estoque":1}
+]
+  </script>
 </head>
 <body>
 
