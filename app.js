@@ -1,11 +1,10 @@
 /* ════════════════════════════════════════════════════════════
    Taverna do Rizakh — app.js
-   - Fonte primária: dados embutidos no HTML (id="produtos-data")
-   - API local (/api/produtos) como fallback apenas para testes locais
-   - Toggle demo REMOVIDO — site é sempre dinâmico com dados reais
+   - Fonte primária: /api/produtos (HttpListener → chaves.txt real)
+   - Fallback: dados embutidos no HTML (quando API indisponível)
    ════════════════════════════════════════════════════════════ */
 
-const API_URL  = '/api/produtos';
+const API_URL = '/api/produtos';
 const TWITCH_CHANNEL = 'rizakh';
 
 let todosProdutos = [];
@@ -26,23 +25,23 @@ function initTwitchPlayer() {
 }
 
 // ── Carregar produtos ───────────────────────────────────────
-function carregarProdutos() {
-  // 1. Tenta API local (localhost:3000 — só funciona em desenvolvimento)
-  fetch(API_URL)
-    .then(r => r.ok ? r.json() : null)
-    .then(dados => {
-      if (dados && dados.length > 0) {
-        todosProdutos = dados;
-        renderizar(todosProdutos);
-        atualizarStats(todosProdutos);
-      } else {
-        carregarDadosEstaticos();
-      }
-    })
-    .catch(() => carregarDadosEstaticos());
-}
+async function carregarProdutos() {
+  try {
+    const resp = await fetch(API_URL);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const dados = await resp.json();
 
-function carregarDadosEstaticos() {
+    if (dados && dados.length > 0) {
+      todosProdutos = dados;
+      renderizar(todosProdutos);
+      atualizarStats(todosProdutos);
+      return;
+    }
+  } catch (e) {
+    // API não disponível (Netlify) — usa fallback estático
+  }
+
+  // Fallback: dados embutidos no HTML (sincronizado manualmente)
   const script = document.getElementById('produtos-data');
   if (script) {
     try {
@@ -55,30 +54,27 @@ function carregarDadosEstaticos() {
       }
     } catch (e) { /* JSON inválido */ }
   }
-  // Nenhum dado disponível
+
+  // Nenhum dado
   const grid = document.getElementById('shop-grid');
   const empty = document.getElementById('empty-state');
   if (grid) grid.innerHTML = '';
   if (empty) empty.style.display = 'block';
 }
 
-// ── Atualizar stats do hero ──────────────────────────────────
+// ── Atualizar stats do hero ───────────────────────────────────
 function atualizarStats(produtos) {
-  const total   = produtos.length;
-  const emPromo = produtos.filter(p => p.desconto > 0).length;
-  const menorPreco = produtos.reduce((min, p) => {
-    const pf = p.precoFinal;
-    return pf < min ? pf : min;
-  }, Infinity);
+  const total     = produtos.length;
+  const emPromo   = produtos.filter(p => p.desconto > 0).length;
+  const menorPreco = produtos.reduce((min, p) => p.precoFinal < min ? p.precoFinal : min, Infinity);
 
-  const elTotal  = document.getElementById('stat-produtos');
-  const elPromo  = document.getElementById('stat-promocoes');
-  const elMenor  = document.getElementById('stat-pts-min');
+  const elTotal = document.getElementById('stat-produtos');
+  const elPromo = document.getElementById('stat-promocoes');
+  const elMenor = document.getElementById('stat-pts-min');
 
-  if (elTotal)  elTotal.textContent  = total;
-  if (elPromo)  elPromo.textContent  = emPromo;
-  if (elMenor && menorPreco !== Infinity)
-    elMenor.textContent = menorPreco + ' pts';
+  if (elTotal) elTotal.textContent = total;
+  if (elPromo) elPromo.textContent = emPromo;
+  if (elMenor && menorPreco !== Infinity) elMenor.textContent = menorPreco + ' pts';
 }
 
 // ── Filtros ─────────────────────────────────────────────────
@@ -126,8 +122,8 @@ function renderizar(lista) {
 // ── Card HTML ────────────────────────────────────────────────
 function cardHTML(p) {
   const vendido = p.estoque === 0;
-  const isNovo  = p.isNovo  && !vendido;
-  const isSale  = p.desconto > 0 && !vendido;
+  const isNovo   = p.isNovo && !vendido;
+  const isSale   = p.desconto > 0 && !vendido;
 
   let tags = '';
   if (vendido) tags += `<span class="tag tag-sold">Esgotado</span>`;
@@ -141,7 +137,7 @@ function cardHTML(p) {
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Trailer em breve</span></div>`;
 
-  let precoHtml = '';
+  let precoHtml;
   if (isSale) {
     precoHtml =
       `<div class="card-price">
@@ -153,13 +149,12 @@ function cardHTML(p) {
     precoHtml = `<div class="card-price"><span class="price-current">${p.precoFinal} pts</span></div>`;
   }
 
-  let estoqueTxt = '';
-  let estoqueClass = 'stock-ok';
+  let estoqueTxt, estoqueClass;
   if (vendido)                   { estoqueClass = 'stock-zero'; estoqueTxt = 'Sem estoque'; }
   else if (p.estoque <= 2)       { estoqueClass = 'stock-low';  estoqueTxt = `Últimas ${p.estoque} unid.`; }
-  else                            { estoqueTxt = `${p.estoque} em estoque`; }
+  else                            { estoqueClass = 'stock-ok';   estoqueTxt = `${p.estoque} em estoque`; }
 
-  const btnLabel  = vendido ? '❌ Esgotado' : '⚔️ Comprar';
+  const btnLabel = vendido ? '❌ Esgotado' : '⚔️ Comprar';
   const disabled = vendido ? 'disabled ' : '';
   const dataCmd  = `!loja comprar ${escHtml(p.id)}`;
 
@@ -173,9 +168,7 @@ function cardHTML(p) {
       ${precoHtml}
       <div class="card-stock ${estoqueClass}">${estoqueTxt}</div>
       <div class="card-buy">
-        <button class="btn-buy" data-cmd="${dataCmd}" ${disabled}>
-          ${btnLabel}
-        </button>
+        <button class="btn-buy" data-cmd="${dataCmd}" ${disabled}>${btnLabel}</button>
       </div>
     </div>
   </div>`;
@@ -194,18 +187,7 @@ function copiarComando(btn) {
   const cmd = btn.dataset.cmd;
   if (!cmd) return;
 
-  navigator.clipboard.writeText(cmd).then(() => {
-    const original = btn.innerHTML;
-    btn.innerHTML = '✅ Copiado!';
-    btn.classList.add('copied');
-    btn.disabled = true;
-    mostrarToast(`Cole no chat: ${cmd}`);
-    setTimeout(() => {
-      btn.innerHTML = original;
-      btn.classList.remove('copied');
-      btn.disabled = false;
-    }, 2500);
-  }).catch(() => {
+  const fallback = () => {
     const ta = document.createElement('textarea');
     ta.value = cmd;
     ta.style.cssText = 'position:fixed;opacity:0;left:-9999px';
@@ -213,8 +195,25 @@ function copiarComando(btn) {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(cmd).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copiado!';
+      btn.classList.add('copied');
+      btn.disabled = true;
+      mostrarToast(`Cole no chat: ${cmd}`);
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.classList.remove('copied');
+        btn.disabled = false;
+      }, 2500);
+    }).catch(fallback);
+  } else {
+    fallback();
     mostrarToast(`Cole no chat: ${cmd}`);
-  });
+  }
 }
 
 // ── Toast ───────────────────────────────────────────────────
