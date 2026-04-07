@@ -3,137 +3,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Taverna do Rizakh — Loja</title>
-
+  <title>Taverna do Rizakh — Guild Shop</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ═══ HERO ═══ -->
+  <!-- HERO -->
   <header class="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-glow"></div>
     <div class="hero-ornament-top">
-      <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
-        <circle cx="100" cy="10" r="4" fill="#ffd700" opacity=".6"/>
-        <circle cx="60" cy="10" r="2" fill="#ffd700" opacity=".4"/>
-        <circle cx="140" cy="10" r="2" fill="#ffd700" opacity=".4"/>
+      <svg viewBox="0 0 400 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0 10 Q50 0 100 10 T200 10 T300 10 T400 10" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".5"/>
+        <circle cx="200" cy="10" r="3" fill="#ffd700" opacity=".7"/>
+        <circle cx="100" cy="10" r="1.5" fill="#ffd700" opacity=".4"/>
+        <circle cx="300" cy="10" r="1.5" fill="#ffd700" opacity=".4"/>
       </svg>
     </div>
 
     <div class="hero-content">
       <div class="hero-badge">GUILD SHOP</div>
-
       <div class="hero-emblem">
-        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-          <path d="M40 5 L65 18 L65 45 Q65 65 40 75 Q15 65 15 45 L15 18 Z"
-            fill="#1a1040" stroke="#ffd700" stroke-width="2"/>
-          <path d="M40 14 L40 58 M32 24 L48 24" stroke="#c9a227" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M22 40 Q40 34 58 40" stroke="#ffd700" stroke-width="1" fill="none" opacity=".5"/>
-          <path d="M32 18 L36 12 L40 16 L44 12 L48 18" stroke="#ffd700" stroke-width="1.5" fill="none"/>
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="gemGrad" cx="50%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ffe066"/>
+              <stop offset="100%" stop-color="#c9a227"/>
+            </radialGradient>
+          </defs>
+          <path d="M50 8 L75 25 L75 60 Q75 82 50 92 Q25 82 25 60 L25 25 Z" fill="#0d0b1e" stroke="#ffd700" stroke-width="1.5"/>
+          <path d="M50 20 L50 75 M35 33 L65 33" stroke="#c9a227" stroke-width="2" stroke-linecap="round"/>
+          <path d="M25 50 Q50 42 75 50" stroke="#ffd700" stroke-width="0.8" fill="none" opacity=".6"/>
+          <path d="M35 20 L40 12 L50 16 L60 12 L65 20" stroke="#ffd700" stroke-width="1.2" fill="none"/>
+          <circle cx="50" cy="50" r="4" fill="url(#gemGrad)" opacity=".9"/>
         </svg>
       </div>
-
       <h1 class="hero-title">
         <span class="hero-title-main">Taverna do Rizakh</span>
         <span class="hero-title-sub">Guild Shop</span>
       </h1>
-
       <p class="hero-tagline">
-        <span class="rune-char">*</span>
+        <span class="rune">✦</span>
         Troque seus pontos de stream por recompensas epicas
-        <span class="rune-char">*</span>
+        <span class="rune">✦</span>
       </p>
 
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-value" id="stat-produtos">--</span>
-          <span class="stat-label">Produtos</span>
+          <span class="stat-label">Itens</span>
         </div>
-        <div class="stat-divider">+</div>
+        <div class="stat-sep">◆</div>
         <div class="stat-item">
           <span class="stat-value" id="stat-promocoes">--</span>
-          <span class="stat-label">Promocoes</span>
+          <span class="stat-label">Promos</span>
         </div>
-        <div class="stat-divider">+</div>
+        <div class="stat-sep">◆</div>
         <div class="stat-item">
           <span class="stat-value" id="stat-pts-min">--</span>
           <span class="stat-label">Menor Preco</span>
         </div>
       </div>
 
-      <div class="hero-actions">
-        <a href="https://twitch.tv/rizakh" target="_blank" class="btn-hero-live">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>
-          </svg>
-          Ao Vivo
-        </a>
-        <button class="btn-hero-scroll" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
-          Ver Recompensas
-        </button>
-      </div>
+      <button class="btn-hero-scroll" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+        <span class="btn-icon">⚔</span> Explorar Recompensas
+      </button>
     </div>
 
     <div class="hero-ornament-bottom">
-      <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 10 Q25 20 50 10 T100 10 T150 10 T200 10" stroke="#ffd700" stroke-width="1" fill="none" opacity=".4"/>
+      <svg viewBox="0 0 400 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0 10 Q50 20 100 10 T200 10 T300 10 T400 10" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".5"/>
       </svg>
     </div>
   </header>
 
-  <!-- ═══ COMO PARTICIPAR ═══ -->
+  <!-- COMO PARTICIPAR -->
   <section class="how-section">
     <div class="container">
       <h2 class="section-title-decorated">
         <span class="title-line"></span>
-        Como Participar
+        Sua Jornada Comeca Aqui
         <span class="title-line"></span>
       </h2>
-
       <div class="steps-rpg">
-        <div class="step-rpg">
-          <div class="step-rune">I</div>
-          <div class="step-icon-wrap">E</div>
-          <h3>Registre-se</h3>
+        <div class="step-card">
+          <div class="step-number">I</div>
+          <div class="step-icon">📧</div>
+          <h3>Registro</h3>
           <div class="step-cmd">!email seu@email.com</div>
-          <p>Cadastre seu e-mail para receber as chaves</p>
+          <p>Cadastre seu e-mail para receber os tesouros</p>
         </div>
-        <div class="step-connector">
-          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
-        </div>
-        <div class="step-rpg">
-          <div class="step-rune">II</div>
-          <div class="step-icon-wrap">M</div>
-          <h3>Explore</h3>
+        <div class="step-arrow">➤</div>
+        <div class="step-card">
+          <div class="step-number">II</div>
+          <div class="step-icon">⚔️</div>
+          <h3>Explorar</h3>
           <div class="step-cmd">!loja item &lt;id&gt;</div>
-          <p>Veja detalhes de cada produto</p>
+          <p>Inspecione cada item da nossa guilda</p>
         </div>
-        <div class="step-connector">
-          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
-        </div>
-        <div class="step-rpg">
-          <div class="step-rune">III</div>
-          <div class="step-icon-wrap">C</div>
-          <h3>Compre</h3>
+        <div class="step-arrow">➤</div>
+        <div class="step-card">
+          <div class="step-number">III</div>
+          <div class="step-icon">💎</div>
+          <h3>Resgatar</h3>
           <div class="step-cmd">!loja comprar &lt;id&gt;</div>
-          <p>Use seus pontos de stream</p>
-        </div>
-        <div class="step-connector">
-          <svg viewBox="0 0 40 10"><path d="M0 5 L40 5" stroke="#ffd700" stroke-width="1" stroke-dasharray="3 2" opacity=".4"/></svg>
-        </div>
-        <div class="step-rpg">
-          <div class="step-rune">IV</div>
-          <div class="step-icon-wrap">X</div>
-          <h3>Receba</h3>
-          <p>Sua chave chega por e-mail e whisper!</p>
+          <p>Troque sua honra por chaves lendarias</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══ TWITCH LIVE EMBED ═══ -->
+  <!-- TWITCH LIVE -->
   <section class="live-section">
     <div class="container">
       <h2 class="section-title-decorated">
@@ -141,49 +123,28 @@
         <a href="https://twitch.tv/rizakh" target="_blank" class="live-link">Transmissao Ao Vivo</a>
         <span class="title-line"></span>
       </h2>
-
       <div class="player-frame">
-        <div class="player-frame-corner tl"></div>
-        <div class="player-frame-corner tr"></div>
-        <div class="player-frame-corner bl"></div>
-        <div class="player-frame-corner br"></div>
+        <div class="frame-corner tl"></div>
+        <div class="frame-corner tr"></div>
+        <div class="frame-corner bl"></div>
+        <div class="frame-corner br"></div>
         <div class="player-wrapper">
-          <iframe
-            id="twitch-player"
-            src=""
-            frameborder="0"
-            allowfullscreen
-            allow="autoplay; fullscreen"
-            scrolling="no">
-          </iframe>
+          <iframe id="twitch-player" src="" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe>
         </div>
-        <div class="player-live-badge">
-          <span class="live-dot"></span> AO VIVO
+        <div class="player-badge">
+          <span class="live-dot"></span>AO VIVO
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══ LOJA ═══ -->
+  <!-- SHOP -->
   <section class="shop-section" id="shop">
     <div class="container">
-
       <div class="shop-title-wrap">
-        <div class="ornament-divider">
-          <svg viewBox="0 0 300 30" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 15 L120 15 M180 15 L300 15" stroke="#ffd700" stroke-width="1" opacity=".4"/>
-            <path d="M130 15 L150 5 L150 25 Z M170 15 L150 5 L150 25 Z" fill="#ffd700" opacity=".5"/>
-            <circle cx="150" cy="15" r="3" fill="#ffd700" opacity=".7"/>
-          </svg>
-        </div>
-        <h2 class="shop-title">Recompensas da Guild</h2>
-        <div class="ornament-divider">
-          <svg viewBox="0 0 300 30" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 15 L120 15 M180 15 L300 15" stroke="#ffd700" stroke-width="1" opacity=".4"/>
-            <path d="M130 15 L150 5 L150 25 Z M170 15 L150 5 L150 25 Z" fill="#ffd700" opacity=".5"/>
-            <circle cx="150" cy="15" r="3" fill="#ffd700" opacity=".7"/>
-          </svg>
-        </div>
+        <div class="ornament-line"></div>
+        <h2 class="shop-title">Tesouros da Taverna</h2>
+        <div class="ornament-line"></div>
       </div>
 
       <div class="filter-bar">
@@ -193,75 +154,60 @@
         <button class="filter-btn" data-filter="novo">Novidades</button>
       </div>
 
-      <div id="pagination-info" class="pagination-info" style="display:none">
-        <span id="pagination-text"></span>
-      </div>
-
+      <div id="pagination-info" class="pagination-info"></div>
       <div id="shop-grid" class="shop-grid"></div>
 
-      <div id="pagination-controls" class="pagination-controls" style="display:none">
-        <button id="btn-prev" class="btn-page" onclick="goPage(-1)">Anterior</button>
+      <div id="pagination-controls" class="pagination-controls">
+        <button id="btn-prev" class="btn-page" onclick="goPage(-1)">◄ Anterior</button>
         <div id="page-dots" class="page-dots"></div>
-        <button id="btn-next" class="btn-page" onclick="goPage(1)">Proxima</button>
+        <button id="btn-next" class="btn-page" onclick="goPage(1)">Proxima ►</button>
       </div>
 
       <div id="empty-state" class="empty-state" style="display:none">
-        <div class="empty-icon">X</div>
-        <p>Nenhuma recompensa disponivel no momento.<br><small>Volte em breve!</small></p>
+        <div class="empty-icon">🏰</div>
+        <p>A taverna esta vazia por enquanto...</p>
+        <small>Volte em breve!</small>
       </div>
     </div>
   </section>
 
-  <!-- ═══ FOOTER ═══ -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-ornament">
-      <svg viewBox="0 0 600 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0 20 Q75 5 150 20 T300 20 T450 20 T600 20" stroke="#ffd700" stroke-width="1" fill="none" opacity=".25"/>
-        <path d="M0 20 Q75 35 150 20 T300 20 T450 20 T600 20" stroke="#ffd700" stroke-width="1" fill="none" opacity=".15"/>
+      <svg viewBox="0 0 600 30" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0 15 Q75 5 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".3"/>
+        <path d="M0 15 Q75 25 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".2"/>
       </svg>
     </div>
-    <div class="container footer-content">
+    <div class="footer-inner">
       <div class="footer-brand">
-        <span class="footer-seal">+</span>
+        <svg class="footer-gem" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 4 L32 12 L32 28 Q32 36 20 40 Q8 36 8 28 L8 12 Z" fill="#0d0b1e" stroke="#ffd700" stroke-width="1"/>
+          <path d="M20 10 L20 32 M14 16 L26 16" stroke="#c9a227" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
         <div>
           <div class="footer-title">Taverna do Rizakh</div>
           <div class="footer-subtitle">Guild Shop</div>
         </div>
       </div>
-
       <div class="footer-social">
-        <a href="https://twitch.tv/rizakh" target="_blank" class="social-btn twitch">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
-          Twitch
-        </a>
-        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-btn twitter">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          Twitter
-        </a>
-        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-btn instagram">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          Instagram
-        </a>
-        <a href="mailto:rizakh.rph@gmail.com" class="social-btn email">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          E-mail
-        </a>
+        <a href="https://twitch.tv/rizakh" target="_blank" class="social-btn twitch">Twitch</a>
+        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-btn twitter">Twitter</a>
+        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-btn instagram">Instagram</a>
+        <a href="mailto:rizakh.rph@gmail.com" class="social-btn email">E-mail</a>
       </div>
-
-      <div class="footer-copyright">
-        Taverna do Rizakh - Guild Shop<br>
-        <small>twitch.tv/rizakh</small>
-      </div>
+      <div class="footer-copy">© 2026 Taverna do Rizakh — twitch.tv/rizakh</div>
     </div>
   </footer>
 
   <div id="toast" class="toast"></div>
 
-  <!-- Produtos sincronizados automaticamente pelo sync-watch.ps1 -->
   <script id="produtos-data" type="application/json">
-[]
+[
+  {"id":"0","nome":"Elden Ring","preco":10000,"precoFinal":10000,"desconto":0,"youtubeId":"E3Huy2cdih0","status":"vendido","compradoPor":"rizakh","dataCompraBr":"07/04/2026","isNovo":false,"estoque":0,"dataAdicBr":"07/04/2026"},
+  {"id":"1","nome":"Hollow Knight","preco":1000,"precoFinal":1000,"desconto":0,"youtubeId":"","status":"disponivel","compradoPor":"","dataCompraBr":"","isNovo":false,"estoque":1,"dataAdicBr":"07/04/2026"}
+]
   </script>
-
   <script src="app.js"></script>
 </body>
 </html>
