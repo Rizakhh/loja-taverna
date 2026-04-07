@@ -20,11 +20,70 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Twitch Player ────────────────────────────────────────────
+let isLive = false;
+
+// Clips do canal para quando offline (substitua pelos slugs reais dos seus clips)
+// Para obter o slug: abra um clip no navegador e copie o final da URL
+// Ex: twitch.tv/rizakh/clip/EsteEhOSlug - use apenas "EsteEhOSlug"
+const OFFLINE_CLIPS = [
+  'https://clips.twitch.tv/embed?clip=CuriousSillyDiscoursKreygasm&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=HelplessBashfulSashimiPhilosoraptor&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=EnergeticBoringShallotPogChamp&parent=localhost',
+];
+
+function getClipUrl() {
+  // Escolhe um clip aleatorio
+  const clip = OFFLINE_CLIPS[Math.floor(Math.random() * OFFLINE_CLIPS.length)];
+  const parent = window.location.hostname || 'localhost';
+  return clip.replace('parent=localhost', 'parent=' + parent) + '&autoplay=true&muted=false';
+}
+
+function setLiveBadge(live) {
+  const badge = document.getElementById('player-badge');
+  if (!badge) return;
+  isLive = live;
+  if (live) {
+    badge.innerHTML = '<span class="live-dot"></span>AO VIVO';
+    badge.style.background = 'var(--crimson)';
+  } else {
+    badge.innerHTML = '<span class="offline-dot"></span>Offline';
+    badge.style.background = '#555570';
+  }
+}
+
 function initTwitchPlayer() {
   const iframe = document.getElementById('twitch-player');
   if (!iframe) return;
   const parent = window.location.hostname || 'localhost';
-  iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=false`;
+
+  // Verifica se esta live via Helix API
+  const helixUrl = `https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL}`;
+  const headers = {
+    'Client-ID': 'jzkbrmffnw2m4akhkp4g5h4r71w0uw',
+    'Accept': 'application/json'
+  };
+
+  fetch(helixUrl, { headers })
+    .then(r => r.json())
+    .then(data => {
+      if (data.data && data.data.length > 0) {
+        // Esta live — carrega stream ao vivo
+        console.log('[Twitch] Live detectada:', data.data[0].title);
+        setLiveBadge(true);
+        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+      } else {
+        // Offline — carrega um clip aleatorio
+        console.log('[Twitch] Stream offline, carregando clip...');
+        setLiveBadge(false);
+        iframe.src = getClipUrl();
+      }
+    })
+    .catch(() => {
+      // Falhou — assume offline e tenta clip
+      console.log('[Twitch] Erro na API, assumindo offline');
+      setLiveBadge(false);
+      iframe.src = getClipUrl();
+    });
 }
 
 // ── Carregar produtos ────────────────────────────────────────
