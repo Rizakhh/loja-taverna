@@ -189,16 +189,26 @@ function cardHTML(p) {
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Price
+  // Price — formatados com separador de milhar (1.000, 10.000)
+  function fmt(n) { return n.toLocaleString('pt-BR'); }
+
   let precoHtml = '';
   if (p.isSale) {
     precoHtml = `<div class="card-price">
-      <span class="price-current">${p.precoFinal}</span>
-      <span class="price-original">${p.preco}</span>
+      <div class="price-box">
+        <span class="price-icon">💎</span>
+        <span class="price-current">${fmt(p.precoFinal)}</span>
+      </div>
+      <span class="price-original">${fmt(p.preco)}</span>
       <span class="price-badge">-${p.desconto}%</span>
     </div>`;
   } else {
-    precoHtml = `<div class="card-price"><span class="price-current">${p.precoFinal}</span></div>`;
+    precoHtml = `<div class="card-price">
+      <div class="price-box">
+        <span class="price-icon">💎</span>
+        <span class="price-current">${fmt(p.precoFinal)}</span>
+      </div>
+    </div>`;
   }
 
   // Extra info
