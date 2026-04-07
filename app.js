@@ -26,9 +26,12 @@ let isLive = false;
 // Para obter o slug: abra um clip no navegador e copie o final da URL
 // Ex: twitch.tv/rizakh/clip/EsteEhOSlug - use apenas "EsteEhOSlug"
 const OFFLINE_CLIPS = [
-  'https://clips.twitch.tv/embed?clip=CuriousSillyDiscoursKreygasm&parent=localhost',
-  'https://clips.twitch.tv/embed?clip=HelplessBashfulSashimiPhilosoraptor&parent=localhost',
-  'https://clips.twitch.tv/embed?clip=EnergeticBoringShallotPogChamp&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=FriendlyConfidentMangoPogChamp-jOjwS2W-_dFd-upn&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=AverageGoldenPigeonVoteNay&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=SmoothElegantPistachioVoteYea&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=SparklingAbrasiveEyeballJebaited&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost',
 ];
 
 function getClipUrl() {
