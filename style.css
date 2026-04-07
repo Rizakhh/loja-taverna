@@ -303,6 +303,8 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 .live-dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: livePulse 1.5s infinite; }
 @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
+.offline-dot { width: 8px; height: 8px; background: #aaa; border-radius: 50%; display: inline-block; }
+
 /* ─── SHOP SECTION ─── */
 .shop-section {
   padding: 120px 0 100px;
