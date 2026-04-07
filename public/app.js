@@ -1,18 +1,17 @@
 /* ════════════════════════════════════════════════════════════
    Taverna do Rizakh — app.js
-   - Fonte primária: dados embutidos no HTML (produtos-data)
-   - Suporta paginação (8 por página), ordenação, filtros
-   - Cards mostram: id original, preço, data adição,
-     comprador + data se vendido
+   - Fonte: dados embutidos no HTML (produtos-data)
+   - Paginação (8/página), ordenação, filtros
+   - Cards: id, nome, preço, tags, video, data, comprador
    ════════════════════════════════════════════════════════════ */
 
 const ITEMS_PER_PAGE = 8;
 const TWITCH_CHANNEL = 'rizakh';
 
-let todosProdutos   = [];
-let paginaAtual     = 1;
-let totalPaginas     = 1;
-let filtroAtivo      = 'all';
+let todosProdutos = [];
+let paginaAtual = 1;
+let totalPaginas = 1;
+let filtroAtivo = 'all';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTwitchPlayer();
@@ -31,33 +30,29 @@ function initTwitchPlayer() {
 // ── Carregar produtos ────────────────────────────────────────
 function carregarProdutos() {
   const script = document.getElementById('produtos-data');
-  if (!script) {
-    mostrarEmpty();
-    return;
-  }
+  if (!script) { mostrarEmpty(); return; }
   try {
     const dados = JSON.parse(script.textContent);
-    if (!dados || dados.length === 0) {
-      mostrarEmpty();
-      return;
-    }
-    // Parse: adiciona campos derivados
+    if (!dados || dados.length === 0) { mostrarEmpty(); return; }
+
     todosProdutos = dados.map(p => Object.assign({}, p, {
       vendido: p.estoque === 0 || p.status === 'vendido',
-      isNovo:  p.isNovo  && !p.vendido,
+      isNovo:  p.isNovo && !p.vendido,
       isSale:  p.desconto > 0 && !p.vendido
     }));
+
     todosProdutos.sort(cmpProdutos);
-    paginaAtual   = 1;
-    totalPaginas  = Math.max(1, Math.ceil(todosProdutos.length / ITEMS_PER_PAGE));
+    paginaAtual = 1;
+    totalPaginas = Math.max(1, Math.ceil(todosProdutos.length / ITEMS_PER_PAGE));
     renderizarPagina();
     atualizarStats(todosProdutos);
   } catch (e) {
+    console.error('[Loja] Erro ao carregar produtos:', e);
     mostrarEmpty();
   }
 }
 
-// Ordenação: disponiveis primeiro, depois vendidos
+// Ordenação: disponíveis primeiro, vendidos por último
 function cmpProdutos(a, b) {
   if (a.vendido !== b.vendido) return a.vendido ? 1 : -1;
   if (a.isNovo  !== b.isNovo)  return b.isNovo  ? 1 : -1;
@@ -82,15 +77,15 @@ function filtrar(lista) {
   switch (filtroAtivo) {
     case 'disponivel': return lista.filter(p => !p.vendido);
     case 'sale':       return lista.filter(p => p.isSale);
-    case 'novo':       return lista.filter(p => p.isNovo);
+    case 'novo':        return lista.filter(p => p.isNovo);
     default:           return lista;
   }
 }
 
 // ── Renderização com paginação ─────────────────────────────
 function renderizarPagina() {
-  const filtrado  = filtrar(todosProdutos);
-  totalPaginas    = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
+  const filtrado = filtrar(todosProdutos);
+  totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
   if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
   const grid  = document.getElementById('shop-grid');
@@ -99,12 +94,8 @@ function renderizarPagina() {
   if (filtrado.length === 0) {
     grid.innerHTML = '';
     if (empty) empty.style.display = 'block';
-    if (document.getElementById('pagination-controls')) {
-      document.getElementById('pagination-controls').style.display = 'none';
-    }
-    if (document.getElementById('pagination-info')) {
-      document.getElementById('pagination-info').style.display = 'none';
-    }
+    if (document.getElementById('pagination-controls')) document.getElementById('pagination-controls').style.display = 'none';
+    if (document.getElementById('pagination-info')) document.getElementById('pagination-info').style.display = 'none';
     return;
   }
 
@@ -119,29 +110,29 @@ function renderizarPagina() {
     btn.addEventListener('click', () => copiarComando(btn));
   });
 
-  // Controles de paginação
-  const info   = document.getElementById('pagination-info');
-  const ctrl   = document.getElementById('pagination-controls');
-  const txt    = document.getElementById('pagination-text');
-  const dots   = document.getElementById('page-dots');
+  // Pagination UI
+  const info  = document.getElementById('pagination-info');
+  const ctrl  = document.getElementById('pagination-controls');
+  const txt   = document.getElementById('pagination-text');
+  const dots  = document.getElementById('page-dots');
   const btnPrev = document.getElementById('btn-prev');
   const btnNext = document.getElementById('btn-next');
 
   if (info) {
     info.style.display = 'block';
-    txt.textContent = `Pagina ${paginaAtual} de ${totalPaginas} (${filtrado.length} itens)`;
+    txt.textContent = `Pagina ${paginaAtual} de ${totalPaginas} — ${filtrado.length} itens`;
   }
   if (ctrl) {
     ctrl.style.display = totalPaginas > 1 ? 'flex' : 'none';
-    btnPrev.disabled = paginaAtual <= 1;
-    btnNext.disabled = paginaAtual >= totalPaginas;
+    if (btnPrev) btnPrev.disabled = paginaAtual <= 1;
+    if (btnNext) btnNext.disabled = paginaAtual >= totalPaginas;
   }
   if (dots) {
-    let dotsHtml = '';
+    let html = '';
     for (let i = 1; i <= totalPaginas; i++) {
-      dotsHtml += `<span class="page-dot${i === paginaAtual ? ' active' : ''}" onclick="goToPage(${i})">${i}</span>`;
+      html += `<span class="page-dot${i === paginaAtual ? ' active' : ''}" onclick="goToPage(${i})">${i}</span>`;
     }
-    dots.innerHTML = dotsHtml;
+    dots.innerHTML = html;
   }
 }
 
@@ -158,15 +149,16 @@ function goToPage(n) {
 }
 
 function scrollToShop() {
-  document.getElementById('shop').scrollIntoView({ behavior: 'smooth' });
+  const shop = document.getElementById('shop');
+  if (shop) shop.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ── Card HTML ────────────────────────────────────────────────
 function cardHTML(p) {
   let tags = '';
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
-  else if (p.isNovo)  tags += '<span class="tag tag-novo">Novo</span>';
-  if (p.isSale)  tags += `<span class="tag tag-sale">${p.desconto}% OFF</span>`;
+  else if (p.isNovo) tags += '<span class="tag tag-novo">Novo</span>';
+  if (p.isSale) tags += `<span class="tag tag-sale">${p.desconto}% OFF</span>`;
 
   // Video
   const videoHtml = p.youtubeId
@@ -174,41 +166,35 @@ function cardHTML(p) {
         title="${escHtml(p.nome)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen loading="eager"></iframe>`
-    : `<div class="video-placeholder"><span>+</span><span>Sem trailer</span></div>`;
+    : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Preço
+  // Price
   let precoHtml = '';
   if (p.isSale) {
     precoHtml = `<div class="card-price">
-      <div class="price-sale-wrapper">
-        <span class="price-current">${p.precoFinal}</span>
-        <span class="price-original">${p.preco}</span>
-        <span class="price-badge">-${p.desconto}%</span>
-      </div>
+      <span class="price-current">${p.precoFinal}</span>
+      <span class="price-original">${p.preco}</span>
+      <span class="price-badge">-${p.desconto}%</span>
     </div>`;
   } else {
-    precoHtml = `<div class="card-price"><div class="price-current">${p.precoFinal}</div></div>`;
+    precoHtml = `<div class="card-price"><span class="price-current">${p.precoFinal}</span></div>`;
   }
 
-  // Info extra: data adição ou dados da compra
+  // Extra info
   let extraHtml = '';
   if (p.vendido) {
     if (p.compradoPor || p.dataCompraBr) {
-      const buyer = p.compradoPor ? escHtml(p.compradoPor) : 'Anónimo';
-      const date  = p.dataCompraBr ? p.dataCompraBr : '';
-      extraHtml = `<div class="card-extra">
-        <div class="sold-info">Vendido para ${buyer}${date ? ` em ${date}` : ''}</div>
-      </div>`;
+      const buyer = p.compradoPor ? escHtml(p.compradoPor) : 'Anonimo';
+      const date = p.dataCompraBr ? p.dataCompraBr : '';
+      extraHtml = `<div class="card-extra"><div class="sold-info">Vendido para ${buyer}${date ? ` em ${date}` : ''}</div></div>`;
     }
   } else {
     if (p.dataAdicBr) {
-      extraHtml = `<div class="card-extra">
-        <div class="added-info">Adicionado em ${p.dataAdicBr}</div>
-      </div>`;
+      extraHtml = `<div class="card-extra"><div class="added-info">Adicionado em ${p.dataAdicBr}</div></div>`;
     }
   }
 
-  // Estoque / status
+  // Stock
   let estoqueHtml = '';
   if (p.vendido) {
     estoqueHtml = '<div class="card-stock stock-zero">Vendido</div>';
@@ -220,6 +206,7 @@ function cardHTML(p) {
     estoqueHtml = '<div class="card-stock stock-zero">Esgotado</div>';
   }
 
+  // Buy button
   const btnHtml = p.vendido
     ? '<button class="btn-buy" disabled>Esgotado</button>'
     : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}">Comprar</button>`;
@@ -233,7 +220,7 @@ function cardHTML(p) {
     <div class="card-tags">${tags}</div>
     <div class="card-video">${videoHtml}</div>
     <div class="card-body">
-      <div class="card-id">${escHtml(p.id)}</div>
+      <div class="card-id">ID: ${escHtml(p.id)}</div>
       <div class="card-name">${escHtml(p.nome)}</div>
       ${precoHtml}
       ${estoqueHtml}
@@ -247,26 +234,18 @@ function cardHTML(p) {
 function copiarComando(btn) {
   const cmd = btn.dataset.cmd;
   if (!cmd) return;
-
   const fallback = () => {
     const ta = document.createElement('textarea');
-    ta.value = cmd;
-    ta.style.cssText = 'position:fixed;opacity:0;left:-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    ta.value = cmd; ta.style.cssText = 'position:fixed;opacity:0;left:-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
   };
-
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(cmd).then(() => mostarFeedback(btn)).catch(fallback);
-  } else {
-    fallback();
-    mostarFeedback(btn);
-  }
+    navigator.clipboard.writeText(cmd).then(() => mostrarFeedback(btn)).catch(fallback);
+  } else { fallback(); mostrarFeedback(btn); }
 }
 
-function mostarFeedback(btn) {
+function mostrarFeedback(btn) {
   const orig = btn.innerHTML;
   btn.innerHTML = 'Copiado!';
   btn.classList.add('copied');
@@ -292,9 +271,9 @@ function mostrarToast(msg) {
 
 // ── Stats ───────────────────────────────────────────────────
 function atualizarStats(produtos) {
-  const disp  = produtos.filter(p => !p.vendido);
+  const disp = produtos.filter(p => !p.vendido);
   const promo = disp.filter(p => p.isSale);
-  const menor  = disp.reduce((m, p) => p.precoFinal < m ? p.precoFinal : m, Infinity);
+  const menor = disp.reduce((m, p) => p.precoFinal < m ? p.precoFinal : m, Infinity);
 
   const et = document.getElementById('stat-produtos');
   const ep = document.getElementById('stat-promocoes');
@@ -306,16 +285,12 @@ function atualizarStats(produtos) {
 
 // ── Empty state ─────────────────────────────────────────────
 function mostrarEmpty() {
-  const grid  = document.getElementById('shop-grid');
+  const grid = document.getElementById('shop-grid');
   const empty = document.getElementById('empty-state');
-  if (grid)  grid.innerHTML = '';
+  if (grid) grid.innerHTML = '';
   if (empty) empty.style.display = 'block';
-  if (document.getElementById('pagination-controls')) {
-    document.getElementById('pagination-controls').style.display = 'none';
-  }
-  if (document.getElementById('pagination-info')) {
-    document.getElementById('pagination-info').style.display = 'none';
-  }
+  if (document.getElementById('pagination-controls')) document.getElementById('pagination-controls').style.display = 'none';
+  if (document.getElementById('pagination-info')) document.getElementById('pagination-info').style.display = 'none';
 }
 
 // ── Util ─────────────────────────────────────────────────────
