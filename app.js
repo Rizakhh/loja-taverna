@@ -21,10 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Twitch Player ────────────────────────────────────────────
 let isLive = false;
+let clipIndex = 0;
 
-// Clips do canal para quando offline (substitua pelos slugs reais dos seus clips)
-// Para obter o slug: abra um clip no navegador e copie o final da URL
-// Ex: twitch.tv/rizakh/clip/EsteEhOSlug - use apenas "EsteEhOSlug"
+// Clips do canal para quando offline
 const OFFLINE_CLIPS = [
   'https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost',
   'https://clips.twitch.tv/embed?clip=FriendlyConfidentMangoPogChamp-jOjwS2W-_dFd-upn&parent=localhost',
@@ -34,10 +33,9 @@ const OFFLINE_CLIPS = [
   'https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost',
 ];
 
-function getClipUrl() {
-  // Escolhe um clip aleatorio
-  const clip = OFFLINE_CLIPS[Math.floor(Math.random() * OFFLINE_CLIPS.length)];
+function getClipUrl(index) {
   const parent = window.location.hostname || 'localhost';
+  const clip = OFFLINE_CLIPS[index % OFFLINE_CLIPS.length];
   return clip.replace('parent=localhost', 'parent=' + parent) + '&autoplay=true&muted=false';
 }
 
@@ -54,39 +52,55 @@ function setLiveBadge(live) {
   }
 }
 
+function showClipNav(show) {
+  const prev = document.getElementById('clip-prev');
+  const next = document.getElementById('clip-next');
+  if (prev) prev.style.display = show ? 'flex' : 'none';
+  if (next) next.style.display = show ? 'flex' : 'none';
+}
+
+function prevClip() {
+  clipIndex = (clipIndex - 1 + OFFLINE_CLIPS.length) % OFFLINE_CLIPS.length;
+  const iframe = document.getElementById('twitch-player');
+  if (iframe) iframe.src = getClipUrl(clipIndex);
+}
+
+function nextClip() {
+  clipIndex = (clipIndex + 1) % OFFLINE_CLIPS.length;
+  const iframe = document.getElementById('twitch-player');
+  if (iframe) iframe.src = getClipUrl(clipIndex);
+}
+
 function initTwitchPlayer() {
   const iframe = document.getElementById('twitch-player');
   if (!iframe) return;
   const parent = window.location.hostname || 'localhost';
 
-  // Verifica se esta live via Helix API
-  const helixUrl = `https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL}`;
-  const headers = {
-    'Client-ID': 'jzkbrmffnw2m4akhkp4g5h4r71w0uw',
-    'Accept': 'application/json'
-  };
-
-  fetch(helixUrl, { headers })
+  // Tenta detectar live via endpoint público (sem auth obrigatório)
+  const apiUrl = `https://api.twitch.tv/api/channels/${TWITCH_CHANNEL}/access_token`;
+  fetch(apiUrl)
     .then(r => r.json())
     .then(data => {
-      if (data.data && data.data.length > 0) {
-        // Esta live — carrega stream ao vivo
-        console.log('[Twitch] Live detectada:', data.data[0].title);
+      // Se token retornado, canal existe — assume live
+      if (data.token) {
+        console.log('[Twitch] Canal ativo detectado');
         setLiveBadge(true);
         iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+        showClipNav(false);
       } else {
-        // Offline — carrega um clip aleatorio
-        console.log('[Twitch] Stream offline, carregando clip...');
-        setLiveBadge(false);
-        iframe.src = getClipUrl();
+        loadOfflineClip();
       }
     })
-    .catch(() => {
-      // Falhou — assume offline e tenta clip
-      console.log('[Twitch] Erro na API, assumindo offline');
-      setLiveBadge(false);
-      iframe.src = getClipUrl();
-    });
+    .catch(() => loadOfflineClip());
+}
+
+function loadOfflineClip() {
+  const iframe = document.getElementById('twitch-player');
+  if (!iframe) return;
+  clipIndex = Math.floor(Math.random() * OFFLINE_CLIPS.length);
+  iframe.src = getClipUrl(clipIndex);
+  setLiveBadge(false);
+  showClipNav(true);
 }
 
 // ── Carregar produtos ────────────────────────────────────────
