@@ -49,6 +49,22 @@ function setLiveBadge(live) {
     ? '<span class="live-dot"></span>AO VIVO'
     : '<span class="offline-dot"></span>Offline';
   badge.style.background = live ? 'var(--crimson)' : '#555570';
+  updateTwitchLiveIndicator(live);
+}
+
+function updateTwitchLiveIndicator(live) {
+  const twitchBtns = document.querySelectorAll('.social-btn.twitch');
+  twitchBtns.forEach(btn => {
+    const indicator = btn.querySelector('.twitch-live-indicator');
+    if (indicator) {
+      indicator.style.display = live ? 'inline-block' : 'none';
+    }
+    if (live) {
+      btn.classList.add('is-live');
+    } else {
+      btn.classList.remove('is-live');
+    }
+  });
 }
 
 function showClipNav(show) {
