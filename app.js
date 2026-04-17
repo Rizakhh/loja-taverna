@@ -7,6 +7,7 @@
    ════════════════════════════════════════════════════════════ */
 
 const ITEMS_PER_PAGE = 9;
+const TWITCH_CHANNEL = 'rizakh';
 
 let todosProdutos = [];
 let paginaAtual = 1;
