@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════
    TAVERN OF RIZAKH — Premium Fantasy Medieval RPG Theme
    Enhanced with Glassmorphism, Optimized Animations & UX
+   UI/UX Pro Max Design System - Gaming / E-commerce Dark Mode
    ═══════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Color System */
+  /* Color System - Gaming Dark Mode Palette */
   --void:         #06050f;
   --deep:         #0a0818;
   --purple-deep:  #0d0b1e;
@@ -30,6 +31,11 @@
   --steam-dark:   #1b2838;
   --steam-blue:   #66c0f4;
 
+  /* Gaming Accent Colors */
+  --accent-purple: #9146ff;
+  --accent-purple-dark: #6441a5;
+  --accent-live: #00ff00;
+
   /* Glassmorphism */
   --glass-bg:     rgba(17, 16, 37, 0.85);
   --glass-border: rgba(255, 215, 0, 0.15);
@@ -39,6 +45,9 @@
   --radius:       16px;
   --radius-sm:    8px;
 
+  /* Touch Target - Minimum 44x44px for accessibility */
+  --touch-target: 44px;
+
   /* Animations - Optimized 150-300ms */
   --transition-fast: 150ms cubic-bezier(.25,.8,.25,1);
   --transition:      200ms cubic-bezier(.25,.8,.25,1);
@@ -47,6 +56,7 @@
   /* Shadows */
   --shadow-card:  0 4px 24px rgba(0,0,0,.6), 0 0 1px rgba(255,215,0,.1);
   --shadow-gold:  0 0 30px rgba(255,215,0,.15);
+  --shadow-glow-gold: 0 0 40px rgba(255,215,0,.3);
 }
 
 html { scroll-behavior: smooth; font-size: 16px; }
@@ -58,6 +68,108 @@ body {
   line-height: 1.75;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Global animated particles - full page coverage */
+.particles-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+
+.particles-bg::before,
+.particles-bg::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: 0;
+  left: 0;
+  background-image: 
+    radial-gradient(3px 3px at 50px 50px, rgba(255,215,0,1), transparent),
+    radial-gradient(2px 2px at 100px 150px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(4px 4px at 200px 80px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(3px 3px at 300px 200px, rgba(255,215,0,1), transparent),
+    radial-gradient(2px 2px at 400px 100px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 500px 250px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 600px 50px, rgba(255,215,0,1), transparent),
+    radial-gradient(2px 2px at 700px 180px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 800px 120px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 900px 300px, rgba(255,215,0,1), transparent),
+    radial-gradient(2px 2px at 1000px 80px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 1100px 200px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 1200px 150px, rgba(255,215,0,1), transparent),
+    radial-gradient(2px 2px at 1300px 50px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 1400px 250px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 150px 350px, rgba(255,215,0,1), transparent),
+    radial-gradient(3px 3px at 350px 400px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(2px 2px at 550px 320px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 750px 450px, rgba(255,215,0,1), transparent),
+    radial-gradient(3px 3px at 950px 380px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(2px 2px at 1150px 420px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 1350px 350px, rgba(255,215,0,1), transparent),
+    radial-gradient(3px 3px at 250px 500px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(2px 2px at 450px 550px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 650px 480px, rgba(255,215,0,1), transparent),
+    radial-gradient(3px 3px at 850px 520px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(2px 2px at 1050px 500px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(4px 4px at 1250px 480px, rgba(255,215,0,1), transparent);
+  background-size: 1500px 600px;
+  animation: globalParticleFloat 40s linear infinite;
+}
+
+.particles-bg::after {
+  animation: globalParticleFloat 30s linear infinite reverse;
+  opacity: 0.8;
+  background-image: 
+    radial-gradient(2px 2px at 80px 100px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 180px 200px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 280px 50px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 380px 150px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 480px 250px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 580px 100px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 680px 200px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 780px 300px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 880px 150px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 980px 250px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 1080px 50px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 1180px 180px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 1280px 280px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 1380px 100px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 200px 380px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 400px 450px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 600px 380px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 800px 500px, rgba(255,215,0,0.8), transparent),
+    radial-gradient(2px 2px at 1000px 420px, rgba(255,215,0,0.9), transparent),
+    radial-gradient(3px 3px at 1200px 480px, rgba(255,215,0,1), transparent),
+    radial-gradient(4px 4px at 1400px 400px, rgba(255,215,0,0.8), transparent);
+  animation-delay: -15s;
+}
+
+@keyframes globalParticleFloat {
+  0% { transform: translateY(-100px) translateX(0); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { transform: translateY(calc(100vh + 200px)) translateX(100px); opacity: 0; }
+}
+
+/* Ensure main content is above particles */
+header, main, section, footer, .hero {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Hero specific adjustments */
+.hero {
+  position: relative;
+  z-index: 1;
 }
 
 /* Scrollbar Styling */
@@ -136,6 +248,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
     radial-gradient(circle at 20% 50%, rgba(255,215,0,.04) 0%, transparent 50%),
     radial-gradient(circle at 80% 30%, rgba(139,105,20,.06) 0%, transparent 40%),
     radial-gradient(circle at 50% 80%, rgba(26,20,53,.8) 0%, transparent 50%);
+  overflow: hidden;
 }
 
 .hero-glow {
@@ -154,6 +267,30 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 .hero-ornament-top { top: 0; }
 .hero-ornament-bottom { bottom: 0; }
 .hero-ornament-top svg, .hero-ornament-bottom svg { width: 100%; display: block; }
+
+/* Ornamental circles - static */
+.hero-ornament-top circle {
+  transform-origin: center;
+}
+
+/* Static dots - no animation */
+/* Dots maintain their original positions and opacity */
+
+/* Animate ornamental path */
+.hero-ornament-top path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawLine 3s ease-out forwards, pathGlow 4s ease-in-out infinite 3s;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes pathGlow {
+  0%, 100% { opacity: 0.5; filter: drop-shadow(0 0 2px rgba(255,215,0,0.3)); }
+  50% { opacity: 0.9; filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); }
+}
 
 .hero-content {
   position: relative; z-index: 2;
@@ -186,11 +323,35 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 .hero-emblem {
   width: 100px; height: 100px; margin-bottom: 28px;
   filter: drop-shadow(0 0 24px rgba(255,215,0,.5));
-  animation: floatEmblem 4s ease-in-out infinite, fadeScaleIn 0.8s ease forwards;
+  animation: emblemFadeIn 0.8s ease forwards, emblemFloat 3s ease-in-out infinite 0.8s;
+  position: relative;
 }
-@keyframes floatEmblem {
+
+.hero-emblem::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
+  animation: emblemGlowPulse 3s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes emblemFadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes emblemFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%       { transform: translateY(-12px) rotate(2deg); }
+  25% { transform: translateY(-12px) rotate(-2deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(12px) rotate(2deg); }
+}
+
+@keyframes emblemGlowPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,215,0,0.3)); }
+  50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 30px rgba(255,215,0,0.8)); }
 }
 @keyframes fadeScaleIn {
   from { opacity: 0; transform: scale(0.8); }
@@ -286,7 +447,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   box-shadow: 0 8px 40px rgba(255,215,0,.45); color: #0a0818;
 }
 .btn-hero-scroll:hover::before { transform: translateX(100%); }
-.btn-icon { font-size: 1.1em; }
+.btn-icon { display: flex; align-items: center; justify-content: center; }
 
 /* ═══════════════════════════════════════════════════════════════
    HOW TO PARTICIPATE
@@ -332,8 +493,10 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   padding: 4px 14px; border-radius: 0 0 8px 8px; letter-spacing: 2px;
 }
 
-.step-icon { font-size: 3rem; margin-bottom: 16px; display: block; transition: var(--transition); }
+.step-icon { width: 56px; height: 56px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+.step-icon svg { width: 48px; height: 48px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .step-card:hover .step-icon { transform: scale(1.1); }
+.step-card:hover .step-icon svg { stroke: var(--gold-light); }
 .step-card h3 { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); margin-bottom: 12px; }
 
 .step-cmd {
@@ -474,7 +637,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   backdrop-filter: blur(10px);
 }
 .product-card:hover {
-  transform: translateY(-12px);
+  transform: translateY(-12px) scale(1.02);
   border-color: var(--gold-dark);
   box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 30px rgba(255,215,0,.1);
 }
@@ -493,6 +656,30 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 }
 .product-card:hover::before { opacity: 1; }
 
+/* Card shine effect on hover */
+.product-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255,215,0,0.05) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg) translateY(-100%);
+  transition: transform 0.8s;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.product-card:hover::after {
+  transform: rotate(45deg) translateY(100%);
+}
+
 .card-tags { position: absolute; top: 14px; left: 14px; z-index: 3; display: flex; gap: 8px; flex-wrap: wrap; }
 .tag {
   font-family: 'Cinzel', serif; font-size: .6rem; font-weight: 700;
@@ -501,8 +688,13 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 }
 .tag:hover { transform: scale(1.05); }
 .tag-novo   { background: var(--jade); color: #fff; box-shadow: 0 2px 8px rgba(46,204,113,.4); }
-.tag-sale   { background: var(--crimson); color: #fff; box-shadow: 0 2px 8px rgba(192,57,43,.4); }
+.tag-sale   { background: var(--crimson); color: #fff; box-shadow: 0 2px 8px rgba(192,57,43,.4); animation: tagGlow 1.5s ease-in-out infinite; }
 .tag-sold   { background: var(--gray-sold); color: #aaa; }
+
+@keyframes tagGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(192,57,43,.4); }
+  50% { box-shadow: 0 4px 16px rgba(192,57,43,.8), 0 0 20px rgba(255,0,0,.3); }
+}
 
 .card-video {
   width: 100%; aspect-ratio: 16/9; background: #000; position: relative;
@@ -515,13 +707,14 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   width: 100%; height: 100%;
   background: linear-gradient(135deg, var(--purple-deep), var(--gray-dark));
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: var(--gold-dim); gap: 8px;
+  color: var(--gold-dim); gap: 12px;
   transition: var(--transition);
 }
 .video-placeholder:hover {
   background: linear-gradient(135deg, var(--purple-mid), var(--purple-soft));
 }
-.video-placeholder span { font-family: 'Cinzel', serif; font-size: .8rem; color: var(--cream-dim); }
+.video-placeholder svg { width: 40px; height: 40px; stroke: var(--gold-dim); fill: none; stroke-width: 1.5; opacity: 0.6; }
+.video-placeholder span { font-family: 'Cinzel', serif; font-size: .75rem; color: var(--cream-dim); letter-spacing: 1px; }
 
 .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
 
@@ -557,7 +750,8 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 .product-card:hover .price-box {
   box-shadow: 0 4px 20px rgba(255,215,0,.2), inset 0 1px 0 rgba(255,255,255,.1);
 }
-.price-icon { font-size: 1.1rem; filter: drop-shadow(0 0 4px rgba(255,215,0,.4)); }
+.price-icon { display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 4px rgba(255,215,0,.4)); }
+.price-icon svg { stroke: var(--gold-light); }
 .price-current {
   font-family: 'Inter', 'Space Grotesk', sans-serif;
   font-size: 1.5rem;
@@ -730,7 +924,8 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 
 /* ─── EMPTY STATE ─── */
 .empty-state { text-align: center; padding: 100px 24px; }
-.empty-icon { font-size: 4rem; display: block; margin-bottom: 20px; opacity: .4; animation: floatEmblem 3s ease-in-out infinite; }
+.empty-icon { width: 80px; height: 80px; margin: 0 auto 24px; opacity: .3; animation: floatEmblem 3s ease-in-out infinite; }
+.empty-icon svg { width: 100%; height: 100%; stroke: var(--gold-dim); fill: none; stroke-width: 1; }
 .empty-state p { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--cream-dim); margin-bottom: 8px; }
 .empty-state small { color: var(--gold-dark); font-family: 'Cinzel', serif; font-size: .8rem; }
 
@@ -743,16 +938,27 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   padding: 14px 36px; border-radius: 50px;
   font-family: 'Cinzel', serif; font-size: .88rem;
   opacity: 0; pointer-events: none; transition: all var(--transition-slow) cubic-bezier(.22,1,.36,1);
-  z-index: 9999; white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 9999; 
+  max-width: 90vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show { 
+  opacity: 1; 
+  transform: translateX(-50%) translateY(0); 
+  white-space: nowrap; 
+}
 
 /* Push Notification Toast */
 .toast.push-notification {
   background: linear-gradient(135deg, var(--purple-deep), var(--purple-mid));
   border: 1px solid var(--gold);
-  max-width: 400px;
-  text-align: left;
+  max-width: 90vw;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .toast.push-notification.show {
   animation: toastSlideIn var(--transition-slow) ease, toastPulse 2s ease-in-out infinite;

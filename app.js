@@ -253,7 +253,7 @@ function cardHTML(p) {
   let tags = '';
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
   else if (p.isNovo) tags += '<span class="tag tag-novo">Novo</span>';
-  if (p.isSale) tags += `<span class="tag tag-sale">${p.desconto}% OFF</span>`;
+  if (p.isSale) tags += '<span class="tag tag-sale">Sale</span>';
 
   // Video
   const videoHtml = p.youtubeId
@@ -261,7 +261,12 @@ function cardHTML(p) {
         title="${escHtml(p.nome)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen loading="eager"></iframe>`
-    : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
+    : `<div class="video-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <span>Sem trailer</span>
+      </div>`;
 
   // Steam button — link direto por AppId ou busca
   const steamHref = p.steamAppId
@@ -280,7 +285,14 @@ function cardHTML(p) {
   if (p.isSale) {
     precoHtml = `<div class="card-price">
       <div class="price-box">
-        <span class="price-icon">💎</span>
+        <span class="price-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.5 9.5c0-1.1.9-2 2-2h1a2 2 0 0 1 0 4h-1a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4h-1a2 2 0 0 1-2-2"/>
+            <path d="M12 6v2"/>
+            <path d="M12 16v2"/>
+          </svg>
+        </span>
         <span class="price-current">${fmt(p.precoFinal)}</span>
       </div>
       <span class="price-original">${fmt(p.preco)}</span>
@@ -289,7 +301,14 @@ function cardHTML(p) {
   } else {
     precoHtml = `<div class="card-price">
       <div class="price-box">
-        <span class="price-icon">💎</span>
+        <span class="price-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.5 9.5c0-1.1.9-2 2-2h1a2 2 0 0 1 0 4h-1a2 2 0 0 0 0 4h1a2 2 0 0 1 0 4h-1a2 2 0 0 1-2-2"/>
+            <path d="M12 6v2"/>
+            <path d="M12 16v2"/>
+          </svg>
+        </span>
         <span class="price-current">${fmt(p.precoFinal)}</span>
       </div>
     </div>`;
@@ -325,8 +344,19 @@ function cardHTML(p) {
 
   // Buy button
   const btnHtml = p.vendido
-    ? '<button class="btn-buy" disabled><span>🔒</span> Esgotado</button>'
-    : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}"><span>🔑</span> Comprar</button>`;
+    ? `<button class="btn-buy" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Esgotado
+      </button>`
+    : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+        </svg>
+        Comprar
+      </button>`;
 
   const filterAttr = ['all'];
   if (!p.vendido) filterAttr.push('disponivel');
@@ -467,7 +497,17 @@ function mostrarEmpty() {
   const grid = document.getElementById('shop-grid');
   const empty = document.getElementById('empty-state');
   if (grid) grid.innerHTML = '';
-  if (empty) empty.style.display = 'block';
+  if (empty) {
+    empty.style.display = 'block';
+    // Update empty icon to SVG
+    const emptyIcon = empty.querySelector('.empty-icon');
+    if (emptyIcon) {
+      emptyIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>`;
+    }
+  }
   const pgCtrl = document.getElementById('pagination-controls');
   const pgInfo = document.getElementById('pagination-info');
   if (pgCtrl) pgCtrl.style.display = 'none';
