@@ -7,7 +7,6 @@
    ════════════════════════════════════════════════════════════ */
 
 const ITEMS_PER_PAGE = 9;
-const TWITCH_CHANNEL = 'rizakh';
 
 let todosProdutos = [];
 let paginaAtual = 1;
@@ -258,7 +257,7 @@ function cardHTML(p) {
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Steam button — link direto por AppId ou busca por nome
+  // Steam button — link direto por AppId ou busca
   const steamHref = p.steamAppId
     ? `https://store.steampowered.com/app/${p.steamAppId}`
     : `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
@@ -293,17 +292,19 @@ function cardHTML(p) {
     </div>`;
   }
 
-  // Extra info
+  // Extra info — adicionado em | vendido para | historico
   let extraHtml = '';
   if (p.vendido) {
     if (p.compradoPor || p.dataCompraBr) {
       const buyer = p.compradoPor ? escHtml(p.compradoPor) : 'Anonimo';
       const date = p.dataCompraBr ? p.dataCompraBr : '';
-      extraHtml = `<div class="card-extra"><div class="sold-info">Vendido para ${buyer}${date ? ` em ${date}` : ''}</div></div>`;
+      extraHtml = `<div class="card-extra sold-info">Vendido para ${buyer}${date ? ` em ${date}` : ''}</div>`;
     }
   } else {
-    if (p.dataAdicBr) {
-      extraHtml = `<div class="card-extra"><div class="added-info">Adicionado em ${p.dataAdicBr}</div></div>`;
+    const addedLine = p.dataAdicBr ? `<span class="added-info">Adicionado ${p.dataAdicBr}</span>` : '';
+    const histBtn = `<button class="hist-btn" onclick="toggleHistory('${p.id}')">Histórico</button>`;
+    if (addedLine || histBtn) {
+      extraHtml = `<div class="card-footer-row">${addedLine}${histBtn}</div>`;
     }
   }
 
@@ -339,7 +340,6 @@ function cardHTML(p) {
       </div>
       <div class="card-name">${escHtml(p.nome)}</div>
       ${precoHtml}
-      ${historicoHtml}
       ${estoqueHtml}
       ${extraHtml}
       <div class="card-buy">${btnHtml}</div>
@@ -347,28 +347,48 @@ function cardHTML(p) {
   </div>`;
 }
 
-// ── Histórico de preços (tooltip no hover) ──────────────────
-function renderizarHistorico(p) {
-  const entries = historicoPrecos[p.id];
-  if (!entries || entries.length === 0) return '';
+// ── Toggle histórico de preços (modal) ───────────────────────
+function toggleHistory(id) {
+  const existing = document.getElementById('hist-modal-' + id);
+  if (existing) { existing.remove(); return; }
 
-  // Pega até 5 entradas mais recentes
-  const ultimas = entries.slice(-5).reverse();
-  const linhas = ultimas.map(e => {
-    const data = e.data || '';
+  const p = todosProdutos.find(prod => prod.id == id);
+  if (!p) return;
+
+  const entries = historicoPrecos[p.id] || [];
+  const ultimas = entries.slice(-10).reverse();
+
+  const rows = ultimas.map(e => {
+    const data = e.data || '—';
     const preco = (e.preco || 0).toLocaleString('pt-BR');
-    const off = e.desconto > 0 ? ` <span class="hist-off">(${e.desconto}% OFF)</span>` : '';
-    return `<div class="hist-row"><span class="hist-data">${data}</span><span class="hist-preco">${preco}${off}</span></div>`;
+    const off = e.desconto > 0 ? ` <span class="hist-off">(${e.desconto}% off)</span>` : '';
+    return `<tr><td class="hist-data">${data}</td><td class="hist-preco">${preco}${off}</td></tr>`;
   }).join('');
 
-  return `<div class="price-history-wrap">
-    <div class="price-history-trigger">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Historico de precos
-    </div>
-    <div class="price-history-popup">${linhas || '<div class="hist-empty">Sem registros</div>'}</div>
-  </div>`;
+  const tbody = rows || '<tr><td colspan="2" class="hist-empty">Sem registros</td></tr>';
+
+  const modal = document.createElement('div');
+  modal.id = 'hist-modal-' + id;
+  modal.className = 'hist-modal';
+  modal.innerHTML = `
+    <div class="hist-modal-content">
+      <div class="hist-modal-header">
+        <span>Histórico de Preços — ${escHtml(p.nome)}</span>
+        <button class="hist-modal-close" onclick="toggleHistory('${id}')">×</button>
+      </div>
+      <table class="hist-table">
+        <thead><tr><th>Data</th><th>Preço</th></tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
+
+// Fecha modal ao clicar fora
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('hist-modal')) e.target.remove();
+});
 
 // ── Copiar comando ───────────────────────────────────────────
 function copiarComando(btn) {
