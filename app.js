@@ -74,21 +74,10 @@ function initTwitchPlayer() {
   const iframe = document.getElementById('twitch-player');
   if (!iframe) return;
   const parent = window.location.hostname || 'localhost';
-
-  const apiUrl = `https://api.twitch.tv/api/channels/${TWITCH_CHANNEL}/access_token`;
-  fetch(apiUrl)
-    .then(r => r.json())
-    .then(data => {
-      if (data.token) {
-        console.log('[Twitch] Canal ativo detectado');
-        setLiveBadge(true);
-        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
-        showClipNav(false);
-      } else {
-        loadOfflineClip();
-      }
-    })
-    .catch(() => loadOfflineClip());
+  // O embed da Twitch detecta live/offline automaticamente — sem CORS
+  iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+  setLiveBadge(false); // Assume offline até o player indicar
+  showClipNav(true);
 }
 
 function loadOfflineClip() {
@@ -266,9 +255,6 @@ function cardHTML(p) {
     <svg class="steam-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><use href="#steam-icon"/></svg>
     Ver na Loja
   </a>`;
-
-  // Histórico de preços no hover
-  const historicoHtml = renderizarHistorico(p);
 
   // Formatacao
   function fmt(n) { return n.toLocaleString('pt-BR'); }
