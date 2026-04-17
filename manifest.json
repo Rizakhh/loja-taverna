@@ -1,0 +1,21 @@
+{
+  "name": "Taverna do Rizakh - Guild Shop",
+  "short_name": "Taverna Rizakh",
+  "description": "Twitch Guild Shop - Troque pontos de stream por recompensas épicas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06050f",
+  "theme_color": "#ffd700",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%2306050f'/><path d='M256 80 L384 160 L384 352 Q384 448 256 512 Q128 448 128 352 L128 160 Z' fill='%230d0b1e' stroke='%23ffd700' stroke-width='8'/><path d='M256 160 L256 400 M192 240 L320 240' stroke='%23c9a227' stroke-width='12' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}
