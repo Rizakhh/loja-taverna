@@ -1,8 +1,9 @@
 /* ════════════════════════════════════════════════════════════
    Taverna do Rizakh — app.js
    - Fonte: dados embutidos no HTML (produtos-data)
-   - Paginação (8/página), ordenação, filtros
-   - Cards: id, nome, preço, tags, video, data, comprador
+   - Paginação (9/página), ordenação, filtros
+   - Cards: id, nome, preço, tags, video, data, comprador, steam
+   - Histórico de preços no hover
    ════════════════════════════════════════════════════════════ */
 
 const ITEMS_PER_PAGE = 9;
@@ -12,9 +13,11 @@ let todosProdutos = [];
 let paginaAtual = 1;
 let totalPaginas = 1;
 let filtroAtivo = 'all';
+let historicoPrecos = {}; // { id: [ {data, preco, desconto}, ... ] }
 
 document.addEventListener('DOMContentLoaded', () => {
   initTwitchPlayer();
+  carregarHistorico();
   carregarProdutos();
   configurarFiltros();
 });
@@ -23,12 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
 let isLive = false;
 let clipIndex = 0;
 
-// Clips do canal para quando offline
 const OFFLINE_CLIPS = [
   'https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost',
   'https://clips.twitch.tv/embed?clip=FriendlyConfidentMangoPogChamp-jOjwS2W-_dFd-upn&parent=localhost',
   'https://clips.twitch.tv/embed?clip=AverageGoldenPigeonVoteNay&parent=localhost',
-  'https://clips.twitch.tv/embed?clip=SmoothElegantPistachioVoteYea&parent=localhost',
+  'https://clips.twitch.tv/embed?clip=SmoothElegantPistonVoteYea&parent=localhost',
   'https://clips.twitch.tv/embed?clip=SparklingAbrasiveEyeballJebaited&parent=localhost',
   'https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost',
 ];
@@ -43,13 +45,10 @@ function setLiveBadge(live) {
   const badge = document.getElementById('player-badge');
   if (!badge) return;
   isLive = live;
-  if (live) {
-    badge.innerHTML = '<span class="live-dot"></span>AO VIVO';
-    badge.style.background = 'var(--crimson)';
-  } else {
-    badge.innerHTML = '<span class="offline-dot"></span>Offline';
-    badge.style.background = '#555570';
-  }
+  badge.innerHTML = live
+    ? '<span class="live-dot"></span>AO VIVO'
+    : '<span class="offline-dot"></span>Offline';
+  badge.style.background = live ? 'var(--crimson)' : '#555570';
 }
 
 function showClipNav(show) {
@@ -76,12 +75,10 @@ function initTwitchPlayer() {
   if (!iframe) return;
   const parent = window.location.hostname || 'localhost';
 
-  // Tenta detectar live via endpoint público (sem auth obrigatório)
   const apiUrl = `https://api.twitch.tv/api/channels/${TWITCH_CHANNEL}/access_token`;
   fetch(apiUrl)
     .then(r => r.json())
     .then(data => {
-      // Se token retornado, canal existe — assume live
       if (data.token) {
         console.log('[Twitch] Canal ativo detectado');
         setLiveBadge(true);
@@ -103,48 +100,45 @@ function loadOfflineClip() {
   showClipNav(true);
 }
 
-// ── Carregar produtos ────────────────────────────────────────
+// ── Histórico de preços ─────────────────────────────────────
+function carregarHistorico() {
+  const script = document.getElementById('preco-history-data');
+  if (!script) return;
+  try {
+    historicoPrecos = JSON.parse(script.textContent || '{}');
+    console.log('[Loja] Historico carregado:', Object.keys(historicoPrecos).length, 'itens');
+  } catch (e) {
+    historicoPrecos = {};
+  }
+}
+
+// ── Carregar produtos ───────────────────────────────────────
 function carregarProdutos() {
   console.log('[Loja] Iniciando carregarProdutos...');
   const script = document.getElementById('produtos-data');
-  if (!script) {
-    console.error('[Loja] ERRO: script produtos-data NAO encontrado no DOM');
-    mostrarEmpty();
-    return;
-  }
-  console.log('[Loja] script encontrado, textContent:', script.textContent.substring(0, 100));
+  if (!script) { mostrarEmpty(); return; }
   try {
     const dados = JSON.parse(script.textContent);
-    console.log('[Loja] JSON parseado, quantidade:', dados ? dados.length : 'null');
-    if (!dados || dados.length === 0) {
-      console.warn('[Loja] dados vazios ou array vazio');
-      mostrarEmpty();
-      return;
-    }
+    if (!dados || dados.length === 0) { mostrarEmpty(); return; }
 
     todosProdutos = dados.map(p => Object.assign({}, p, {
-      vendido: p.estoque === 0 || p.status === 'vendido',
-      isNovo:  p.isNovo && !p.vendido,
-      isSale:  p.desconto > 0 && !p.vendido
+      vendido:  p.estoque === 0 || p.status === 'vendido',
+      isNovo:   p.isNovo && !p.vendido,
+      isSale:   p.desconto > 0 && !p.vendido
     }));
-
-    console.log('[Loja] todosProdutos processado:', todosProdutos.length, 'itens');
-    todosProdutos.forEach(p => console.log('  -', p.id, p.nome, 'vendido:', p.vendido));
 
     todosProdutos.sort(cmpProdutos);
     paginaAtual = 1;
     totalPaginas = Math.max(1, Math.ceil(todosProdutos.length / ITEMS_PER_PAGE));
-    console.log('[Loja] Paginas:', totalPaginas);
     renderizarPagina();
     atualizarStats(todosProdutos);
     atualizarFiltros();
   } catch (e) {
-    console.error('[Loja] ERRO no parse ou renderizacao:', e);
+    console.error('[Loja] ERRO:', e);
     mostrarEmpty();
   }
 }
 
-// Ordenação: disponíveis primeiro, vendidos por último
 function cmpProdutos(a, b) {
   if (a.vendido !== b.vendido) return a.vendido ? 1 : -1;
   if (a.isNovo  !== b.isNovo)  return b.isNovo  ? 1 : -1;
@@ -170,12 +164,12 @@ function filtrar(lista) {
     case 'disponivel': return lista.filter(p => !p.vendido);
     case 'sale':       return lista.filter(p => p.isSale);
     case 'novo':       return lista.filter(p => p.isNovo);
-    case 'vendido':    return lista.filter(p => p.vendido);
-    default:           return lista;
+    case 'vendido':     return lista.filter(p => p.vendido);
+    default:            return lista;
   }
 }
 
-// ── Renderização com paginação ─────────────────────────────
+// ── Renderização ────────────────────────────────────────────
 function renderizarPagina() {
   const filtrado = filtrar(todosProdutos);
   totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
@@ -205,7 +199,6 @@ function renderizarPagina() {
     btn.addEventListener('click', () => copiarComando(btn));
   });
 
-  // Pagination UI — busca por ID único (fora do grid)
   const info   = document.getElementById('pagination-info');
   const txt    = document.getElementById('pagination-text');
   const dots   = document.getElementById('page-dots');
@@ -250,7 +243,7 @@ function scrollToShop() {
   if (shop) shop.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ── Card HTML ────────────────────────────────────────────────
+// ── Card HTML ───────────────────────────────────────────────
 function cardHTML(p) {
   let tags = '';
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
@@ -259,20 +252,28 @@ function cardHTML(p) {
 
   // Video
   const videoHtml = p.youtubeId
-    ? `<iframe src="https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1&enablejsapi=1"
+    ? `<iframe src="https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1"
         title="${escHtml(p.nome)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowfullscreen loading="eager"></iframe>`
     : `<div class="video-placeholder"><span>🎮</span><span>Sem trailer</span></div>`;
 
-  // Steam store button — sempre visivel
-  const steamSearchUrl = `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
-  const steamBtnHtml = `<a class="steam-store-btn" href="${steamSearchUrl}" target="_blank" rel="noopener">🏪 Ver na Loja</a>`;
+  // Steam button — link direto por AppId ou busca por nome
+  const steamHref = p.steamAppId
+    ? `https://store.steampowered.com/app/${p.steamAppId}`
+    : `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
+  const steamBtnHtml = `<a class="steam-store-btn" href="${steamHref}" target="_blank" rel="noopener" title="${p.steamAppId ? 'Ver na Steam' : 'Buscar na Steam'}">
+    <svg class="steam-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><use href="#steam-icon"/></svg>
+    Ver na Loja
+  </a>`;
 
-  // Formatacao de numero (1.000, 10.000)
+  // Histórico de preços no hover
+  const historicoHtml = renderizarHistorico(p);
+
+  // Formatacao
   function fmt(n) { return n.toLocaleString('pt-BR'); }
 
-  // Price
+  // Preço
   let precoHtml = '';
   if (p.isSale) {
     precoHtml = `<div class="card-price">
@@ -328,7 +329,7 @@ function cardHTML(p) {
   if (p.isSale)   filterAttr.push('sale');
   if (p.isNovo)   filterAttr.push('novo');
 
-  return `<div class="product-card${p.vendido ? ' sold' : ''}" data-filter="${filterAttr.join(' ')}">
+  return `<div class="product-card${p.vendido ? ' sold' : ''}" data-filter="${filterAttr.join(' ')}" data-id="${escHtml(p.id)}">
     <div class="card-tags">${tags}</div>
     <div class="card-video">${videoHtml}</div>
     <div class="card-body">
@@ -338,10 +339,34 @@ function cardHTML(p) {
       </div>
       <div class="card-name">${escHtml(p.nome)}</div>
       ${precoHtml}
+      ${historicoHtml}
       ${estoqueHtml}
       ${extraHtml}
       <div class="card-buy">${btnHtml}</div>
     </div>
+  </div>`;
+}
+
+// ── Histórico de preços (tooltip no hover) ──────────────────
+function renderizarHistorico(p) {
+  const entries = historicoPrecos[p.id];
+  if (!entries || entries.length === 0) return '';
+
+  // Pega até 5 entradas mais recentes
+  const ultimas = entries.slice(-5).reverse();
+  const linhas = ultimas.map(e => {
+    const data = e.data || '';
+    const preco = (e.preco || 0).toLocaleString('pt-BR');
+    const off = e.desconto > 0 ? ` <span class="hist-off">(${e.desconto}% OFF)</span>` : '';
+    return `<div class="hist-row"><span class="hist-data">${data}</span><span class="hist-preco">${preco}${off}</span></div>`;
+  }).join('');
+
+  return `<div class="price-history-wrap">
+    <div class="price-history-trigger">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Historico de precos
+    </div>
+    <div class="price-history-popup">${linhas || '<div class="hist-empty">Sem registros</div>'}</div>
   </div>`;
 }
 
@@ -398,7 +423,7 @@ function atualizarStats(produtos) {
   if (em && menor !== Infinity) em.textContent = menor;
 }
 
-// ── Atualizar contadores dos filtros ───────────────────────
+// ── Filtros ─────────────────────────────────────────────────
 function atualizarFiltros() {
   const total     = todosProdutos.length;
   const disp      = todosProdutos.filter(p => !p.vendido).length;
@@ -410,9 +435,7 @@ function atualizarFiltros() {
 
   document.querySelectorAll('.filter-count').forEach(el => {
     const key = el.dataset.count;
-    if (key && counts[key] !== undefined) {
-      el.textContent = counts[key];
-    }
+    if (key && counts[key] !== undefined) el.textContent = counts[key];
   });
 }
 
@@ -422,8 +445,10 @@ function mostrarEmpty() {
   const empty = document.getElementById('empty-state');
   if (grid) grid.innerHTML = '';
   if (empty) empty.style.display = 'block';
-  if (document.getElementById('pagination-controls')) document.getElementById('pagination-controls').style.display = 'none';
-  if (document.getElementById('pagination-info')) document.getElementById('pagination-info').style.display = 'none';
+  const pgCtrl = document.getElementById('pagination-controls');
+  const pgInfo = document.getElementById('pagination-info');
+  if (pgCtrl) pgCtrl.style.display = 'none';
+  if (pgInfo) pgInfo.style.display = 'none';
 }
 
 // ── Util ─────────────────────────────────────────────────────
