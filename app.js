@@ -1447,6 +1447,155 @@ function initContactForm() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// VISUAL ENHANCEMENTS - All premium effects
+// ═══════════════════════════════════════════════════════════════
+function initVisualEnhancements() {
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+  }
+
+  initNavScroll();
+  initEmblemPulse();
+  initStatCounters();
+  initStepStagger();
+  initFooterGlow();
+  initFloatingRunes();
+  initHeroParallaxLayers();
+  observeDynamicCards();
+}
+
+function initNavScroll() {
+  const nav = document.querySelector('.main-nav');
+  if (!nav) return;
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('nav-scrolled', window.scrollY > 80);
+  }, { passive: true });
+}
+
+function initEmblemPulse() {
+  const emblem = document.querySelector('.hero-emblem');
+  if (!emblem || !window.gsap) return;
+  gsap.to(emblem, {
+    filter: 'drop-shadow(0 0 30px rgba(255, 215, 0, 0.8))',
+    scale: 1.03,
+    duration: 2,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
+}
+
+function initStatCounters() {
+  const statEls = document.querySelectorAll('.stat-value');
+  if (!statEls.length || !window.gsap || !window.ScrollTrigger) return;
+  statEls.forEach(el => { el.dataset.counted = 'false'; });
+  ScrollTrigger.create({
+    trigger: '.hero-stats',
+    start: 'top 90%',
+    once: true,
+    onEnter: () => {
+      statEls.forEach(el => {
+        const target = parseInt(el.textContent);
+        if (isNaN(target) || el.dataset.counted === 'true') return;
+        el.dataset.counted = 'true';
+        gsap.fromTo(el, { textContent: 0 }, {
+          textContent: target,
+          duration: 1.5,
+          ease: 'power2.out',
+          snap: { textContent: 1 },
+          onUpdate: function() {
+            el.textContent = Math.round(gsap.getProperty(el, 'textContent')).toLocaleString('pt-BR');
+          }
+        });
+      });
+    }
+  });
+}
+
+function initStepStagger() {
+  const steps = document.querySelectorAll('.step-card');
+  if (!steps.length || !window.gsap || !window.ScrollTrigger) return;
+  gsap.from(steps, {
+    scrollTrigger: {
+      trigger: '.steps-rpg',
+      start: 'top 85%',
+      toggleActions: 'play none none none'
+    },
+    y: 60,
+    opacity: 0,
+    scale: 0.9,
+    duration: 0.7,
+    stagger: 0.15,
+    ease: 'back.out(1.2)'
+  });
+}
+
+function initFooterGlow() {
+  const gem = document.querySelector('.footer-gem');
+  if (!gem || !window.gsap) return;
+  gsap.to(gem, {
+    filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.7))',
+    duration: 2.5,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut'
+  });
+}
+
+function initFloatingRunes() {
+  const runes = ['✦', '◈', '⬡', '◇', '✧', '⟡', '⬢', '◆'];
+  const container = document.createElement('div');
+  container.className = 'floating-runes';
+  container.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(container);
+  for (let i = 0; i < 12; i++) {
+    const rune = document.createElement('span');
+    rune.className = 'rune-particle';
+    rune.textContent = runes[Math.floor(Math.random() * runes.length)];
+    rune.style.left = Math.random() * 100 + '%';
+    rune.style.animationDuration = (15 + Math.random() * 25) + 's';
+    rune.style.animationDelay = (Math.random() * 20) + 's';
+    rune.style.fontSize = (0.6 + Math.random() * 0.8) + 'rem';
+    rune.style.opacity = 0.03 + Math.random() * 0.06;
+    container.appendChild(rune);
+  }
+}
+
+function initHeroParallaxLayers() {
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.to('.hero-badge', {
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 },
+    y: 80, opacity: 0.3
+  });
+  gsap.to('.hero-title', {
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 },
+    y: 120, opacity: 0.2
+  });
+  gsap.to('.hero-tagline', {
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
+    y: 160, opacity: 0.1
+  });
+  gsap.to('.hero-stats', {
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
+    y: 200, opacity: 0
+  });
+}
+
+function observeDynamicCards() {
+  const grid = document.getElementById('shop-grid');
+  if (!grid || !window.gsap) return;
+  const observer = new MutationObserver(() => {
+    const cards = grid.querySelectorAll('.product-card');
+    cards.forEach((card, i) => {
+      if (!card.dataset.revealed) {
+        card.dataset.revealed = 'true';
+        gsap.from(card, { y: 40, opacity: 0, duration: 0.6, delay: i * 0.05, ease: 'power2.out' });
+      }
+    });
+  });
+  observer.observe(grid, { childList: true });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Register Service Worker for PWA
   if ('serviceWorker' in navigator) {
@@ -1468,4 +1617,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initAdvancedSearch();
   initContactForm();
+  initVisualEnhancements();
 });

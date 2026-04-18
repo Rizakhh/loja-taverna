@@ -1,20 +1,47 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Taverna do Rizakh — Guild Shop</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#ffd700" />
+  <meta name="description" content="Twitch Guild Shop - Troque pontos de stream por recompensas epicas" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Taverna Rizakh" />
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- PWA Icons -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%2306050f'/><path d='M256 80 L384 160 L384 352 Q384 448 256 512 Q128 448 128 352 L128 160 Z' fill='%230d0b1e' stroke='%23ffd700' stroke-width='8'/><path d='M256 160 L256 400 M192 240 L320 240' stroke='%23c9a227' stroke-width='12' stroke-linecap='round'/></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%2306050f'/><path d='M256 80 L384 160 L384 352 Q384 448 256 512 Q128 448 128 352 L128 160 Z' fill='%230d0b1e' stroke='%23ffd700' stroke-width='8'/><path d='M256 160 L256 400 M192 240 L320 240' stroke='%23c9a227' stroke-width='12' stroke-linecap='round'/></svg>" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+  <!-- NAVIGATION -->
+  <nav class="main-nav">
+    <a href="#shop" class="nav-link">Loja</a>
+    <a href="#how" class="nav-link">Como Participar</a>
+    <a href="#live" class="nav-link">Live</a>
+    <a href="#contato" class="nav-link">Contato</a>
+  </nav>
+
   <!-- HERO -->
   <header class="hero">
-    <div class="hero-bg-pattern"></div>
     <div class="hero-glow"></div>
+    <div class="hero-bg-pattern"></div>
     <div class="hero-ornament-top">
       <svg viewBox="0 0 400 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <path d="M0 10 Q50 0 100 10 T200 10 T300 10 T400 10" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".5"/>
@@ -68,7 +95,8 @@
       </div>
 
       <button class="btn-hero-scroll" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
-        <span class="btn-icon">⚔</span> Explorar Recompensas
+        <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Explorar Recompensas
       </button>
     </div>
 
@@ -80,7 +108,7 @@
   </header>
 
   <!-- COMO PARTICIPAR -->
-  <section class="how-section">
+  <section class="how-section" id="how">
     <div class="container">
       <h2 class="section-title-decorated">
         <span class="title-line"></span>
@@ -90,7 +118,12 @@
       <div class="steps-rpg">
         <div class="step-card">
           <div class="step-number">I</div>
-          <div class="step-icon">📧</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </div>
           <h3>Registro</h3>
           <div class="step-cmd">!email seu@email.com</div>
           <p>Cadastre seu e-mail para receber os tesouros</p>
@@ -98,7 +131,12 @@
         <div class="step-arrow">➤</div>
         <div class="step-card">
           <div class="step-number">II</div>
-          <div class="step-icon">⚔️</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
           <h3>Explorar</h3>
           <div class="step-cmd">!loja item &lt;id&gt;</div>
           <p>Inspecione cada item da nossa guilda</p>
@@ -106,7 +144,11 @@
         <div class="step-arrow">➤</div>
         <div class="step-card">
           <div class="step-number">III</div>
-          <div class="step-icon">💎</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+            </svg>
+          </div>
           <h3>Resgatar</h3>
           <div class="step-cmd">!loja comprar &lt;id&gt;</div>
           <p>Troque sua honra por chaves lendarias</p>
@@ -114,7 +156,15 @@
         <div class="step-arrow">➤</div>
         <div class="step-card">
           <div class="step-number">IV</div>
-          <div class="step-icon">📬</div>
+          <div class="step-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10Z"/>
+              <path d="M3 10V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/>
+              <path d="M12 4v6"/>
+              <path d="M8 4v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4"/>
+              <path d="M10 14v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2v-2"/>
+            </svg>
+          </div>
           <h3>Receber</h3>
           <div class="step-cmd">Aguardar</div>
           <p>Receba sua chave diretamente no seu e-mail cadastrado</p>
@@ -124,7 +174,7 @@
   </section>
 
   <!-- TWITCH LIVE -->
-  <section class="live-section">
+  <section class="live-section" id="live">
     <div class="container">
       <h2 class="section-title-decorated">
         <span class="title-line"></span>
@@ -157,6 +207,31 @@
         <div class="ornament-line"></div>
       </div>
 
+      <div class="shop-controls">
+        <div class="search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Buscar produto..." class="search-input" />
+        </div>
+        <div class="price-filter">
+          <div class="price-inputs">
+            <div class="price-input-group">
+              <label>De:</label>
+              <input type="number" id="price-min" min="0" max="1000000" value="0" class="price-input" />
+            </div>
+            <div class="price-input-group">
+              <label>Até:</label>
+              <input type="number" id="price-max" min="0" max="1000000" value="1000000" class="price-input" />
+            </div>
+          </div>
+          <div class="price-range-wrap">
+            <input type="range" id="price-range" min="0" max="1000000" value="1000000" class="price-range" />
+            <span id="price-value" class="price-value">Max: 1.000.000</span>
+          </div>
+        </div>
+      </div>
+
       <div class="filter-bar">
         <button class="filter-btn active" data-filter="all">Todos <span class="filter-count" data-count="all">--</span></button>
         <button class="filter-btn" data-filter="disponivel">Disponiveis <span class="filter-count" data-count="disponivel">--</span></button>
@@ -184,42 +259,72 @@
     </div>
   </section>
 
+  <!-- SEPARATOR -->
+  <div class="section-separator">
+    <svg viewBox="0 0 600 30" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0 15 Q75 5 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".4"/>
+      <path d="M0 15 Q75 25 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".25"/>
+      <circle cx="300" cy="15" r="2.5" fill="#ffd700" opacity=".6"/>
+      <circle cx="150" cy="15" r="1.5" fill="#ffd700" opacity=".3"/>
+      <circle cx="450" cy="15" r="1.5" fill="#ffd700" opacity=".3"/>
+    </svg>
+  </div>
+
   <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-ornament">
-      <svg viewBox="0 0 600 30" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0 15 Q75 5 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".3"/>
-        <path d="M0 15 Q75 25 150 15 T300 15 T450 15 T600 15" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".2"/>
+  <footer class="site-footer">
+    <div class="footer-brand-center">
+      <svg class="footer-gem" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 4 L32 12 L32 28 Q32 36 20 40 Q8 36 8 28 L8 12 Z" fill="#0d0b1e" stroke="#ffd700" stroke-width="1"/>
+        <path d="M20 10 L20 32 M14 16 L26 16" stroke="#c9a227" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
+      <div class="footer-title">Taverna do Rizakh</div>
     </div>
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <svg class="footer-gem" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 4 L32 12 L32 28 Q32 36 20 40 Q8 36 8 28 L8 12 Z" fill="#0d0b1e" stroke="#ffd700" stroke-width="1"/>
-          <path d="M20 10 L20 32 M14 16 L26 16" stroke="#c9a227" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <div class="footer-title">Taverna do Rizakh</div>
+    
+    <div class="footer-bottom">
+      <!-- Navigation Column -->
+      <div class="footer-nav">
+        <h4>Navegacao</h4>
+        <a href="#shop">Loja</a>
+        <a href="#how">Como Participar</a>
+        <a href="#live">Live</a>
       </div>
+      
+      <!-- Contact Column -->
+      <div class="footer-contact">
+        <h4>Fale Conosco</h4>
+        <form id="contact-form" class="contact-form-compact">
+          <input type="text" id="contact-nome" placeholder="Nome" required />
+          <input type="email" id="contact-email" placeholder="Email" required />
+          <select id="contact-tipo" required>
+            <option value="">Tipo</option>
+            <option value="bug">Bug</option>
+            <option value="sugestao">Sugestao</option>
+            <option value="contato">Contato</option>
+          </select>
+          <textarea id="contact-mensagem" placeholder="Mensagem" rows="2" required></textarea>
+          <button type="submit" class="btn-buy btn-small">Enviar</button>
+        </form>
+      </div>
+      
+      <!-- Social Column -->
       <div class="footer-social">
-        <a href="https://twitch.tv/rizakh" target="_blank" class="social-btn twitch">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zm-7.143 0H1.072l.001 14.001h1.714V11.43h3.571v7.286h1.714V8.858h1.714v7.287h1.715V8.858h1.715v10.573H8.143zm3.428 0H18v5.143h-1.714zm-5.715 0h1.715v5.143H5.286zm-1.715 7.286h1.715v2.858H3.571zm1.714 2.857h1.715v2.858H5.285zm9.429 2.857h-1.714v-2.858H14.71v2.858zm-1.715-5.715H18v5.143h-1.714zm-1.714-2.571H18v2.571h-1.714zm-1.715 2.571H9.286v-2.571H7.57zm5.144 0H14.71v-2.571h-1.715zm1.715-2.571H18v2.571h-1.715z"/></svg>
+        <h4>Redes Sociais</h4>
+        <a href="https://twitch.tv/rizakh" target="_blank" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zm-7.143 0H1.072l.001 14.001h1.714V11.43h3.571v7.286h1.714V8.858h1.714v7.287h1.715V8.858h1.715v10.573H8.143zm3.428 0H18v5.143h-1.714zm-5.715 0h1.715v5.143H5.286zm-1.715 7.286h1.715v2.858H3.571zm1.714 2.857h1.715v2.858H5.285zm9.429 2.857h-1.714v-2.858H14.71v2.858zm-1.715-5.715H18v5.143h-1.714zm-1.714-2.571H18v2.571h-1.714zm-1.715 2.571H9.286v-2.571H7.57zm5.144 0H14.71v-2.571h-1.715zm1.715-2.571H18v2.571h-1.715z"/></svg>
           Twitch
         </a>
-        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-btn twitter">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <a href="https://twitter.com/rizakhtv" target="_blank" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Twitter
         </a>
-        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-btn instagram">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <a href="https://instagram.com/rizakhtv" target="_blank" class="social-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
           Instagram
         </a>
-        <a href="mailto:rizakh.rph@gmail.com" class="social-btn email">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          E-mail
-        </a>
       </div>
-      <div class="footer-copy">© 2026 Taverna do Rizakh — twitch.tv/rizakh</div>
     </div>
+    
+    <div class="footer-copy">© 2026 Taverna do Rizakh — twitch.tv/rizakh</div>
   </footer>
 
   <div id="toast" class="toast"></div>
@@ -231,8 +336,1496 @@
     </symbol>
   </svg>
 
-  <script id="produtos-data" type="application/json">[{"id":"0","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"PYXRkvkhG6s","precoHistory":[],"dataCompraBr":"07/04/2026","status":"vendido","precoFinal":10000,"compradoPor":"laisininho","nome":"Wildmender","estoque":0,"preco":10000,"steamAppId":"1599330","isNovo":false},{"id":"1","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"t6duIemOPE8","precoHistory":["@{data=17/04/26; desconto=0; preco=15000}","@{data=18/04/26; desconto=0; preco=15000}"],"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Super Dungeon Maker","estoque":1,"preco":15000,"steamAppId":"1622800","isNovo":false},{"id":"2","desconto":34,"dataAdicBr":"07/04/2026","youtubeId":"kCvVaeYaRZo","precoHistory":["@{data=17/04/26; desconto=0; preco=15000}","@{data=18/04/26; desconto=34; preco=15000}"],"dataCompraBr":"","status":"disponivel","precoFinal":9900,"compradoPor":"","nome":"Animals vs Animals","estoque":1,"preco":15000,"steamAppId":"2805620","isNovo":false},{"id":"3","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"Bru5BPVJJRI","precoHistory":["@{data=17/04/26; desconto=0; preco=35000}","@{data=18/04/26; desconto=0; preco=35000}"],"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"LiSA: Complete Edition","estoque":1,"preco":35000,"steamAppId":"77828","isNovo":false},{"id":"4","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"4ONKy-CK0zg","precoHistory":["@{data=17/04/26; desconto=0; preco=10000}","@{data=18/04/26; desconto=0; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Old World","estoque":1,"preco":10000,"steamAppId":"597180","isNovo":false},{"id":"5","desconto":20,"dataAdicBr":"08/04/2026","youtubeId":"by6lEzxfQGc","precoHistory":["@{data=17/04/26; desconto=20; preco=10000}","@{data=18/04/26; desconto=20; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":8000,"compradoPor":"","nome":"Septerra Core","estoque":1,"preco":10000,"steamAppId":"253940","isNovo":false},{"id":"6","desconto":10,"dataAdicBr":"08/04/2026","youtubeId":"xEljs9qxgfk","precoHistory":["@{data=17/04/26; desconto=10; preco=22500}","@{data=18/04/26; desconto=10; preco=22500}"],"dataCompraBr":"","status":"disponivel","precoFinal":20250,"compradoPor":"","nome":"Main Assembly","estoque":1,"preco":22500,"steamAppId":"1078920","isNovo":false},{"id":"7","desconto":15,"dataAdicBr":"08/04/2026","youtubeId":"OEy5OReYqIw","precoHistory":["@{data=17/04/26; desconto=15; preco=10000}","@{data=18/04/26; desconto=15; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":8500,"compradoPor":"","nome":"Rock of Ages3: Make\u0026Break","estoque":1,"preco":10000,"steamAppId":"","isNovo":false},{"id":"8","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ElAPDxVCh0k","precoHistory":["@{data=17/04/26; desconto=0; preco=15000}","@{data=18/04/26; desconto=0; preco=15000}"],"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Monster Crown","estoque":1,"preco":15000,"steamAppId":"830370","isNovo":false},{"id":"9","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"UaJQ6jM9mhs","precoHistory":["@{data=17/04/26; desconto=0; preco=35000}","@{data=18/04/26; desconto=0; preco=35000}"],"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"Going Under","estoque":1,"preco":35000,"steamAppId":"1154810","isNovo":false},{"id":"10","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Vpv1v8TvUq8","precoHistory":["@{data=17/04/26; desconto=0; preco=30000}","@{data=18/04/26; desconto=0; preco=30000}"],"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Hammerting","estoque":1,"preco":30000,"steamAppId":"760650","isNovo":false},{"id":"11","desconto":15,"dataAdicBr":"08/04/2026","youtubeId":"3_CIWxjGrfc","precoHistory":["@{data=17/04/26; desconto=15; preco=10000}","@{data=18/04/26; desconto=15; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":8500,"compradoPor":"","nome":"Monster Prom 2: Monster Camp","estoque":1,"preco":10000,"steamAppId":"1140270","isNovo":false},{"id":"12","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ISmiWUpiDs4","precoHistory":["@{data=17/04/26; desconto=0; preco=40000}","@{data=18/04/26; desconto=0; preco=40000}"],"dataCompraBr":"","status":"disponivel","precoFinal":40000,"compradoPor":"","nome":"1000xRESIST","estoque":1,"preco":40000,"steamAppId":"1675830","isNovo":false},{"id":"13","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"asN6i3dILyI","precoHistory":["@{data=17/04/26; desconto=0; preco=10000}","@{data=18/04/26; desconto=0; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Tohu","estoque":1,"preco":10000,"steamAppId":"1075200","isNovo":false},{"id":"14","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"2mHoMlClJm8","precoHistory":["@{data=17/04/26; desconto=0; preco=12500}","@{data=18/04/26; desconto=0; preco=12500}"],"dataCompraBr":"","status":"disponivel","precoFinal":12500,"compradoPor":"","nome":"GoNNeR","estoque":1,"preco":12500,"steamAppId":"1117670","isNovo":false},{"id":"15","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Nfi4zHNww7Y","precoHistory":["@{data=17/04/26; desconto=0; preco=30000}","@{data=18/04/26; desconto=0; preco=30000}"],"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Farmer\u0027s Dynasty","estoque":1,"preco":30000,"steamAppId":"2569670","isNovo":false},{"id":"16","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"0jRUXJMLgrA","precoHistory":["@{data=17/04/26; desconto=0; preco=12500}","@{data=18/04/26; desconto=0; preco=12500}"],"dataCompraBr":"","status":"disponivel","precoFinal":12500,"compradoPor":"","nome":"Just Die Already","estoque":1,"preco":12500,"steamAppId":"979070","isNovo":false},{"id":"17","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"iknL_MyBr_8","precoHistory":["@{data=17/04/26; desconto=0; preco=10000}","@{data=18/04/26; desconto=0; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"EVERHOOD","estoque":1,"preco":10000,"steamAppId":"1984020","isNovo":false},{"id":"18","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"kJJAcrcOcRs","precoHistory":["@{data=17/04/26; desconto=0; preco=10000}","@{data=18/04/26; desconto=0; preco=10000}"],"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Calico","estoque":1,"preco":10000,"steamAppId":"1993180","isNovo":false},{"id":"19","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"a2BHNptGQxg","precoHistory":["@{data=17/04/26; desconto=0; preco=15000}","@{data=18/04/26; desconto=0; preco=15000}"],"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Red Solstice 2: Survivors","estoque":1,"preco":15000,"steamAppId":"768520","isNovo":false},{"id":"20","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"vI2YNVkMLNo","precoHistory":["@{data=17/04/26; desconto=0; preco=20000}","@{data=18/04/26; desconto=0; preco=20000}"],"dataCompraBr":"","status":"disponivel","precoFinal":20000,"compradoPor":"","nome":"Nebuchadnezzar","estoque":1,"preco":20000,"steamAppId":"16868","isNovo":false},{"id":"21","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"EnxS5SZBYDM","precoHistory":["@{data=17/04/26; desconto=0; preco=40000}","@{data=18/04/26; desconto=0; preco=40000}"],"dataCompraBr":"","status":"disponivel","precoFinal":40000,"compradoPor":"","nome":"Destroy All Humans!","estoque":1,"preco":40000,"steamAppId":"803330","isNovo":false},{"id":"22","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ufl14_Ne5Lg","precoHistory":["@{data=17/04/26; desconto=0; preco=20000}","@{data=18/04/26; desconto=0; preco=20000}"],"dataCompraBr":"","status":"disponivel","precoFinal":20000,"compradoPor":"","nome":"Griftlands","estoque":1,"preco":20000,"steamAppId":"601840","isNovo":false},{"id":"23","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"4H8oPl97Acg","precoHistory":["@{data=17/04/26; desconto=0; preco=30000}","@{data=18/04/26; desconto=0; preco=30000}"],"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Killsquad","estoque":1,"preco":30000,"steamAppId":"910490","isNovo":false},{"id":"24","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"LC5vurSL9oI","precoHistory":["@{data=17/04/26; desconto=0; preco=35000}","@{data=18/04/26; desconto=0; preco=35000}"],"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"Naruto to Boruto: Shinobi Striker","estoque":1,"preco":35000,"steamAppId":"633230","isNovo":false},{"id":"25","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Ouh9lyMKTDY","precoHistory":["@{data=17/04/26; desconto=0; preco=30000}","@{data=18/04/26; desconto=0; preco=30000}"],"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Tales \u0026 Tactics","estoque":1,"preco":30000,"steamAppId":"1652250","isNovo":false},{"id":"26","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"vmgszPjt2LI","precoHistory":["@{data=17/04/26; desconto=0; preco=15000}","@{data=18/04/26; desconto=0; preco=15000}"],"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Suzerain","estoque":1,"preco":15000,"steamAppId":"1207650","isNovo":false},{"id":"27","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"fvXKRzTf_V4","precoHistory":["@{data=17/04/26; desconto=0; preco=30000}","@{data=18/04/26; desconto=0; preco=30000}"],"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Green Hell","estoque":1,"preco":30000,"steamAppId":"815370","isNovo":false}]</script>
+  <script id="produtos-data" type="application/json">[{"id":"0","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"PYXRkvkhG6s","precoHistory":{},"dataCompraBr":"07/04/2026","status":"vendido","precoFinal":10000,"compradoPor":"laisininho","nome":"Wildmender","estoque":0,"preco":10000,"steamAppId":"1599330","isNovo":false},{"id":"1","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"t6duIemOPE8","precoHistory":{"data":"17/04/26","desconto":0,"preco":15000},"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Super Dungeon Maker","estoque":1,"preco":15000,"steamAppId":"1622800","isNovo":false},{"id":"2","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"kCvVaeYaRZo","precoHistory":{"data":"17/04/26","desconto":0,"preco":15000},"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Animals vs Animals","estoque":1,"preco":15000,"steamAppId":"2805620","isNovo":false},{"id":"3","desconto":0,"dataAdicBr":"07/04/2026","youtubeId":"Bru5BPVJJRI","precoHistory":{"data":"17/04/26","desconto":0,"preco":35000},"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"LiSA: Complete Edition","estoque":1,"preco":35000,"steamAppId":"77828","isNovo":false},{"id":"4","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"4ONKy-CK0zg","precoHistory":{"data":"17/04/26","desconto":0,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Old World","estoque":1,"preco":10000,"steamAppId":"597180","isNovo":false},{"id":"5","desconto":20,"dataAdicBr":"08/04/2026","youtubeId":"by6lEzxfQGc","precoHistory":{"data":"17/04/26","desconto":20,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":8000,"compradoPor":"","nome":"Septerra Core","estoque":1,"preco":10000,"steamAppId":"253940","isNovo":false},{"id":"6","desconto":10,"dataAdicBr":"08/04/2026","youtubeId":"xEljs9qxgfk","precoHistory":{"data":"17/04/26","desconto":10,"preco":22500},"dataCompraBr":"","status":"disponivel","precoFinal":20250,"compradoPor":"","nome":"Main Assembly","estoque":1,"preco":22500,"steamAppId":"1078920","isNovo":false},{"id":"7","desconto":15,"dataAdicBr":"08/04/2026","youtubeId":"OEy5OReYqIw","precoHistory":{"data":"17/04/26","desconto":15,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":8500,"compradoPor":"","nome":"Rock of Ages3: Make\u0026Break","estoque":1,"preco":10000,"steamAppId":"","isNovo":false},{"id":"8","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ElAPDxVCh0k","precoHistory":{"data":"17/04/26","desconto":0,"preco":15000},"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Monster Crown","estoque":1,"preco":15000,"steamAppId":"830370","isNovo":false},{"id":"9","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"UaJQ6jM9mhs","precoHistory":{"data":"17/04/26","desconto":0,"preco":35000},"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"Going Under","estoque":1,"preco":35000,"steamAppId":"1154810","isNovo":false},{"id":"10","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Vpv1v8TvUq8","precoHistory":{"data":"17/04/26","desconto":0,"preco":30000},"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Hammerting","estoque":1,"preco":30000,"steamAppId":"760650","isNovo":false},{"id":"11","desconto":15,"dataAdicBr":"08/04/2026","youtubeId":"3_CIWxjGrfc","precoHistory":{"data":"17/04/26","desconto":15,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":8500,"compradoPor":"","nome":"Monster Prom 2: Monster Camp","estoque":1,"preco":10000,"steamAppId":"1140270","isNovo":false},{"id":"12","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ISmiWUpiDs4","precoHistory":{"data":"17/04/26","desconto":0,"preco":40000},"dataCompraBr":"","status":"disponivel","precoFinal":40000,"compradoPor":"","nome":"1000xRESIST","estoque":1,"preco":40000,"steamAppId":"1675830","isNovo":false},{"id":"13","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"asN6i3dILyI","precoHistory":{"data":"17/04/26","desconto":0,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Tohu","estoque":1,"preco":10000,"steamAppId":"1075200","isNovo":false},{"id":"14","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"2mHoMlClJm8","precoHistory":{"data":"17/04/26","desconto":0,"preco":12500},"dataCompraBr":"","status":"disponivel","precoFinal":12500,"compradoPor":"","nome":"GoNNeR","estoque":1,"preco":12500,"steamAppId":"1117670","isNovo":false},{"id":"15","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Nfi4zHNww7Y","precoHistory":{"data":"17/04/26","desconto":0,"preco":30000},"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Farmer\u0027s Dynasty","estoque":1,"preco":30000,"steamAppId":"2569670","isNovo":false},{"id":"16","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"0jRUXJMLgrA","precoHistory":{"data":"17/04/26","desconto":0,"preco":12500},"dataCompraBr":"","status":"disponivel","precoFinal":12500,"compradoPor":"","nome":"Just Die Already","estoque":1,"preco":12500,"steamAppId":"979070","isNovo":false},{"id":"17","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"iknL_MyBr_8","precoHistory":{"data":"17/04/26","desconto":0,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"EVERHOOD","estoque":1,"preco":10000,"steamAppId":"1984020","isNovo":false},{"id":"18","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"kJJAcrcOcRs","precoHistory":{"data":"17/04/26","desconto":0,"preco":10000},"dataCompraBr":"","status":"disponivel","precoFinal":10000,"compradoPor":"","nome":"Calico","estoque":1,"preco":10000,"steamAppId":"1993180","isNovo":false},{"id":"19","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"a2BHNptGQxg","precoHistory":{"data":"17/04/26","desconto":0,"preco":15000},"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Red Solstice 2: Survivors","estoque":1,"preco":15000,"steamAppId":"768520","isNovo":false},{"id":"20","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"vI2YNVkMLNo","precoHistory":{"data":"17/04/26","desconto":0,"preco":20000},"dataCompraBr":"","status":"disponivel","precoFinal":20000,"compradoPor":"","nome":"Nebuchadnezzar","estoque":1,"preco":20000,"steamAppId":"16868","isNovo":false},{"id":"21","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"EnxS5SZBYDM","precoHistory":{"data":"17/04/26","desconto":0,"preco":40000},"dataCompraBr":"","status":"disponivel","precoFinal":40000,"compradoPor":"","nome":"Destroy All Humans!","estoque":1,"preco":40000,"steamAppId":"803330","isNovo":false},{"id":"22","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"ufl14_Ne5Lg","precoHistory":{"data":"17/04/26","desconto":0,"preco":20000},"dataCompraBr":"","status":"disponivel","precoFinal":20000,"compradoPor":"","nome":"Griftlands","estoque":1,"preco":20000,"steamAppId":"601840","isNovo":false},{"id":"23","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"4H8oPl97Acg","precoHistory":{"data":"17/04/26","desconto":0,"preco":30000},"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Killsquad","estoque":1,"preco":30000,"steamAppId":"910490","isNovo":false},{"id":"24","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"LC5vurSL9oI","precoHistory":{"data":"17/04/26","desconto":0,"preco":35000},"dataCompraBr":"","status":"disponivel","precoFinal":35000,"compradoPor":"","nome":"Naruto to Boruto: Shinobi Striker","estoque":1,"preco":35000,"steamAppId":"633230","isNovo":false},{"id":"25","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"Ouh9lyMKTDY","precoHistory":{"data":"17/04/26","desconto":0,"preco":30000},"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Tales \u0026 Tactics","estoque":1,"preco":30000,"steamAppId":"1652250","isNovo":false},{"id":"26","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"vmgszPjt2LI","precoHistory":{"data":"17/04/26","desconto":0,"preco":15000},"dataCompraBr":"","status":"disponivel","precoFinal":15000,"compradoPor":"","nome":"Suzerain","estoque":1,"preco":15000,"steamAppId":"1207650","isNovo":false},{"id":"27","desconto":0,"dataAdicBr":"08/04/2026","youtubeId":"fvXKRzTf_V4","precoHistory":{"data":"17/04/26","desconto":0,"preco":30000},"dataCompraBr":"","status":"disponivel","precoFinal":30000,"compradoPor":"","nome":"Green Hell","estoque":1,"preco":30000,"steamAppId":"815370","isNovo":false}]</script>
   <script id="preco-history-data" type="application/json">{}</script>
   <script src="app.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+        console.log('[PWA] Service Worker registered:', registration.scope);
+
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60000); // Check every minute
+
+        // Handle updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New content available, show notification
+              mostrarToastNotificacao('Nova atualizacao disponivel! Recarregue para atualizar.');
+            }
+          });
+        });
+      })
+      .catch(error => {
+        console.log('[PWA] Service Worker registration failed:', error);
+      });
+
+    // Request notification permission for push notifications
+    if ('Notification' in window && Notification.permission === 'default') {
+      // Delay permission request until user interaction
+      const requestPermission = () => {
+        Notification.requestPermission(permission => {
+          if (permission === 'granted') {
+            console.log('[PWA] Notification permission granted');
+            mostrarToastNotificacao('Notificacoes ativadas! Receba novidades da Taverna.');
+          }
+        });
+        document.removeEventListener('click', requestPermission);
+      };
+      setTimeout(() => {
+        document.addEventListener('click', requestPermission);
+      }, 5000); // Wait 5 seconds before allowing permission request
+    }
+  });
+}
+
+// Push notification toast function
+function mostrarToastNotificacao(mensagem) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.innerHTML = mensagem;
+  t.classList.add('show', 'push-notification');
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => {
+    t.classList.remove('show', 'push-notification');
+  }, 5000);
+}
+</script>
+
+<script>
+/**
+ * Iframe 元素高亮注入脚本
+ * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+ *
+ * 使用方法：
+ * 1. 将此脚本添加到目标网站的 HTML 中
+ * 2. 或通过浏览器扩展、用户脚本等方式注入
+ */
+
+(function () {
+  "use strict";
+
+  // 检查是否在 iframe 中
+  if (window.self === window.top) {
+    return; // 不在 iframe 中，不执行
+  }
+
+  // 检查是否已经初始化过
+  if (window.__iframeHighlightInitialized) {
+    return;
+  }
+  window.__iframeHighlightInitialized = true;
+  console.log("Iframe 高亮脚本已加载");
+
+  // 创建高亮覆盖层
+  var overlay = document.createElement("div");
+  overlay.id = "iframe-highlight-overlay";
+  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+  // 创建悬停高亮框（虚线边框）
+  var highlightBox = document.createElement("div");
+  highlightBox.id = "iframe-highlight-box";
+  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+  // 创建选中节点的常驻高亮框（实线边框）
+  var selectedBox = document.createElement("div");
+  selectedBox.id = "iframe-selected-box";
+  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+  // 创建悬停标签显示
+  var tagLabel = document.createElement("div");
+  tagLabel.id = "iframe-tag-label";
+  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+  // 创建选中节点标签
+  var selectedLabel = document.createElement("div");
+  selectedLabel.id = "iframe-selected-label";
+  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+  overlay.appendChild(highlightBox);
+  overlay.appendChild(selectedBox);
+  overlay.appendChild(tagLabel);
+  overlay.appendChild(selectedLabel);
+  document.body.appendChild(overlay);
+
+  // 存储当前选中的元素
+  var selectedElement = null;
+  var highlightEnabled = false;
+
+  // 更新选中元素的高亮显示
+  function updateSelectedHighlight(element) {
+    console.log("updateSelectedHighlight called with:", element);
+    if (!element) {
+      selectedBox.style.display = "none";
+      selectedLabel.style.display = "none";
+      selectedElement = null;
+      console.log("Cleared selected highlight");
+      return;
+    }
+    selectedElement = element;
+    var rect = element.getBoundingClientRect();
+    console.log("Selected element rect:", rect);
+
+    // 更新选中高亮框位置
+    selectedBox.style.display = "block";
+    selectedBox.style.left = "".concat(rect.left - 2, "px");
+    selectedBox.style.top = "".concat(rect.top - 2, "px");
+    selectedBox.style.width = "".concat(rect.width + 4, "px");
+    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新选中标签位置和内容
+    selectedLabel.style.display = "block";
+    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 28;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 5) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+    if (labelLeft + labelWidth > window.innerWidth - 10) {
+      labelLeft = window.innerWidth - labelWidth - 10;
+    }
+    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
+    selectedLabel.style.top = "".concat(labelTop, "px");
+    console.log("Selected highlight positioned at:", {
+      left: selectedBox.style.left,
+      top: selectedBox.style.top,
+      width: selectedBox.style.width,
+      height: selectedBox.style.height
+    });
+  }
+  function getElementSelector(element) {
+    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
+    var segments = [];
+    var current = element;
+    while (current !== document.documentElement) {
+      var selector = '';
+      // 优先检查唯一ID
+      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
+        segments.unshift("#".concat(current.id));
+        break; // ID唯一，无需继续向上
+      }
+
+      // 生成类名选择器（取第一个有效类名）
+      var classes = Array.from(current.classList).filter(function (c) {
+        return !c.startsWith('js-');
+      });
+      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
+
+      // 生成位置索引（nth-child）
+      var tag = current.tagName.toLowerCase();
+      if (!className) {
+        var siblings = Array.from(current.parentNode.children);
+        var index = siblings.findIndex(function (el) {
+          return el === current;
+        }) + 1;
+        selector = "".concat(tag, ":nth-child(").concat(index, ")");
+      } else {
+        selector = className;
+      }
+      segments.unshift(selector);
+      current = current.parentElement;
+    }
+
+    // 处理根元素
+    if (current === document.documentElement) {
+      segments.unshift('html');
+    }
+    return segments.join(' > ');
+  }
+
+  // 获取元素文本内容
+  function getElementText(element) {
+    var _element$textContent;
+    if (element.tagName === "INPUT") {
+      return element.value || element.placeholder || "";
+    }
+    if (element.tagName === "TEXTAREA") {
+      return element.value || element.placeholder || "";
+    }
+    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
+    return text.length > 50 ? text.substring(0, 50) + "..." : text;
+  }
+
+  // 获取元素属性信息
+  function getElementAttributes(element) {
+    var attrs = {};
+    for (var i = 0; i < element.attributes.length; i++) {
+      var attr = element.attributes[i];
+      attrs[attr.name] = attr.value;
+    }
+    return attrs;
+  }
+
+  // 鼠标悬停事件处理
+  function handleMouseOver(e) {
+    if (!highlightEnabled) return;
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免高亮 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 如果是已选中的元素，不显示悬停高亮
+    if (target === selectedElement) {
+      highlightBox.style.display = "none";
+      tagLabel.style.display = "none";
+      return;
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+
+    // 更新悬停高亮框位置
+    highlightBox.style.display = "block";
+    highlightBox.style.left = "".concat(rect.left - 2, "px");
+    highlightBox.style.top = "".concat(rect.top - 2, "px");
+    highlightBox.style.width = "".concat(rect.width + 4, "px");
+    highlightBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新标签位置和内容
+    tagLabel.style.display = "block";
+    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 22;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 0) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
+    }
+    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
+    tagLabel.style.top = "".concat(labelTop, "px");
+
+    // 发送消息到父窗口
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 鼠标离开事件处理
+  function handleMouseOut(e) {
+    if (!highlightEnabled) return;
+    var relatedTarget = e.relatedTarget;
+
+    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
+      return;
+    }
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: null,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 点击事件处理
+  function handleClick(e) {
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免处理 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 检查是否是交互元素，这些元素需要保留默认行为
+    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
+
+    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+    if (highlightEnabled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+    console.log("Element clicked:", {
+      tagName: target.tagName,
+      selector: selector,
+      rect: rect
+    });
+
+    // 立即更新选中高亮
+    updateSelectedHighlight(target);
+
+    // 隐藏悬停高亮，因为现在是选中状态
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-click",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 监听来自父窗口的消息
+  function handleParentMessage(event) {
+    console.log("Received message from parent:", event.data);
+    if (event.data.type === "iframe-highlight-toggle") {
+      var enabled = event.data.enabled;
+      console.log("Highlight toggle:", enabled);
+      if (enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "enable-iframe-highlight") {
+      console.log("Enable iframe highlight");
+      enableHighlight();
+    } else if (event.data.type === "disable-iframe-highlight") {
+      console.log("Disable iframe highlight");
+      disableHighlight();
+    } else if (event.data.type === "toggle-iframe-highlight") {
+      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
+      console.log("Toggle iframe highlight to:", _enabled);
+      if (_enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "update-selected-element") {
+      var selector = event.data.selector;
+      console.log("Update selected element with selector:", selector);
+      if (selector) {
+        try {
+          var element = document.querySelector(selector);
+          console.log("Found element by selector:", element);
+          updateSelectedHighlight(element);
+        } catch (error) {
+          console.warn("Failed to select element:", error);
+          updateSelectedHighlight(null);
+        }
+      } else {
+        updateSelectedHighlight(null);
+      }
+    } else if (event.data.type === "clear-selected-element") {
+      console.log("Clear selected element");
+      updateSelectedHighlight(null);
+    }
+  }
+
+  // 启用高亮功能
+  function enableHighlight() {
+    console.log("Enabling highlight");
+    document.addEventListener("mouseover", handleMouseOver, true);
+    document.addEventListener("mouseout", handleMouseOut, true);
+    document.addEventListener("click", handleClick, true);
+    highlightEnabled = true;
+    overlay.style.display = "block";
+  }
+
+  // 禁用高亮功能
+  function disableHighlight() {
+    console.log("Disabling highlight");
+    highlightEnabled = false;
+    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+    // 这样可以保留选中状态的显示
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+  }
+
+  // 完全禁用高亮功能（移除所有监听器）
+  function fullyDisableHighlight() {
+    console.log("Fully disabling highlight");
+    highlightEnabled = false;
+    document.removeEventListener("mouseover", handleMouseOver, true);
+    document.removeEventListener("mouseout", handleMouseOut, true);
+    document.removeEventListener("click", handleClick, true);
+    overlay.style.display = "none";
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    selectedBox.style.display = "none";
+    selectedLabel.style.display = "none";
+  }
+
+  // 添加事件监听
+  enableHighlight();
+  window.addEventListener("message", handleParentMessage);
+
+  // 暴露全局函数供外部调用
+  window.__iframeHighlightControl = {
+    enable: enableHighlight,
+    disable: disableHighlight,
+    fullyDisable: fullyDisableHighlight,
+    isEnabled: function isEnabled() {
+      return highlightEnabled;
+    },
+    getSelectedElement: function getSelectedElement() {
+      return selectedElement;
+    },
+    updateSelected: updateSelectedHighlight,
+    // 通过消息发送开关控制
+    sendToggleMessage: function sendToggleMessage(enabled) {
+      window.parent.postMessage({
+        type: 'iframe-highlight-status',
+        enabled: enabled || highlightEnabled,
+        source: 'iframe-highlight-injector'
+      }, '*');
+    }
+  };
+
+  // 通知父窗口脚本已加载
+  try {
+    window.parent.postMessage({
+      type: "iframe-highlight-ready",
+      data: {
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      },
+      source: "iframe-highlight-injector"
+    }, "*");
+  } catch (error) {
+    console.warn("无法发送就绪消息到父窗口:", error);
+  }
+
+  // 清理函数
+  window.__iframeHighlightCleanup = function () {
+    fullyDisableHighlight();
+    window.removeEventListener("message", handleParentMessage);
+    if (overlay.parentElement) {
+      overlay.parentElement.removeChild(overlay);
+    }
+    delete window.__iframeHighlightInitialized;
+    delete window.__iframeHighlightCleanup;
+  };
+})();
+
+</script>
+
+<script>
+/**
+ * Iframe 元素高亮注入脚本
+ * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+ *
+ * 使用方法：
+ * 1. 将此脚本添加到目标网站的 HTML 中
+ * 2. 或通过浏览器扩展、用户脚本等方式注入
+ */
+
+(function () {
+  "use strict";
+
+  // 检查是否在 iframe 中
+  if (window.self === window.top) {
+    return; // 不在 iframe 中，不执行
+  }
+
+  // 检查是否已经初始化过
+  if (window.__iframeHighlightInitialized) {
+    return;
+  }
+  window.__iframeHighlightInitialized = true;
+  console.log("Iframe 高亮脚本已加载");
+
+  // 创建高亮覆盖层
+  var overlay = document.createElement("div");
+  overlay.id = "iframe-highlight-overlay";
+  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+  // 创建悬停高亮框（虚线边框）
+  var highlightBox = document.createElement("div");
+  highlightBox.id = "iframe-highlight-box";
+  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+  // 创建选中节点的常驻高亮框（实线边框）
+  var selectedBox = document.createElement("div");
+  selectedBox.id = "iframe-selected-box";
+  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+  // 创建悬停标签显示
+  var tagLabel = document.createElement("div");
+  tagLabel.id = "iframe-tag-label";
+  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+  // 创建选中节点标签
+  var selectedLabel = document.createElement("div");
+  selectedLabel.id = "iframe-selected-label";
+  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+  overlay.appendChild(highlightBox);
+  overlay.appendChild(selectedBox);
+  overlay.appendChild(tagLabel);
+  overlay.appendChild(selectedLabel);
+  document.body.appendChild(overlay);
+
+  // 存储当前选中的元素
+  var selectedElement = null;
+  var highlightEnabled = false;
+
+  // 更新选中元素的高亮显示
+  function updateSelectedHighlight(element) {
+    console.log("updateSelectedHighlight called with:", element);
+    if (!element) {
+      selectedBox.style.display = "none";
+      selectedLabel.style.display = "none";
+      selectedElement = null;
+      console.log("Cleared selected highlight");
+      return;
+    }
+    selectedElement = element;
+    var rect = element.getBoundingClientRect();
+    console.log("Selected element rect:", rect);
+
+    // 更新选中高亮框位置
+    selectedBox.style.display = "block";
+    selectedBox.style.left = "".concat(rect.left - 2, "px");
+    selectedBox.style.top = "".concat(rect.top - 2, "px");
+    selectedBox.style.width = "".concat(rect.width + 4, "px");
+    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新选中标签位置和内容
+    selectedLabel.style.display = "block";
+    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 28;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 5) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+    if (labelLeft + labelWidth > window.innerWidth - 10) {
+      labelLeft = window.innerWidth - labelWidth - 10;
+    }
+    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
+    selectedLabel.style.top = "".concat(labelTop, "px");
+    console.log("Selected highlight positioned at:", {
+      left: selectedBox.style.left,
+      top: selectedBox.style.top,
+      width: selectedBox.style.width,
+      height: selectedBox.style.height
+    });
+  }
+  function getElementSelector(element) {
+    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
+    var segments = [];
+    var current = element;
+    while (current !== document.documentElement) {
+      var selector = '';
+      // 优先检查唯一ID
+      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
+        segments.unshift("#".concat(current.id));
+        break; // ID唯一，无需继续向上
+      }
+
+      // 生成类名选择器（取第一个有效类名）
+      var classes = Array.from(current.classList).filter(function (c) {
+        return !c.startsWith('js-');
+      });
+      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
+
+      // 生成位置索引（nth-child）
+      var tag = current.tagName.toLowerCase();
+      if (!className) {
+        var siblings = Array.from(current.parentNode.children);
+        var index = siblings.findIndex(function (el) {
+          return el === current;
+        }) + 1;
+        selector = "".concat(tag, ":nth-child(").concat(index, ")");
+      } else {
+        selector = className;
+      }
+      segments.unshift(selector);
+      current = current.parentElement;
+    }
+
+    // 处理根元素
+    if (current === document.documentElement) {
+      segments.unshift('html');
+    }
+    return segments.join(' > ');
+  }
+
+  // 获取元素文本内容
+  function getElementText(element) {
+    var _element$textContent;
+    if (element.tagName === "INPUT") {
+      return element.value || element.placeholder || "";
+    }
+    if (element.tagName === "TEXTAREA") {
+      return element.value || element.placeholder || "";
+    }
+    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
+    return text.length > 50 ? text.substring(0, 50) + "..." : text;
+  }
+
+  // 获取元素属性信息
+  function getElementAttributes(element) {
+    var attrs = {};
+    for (var i = 0; i < element.attributes.length; i++) {
+      var attr = element.attributes[i];
+      attrs[attr.name] = attr.value;
+    }
+    return attrs;
+  }
+
+  // 鼠标悬停事件处理
+  function handleMouseOver(e) {
+    if (!highlightEnabled) return;
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免高亮 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 如果是已选中的元素，不显示悬停高亮
+    if (target === selectedElement) {
+      highlightBox.style.display = "none";
+      tagLabel.style.display = "none";
+      return;
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+
+    // 更新悬停高亮框位置
+    highlightBox.style.display = "block";
+    highlightBox.style.left = "".concat(rect.left - 2, "px");
+    highlightBox.style.top = "".concat(rect.top - 2, "px");
+    highlightBox.style.width = "".concat(rect.width + 4, "px");
+    highlightBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新标签位置和内容
+    tagLabel.style.display = "block";
+    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 22;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 0) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
+    }
+    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
+    tagLabel.style.top = "".concat(labelTop, "px");
+
+    // 发送消息到父窗口
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 鼠标离开事件处理
+  function handleMouseOut(e) {
+    if (!highlightEnabled) return;
+    var relatedTarget = e.relatedTarget;
+
+    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
+      return;
+    }
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: null,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 点击事件处理
+  function handleClick(e) {
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免处理 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 检查是否是交互元素，这些元素需要保留默认行为
+    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
+
+    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+    if (highlightEnabled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+    console.log("Element clicked:", {
+      tagName: target.tagName,
+      selector: selector,
+      rect: rect
+    });
+
+    // 立即更新选中高亮
+    updateSelectedHighlight(target);
+
+    // 隐藏悬停高亮，因为现在是选中状态
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-click",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 监听来自父窗口的消息
+  function handleParentMessage(event) {
+    console.log("Received message from parent:", event.data);
+    if (event.data.type === "iframe-highlight-toggle") {
+      var enabled = event.data.enabled;
+      console.log("Highlight toggle:", enabled);
+      if (enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "enable-iframe-highlight") {
+      console.log("Enable iframe highlight");
+      enableHighlight();
+    } else if (event.data.type === "disable-iframe-highlight") {
+      console.log("Disable iframe highlight");
+      disableHighlight();
+    } else if (event.data.type === "toggle-iframe-highlight") {
+      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
+      console.log("Toggle iframe highlight to:", _enabled);
+      if (_enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "update-selected-element") {
+      var selector = event.data.selector;
+      console.log("Update selected element with selector:", selector);
+      if (selector) {
+        try {
+          var element = document.querySelector(selector);
+          console.log("Found element by selector:", element);
+          updateSelectedHighlight(element);
+        } catch (error) {
+          console.warn("Failed to select element:", error);
+          updateSelectedHighlight(null);
+        }
+      } else {
+        updateSelectedHighlight(null);
+      }
+    } else if (event.data.type === "clear-selected-element") {
+      console.log("Clear selected element");
+      updateSelectedHighlight(null);
+    }
+  }
+
+  // 启用高亮功能
+  function enableHighlight() {
+    console.log("Enabling highlight");
+    document.addEventListener("mouseover", handleMouseOver, true);
+    document.addEventListener("mouseout", handleMouseOut, true);
+    document.addEventListener("click", handleClick, true);
+    highlightEnabled = true;
+    overlay.style.display = "block";
+  }
+
+  // 禁用高亮功能
+  function disableHighlight() {
+    console.log("Disabling highlight");
+    highlightEnabled = false;
+    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+    // 这样可以保留选中状态的显示
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+  }
+
+  // 完全禁用高亮功能（移除所有监听器）
+  function fullyDisableHighlight() {
+    console.log("Fully disabling highlight");
+    highlightEnabled = false;
+    document.removeEventListener("mouseover", handleMouseOver, true);
+    document.removeEventListener("mouseout", handleMouseOut, true);
+    document.removeEventListener("click", handleClick, true);
+    overlay.style.display = "none";
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    selectedBox.style.display = "none";
+    selectedLabel.style.display = "none";
+  }
+
+  // 添加事件监听
+  enableHighlight();
+  window.addEventListener("message", handleParentMessage);
+
+  // 暴露全局函数供外部调用
+  window.__iframeHighlightControl = {
+    enable: enableHighlight,
+    disable: disableHighlight,
+    fullyDisable: fullyDisableHighlight,
+    isEnabled: function isEnabled() {
+      return highlightEnabled;
+    },
+    getSelectedElement: function getSelectedElement() {
+      return selectedElement;
+    },
+    updateSelected: updateSelectedHighlight,
+    // 通过消息发送开关控制
+    sendToggleMessage: function sendToggleMessage(enabled) {
+      window.parent.postMessage({
+        type: 'iframe-highlight-status',
+        enabled: enabled || highlightEnabled,
+        source: 'iframe-highlight-injector'
+      }, '*');
+    }
+  };
+
+  // 通知父窗口脚本已加载
+  try {
+    window.parent.postMessage({
+      type: "iframe-highlight-ready",
+      data: {
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      },
+      source: "iframe-highlight-injector"
+    }, "*");
+  } catch (error) {
+    console.warn("无法发送就绪消息到父窗口:", error);
+  }
+
+  // 清理函数
+  window.__iframeHighlightCleanup = function () {
+    fullyDisableHighlight();
+    window.removeEventListener("message", handleParentMessage);
+    if (overlay.parentElement) {
+      overlay.parentElement.removeChild(overlay);
+    }
+    delete window.__iframeHighlightInitialized;
+    delete window.__iframeHighlightCleanup;
+  };
+})();
+
+</script>
+
+<script>
+/**
+ * Iframe 元素高亮注入脚本
+ * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+ *
+ * 使用方法：
+ * 1. 将此脚本添加到目标网站的 HTML 中
+ * 2. 或通过浏览器扩展、用户脚本等方式注入
+ */
+
+(function () {
+  "use strict";
+
+  // 检查是否在 iframe 中
+  if (window.self === window.top) {
+    return; // 不在 iframe 中，不执行
+  }
+
+  // 检查是否已经初始化过
+  if (window.__iframeHighlightInitialized) {
+    return;
+  }
+  window.__iframeHighlightInitialized = true;
+  console.log("Iframe 高亮脚本已加载");
+
+  // 创建高亮覆盖层
+  var overlay = document.createElement("div");
+  overlay.id = "iframe-highlight-overlay";
+  overlay.style.cssText = "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+  // 创建悬停高亮框（虚线边框）
+  var highlightBox = document.createElement("div");
+  highlightBox.id = "iframe-highlight-box";
+  highlightBox.style.cssText = "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+  // 创建选中节点的常驻高亮框（实线边框）
+  var selectedBox = document.createElement("div");
+  selectedBox.id = "iframe-selected-box";
+  selectedBox.style.cssText = "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+  // 创建悬停标签显示
+  var tagLabel = document.createElement("div");
+  tagLabel.id = "iframe-tag-label";
+  tagLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+  // 创建选中节点标签
+  var selectedLabel = document.createElement("div");
+  selectedLabel.id = "iframe-selected-label";
+  selectedLabel.style.cssText = "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+  overlay.appendChild(highlightBox);
+  overlay.appendChild(selectedBox);
+  overlay.appendChild(tagLabel);
+  overlay.appendChild(selectedLabel);
+  document.body.appendChild(overlay);
+
+  // 存储当前选中的元素
+  var selectedElement = null;
+  var highlightEnabled = false;
+
+  // 更新选中元素的高亮显示
+  function updateSelectedHighlight(element) {
+    console.log("updateSelectedHighlight called with:", element);
+    if (!element) {
+      selectedBox.style.display = "none";
+      selectedLabel.style.display = "none";
+      selectedElement = null;
+      console.log("Cleared selected highlight");
+      return;
+    }
+    selectedElement = element;
+    var rect = element.getBoundingClientRect();
+    console.log("Selected element rect:", rect);
+
+    // 更新选中高亮框位置
+    selectedBox.style.display = "block";
+    selectedBox.style.left = "".concat(rect.left - 2, "px");
+    selectedBox.style.top = "".concat(rect.top - 2, "px");
+    selectedBox.style.width = "".concat(rect.width + 4, "px");
+    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新选中标签位置和内容
+    selectedLabel.style.display = "block";
+    selectedLabel.textContent = "\u2713 <".concat(element.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 28;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 5) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+    if (labelLeft + labelWidth > window.innerWidth - 10) {
+      labelLeft = window.innerWidth - labelWidth - 10;
+    }
+    selectedLabel.style.left = "".concat(Math.max(5, labelLeft), "px");
+    selectedLabel.style.top = "".concat(labelTop, "px");
+    console.log("Selected highlight positioned at:", {
+      left: selectedBox.style.left,
+      top: selectedBox.style.top,
+      width: selectedBox.style.width,
+      height: selectedBox.style.height
+    });
+  }
+  function getElementSelector(element) {
+    if (!(element instanceof Element)) throw new Error('Argument must be a DOM element');
+    var segments = [];
+    var current = element;
+    while (current !== document.documentElement) {
+      var selector = '';
+      // 优先检查唯一ID
+      if (current.id && document.querySelectorAll("#".concat(current.id)).length === 1) {
+        segments.unshift("#".concat(current.id));
+        break; // ID唯一，无需继续向上
+      }
+
+      // 生成类名选择器（取第一个有效类名）
+      var classes = Array.from(current.classList).filter(function (c) {
+        return !c.startsWith('js-');
+      });
+      var className = classes.length > 0 ? ".".concat(classes[0]) : '';
+
+      // 生成位置索引（nth-child）
+      var tag = current.tagName.toLowerCase();
+      if (!className) {
+        var siblings = Array.from(current.parentNode.children);
+        var index = siblings.findIndex(function (el) {
+          return el === current;
+        }) + 1;
+        selector = "".concat(tag, ":nth-child(").concat(index, ")");
+      } else {
+        selector = className;
+      }
+      segments.unshift(selector);
+      current = current.parentElement;
+    }
+
+    // 处理根元素
+    if (current === document.documentElement) {
+      segments.unshift('html');
+    }
+    return segments.join(' > ');
+  }
+
+  // 获取元素文本内容
+  function getElementText(element) {
+    var _element$textContent;
+    if (element.tagName === "INPUT") {
+      return element.value || element.placeholder || "";
+    }
+    if (element.tagName === "TEXTAREA") {
+      return element.value || element.placeholder || "";
+    }
+    var text = ((_element$textContent = element.textContent) === null || _element$textContent === void 0 ? void 0 : _element$textContent.trim()) || "";
+    return text.length > 50 ? text.substring(0, 50) + "..." : text;
+  }
+
+  // 获取元素属性信息
+  function getElementAttributes(element) {
+    var attrs = {};
+    for (var i = 0; i < element.attributes.length; i++) {
+      var attr = element.attributes[i];
+      attrs[attr.name] = attr.value;
+    }
+    return attrs;
+  }
+
+  // 鼠标悬停事件处理
+  function handleMouseOver(e) {
+    if (!highlightEnabled) return;
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免高亮 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 如果是已选中的元素，不显示悬停高亮
+    if (target === selectedElement) {
+      highlightBox.style.display = "none";
+      tagLabel.style.display = "none";
+      return;
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+
+    // 更新悬停高亮框位置
+    highlightBox.style.display = "block";
+    highlightBox.style.left = "".concat(rect.left - 2, "px");
+    highlightBox.style.top = "".concat(rect.top - 2, "px");
+    highlightBox.style.width = "".concat(rect.width + 4, "px");
+    highlightBox.style.height = "".concat(rect.height + 4, "px");
+
+    // 更新标签位置和内容
+    tagLabel.style.display = "block";
+    tagLabel.textContent = "<".concat(target.tagName.toLowerCase(), ">");
+
+    // 计算标签位置，确保不超出视窗
+    var labelTop = rect.top - 22;
+    var labelLeft = rect.left;
+
+    // 如果标签会超出顶部，显示在元素下方
+    if (labelTop < 0) {
+      labelTop = rect.bottom + 5;
+    }
+
+    // 如果标签会超出右侧，向左调整
+    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+      labelLeft = window.innerWidth - tagLabel.offsetWidth - 5;
+    }
+    tagLabel.style.left = "".concat(Math.max(0, labelLeft), "px");
+    tagLabel.style.top = "".concat(labelTop, "px");
+
+    // 发送消息到父窗口
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 鼠标离开事件处理
+  function handleMouseOut(e) {
+    if (!highlightEnabled) return;
+    var relatedTarget = e.relatedTarget;
+
+    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+    if (relatedTarget && (relatedTarget === highlightBox || relatedTarget === tagLabel || relatedTarget === overlay || relatedTarget === selectedBox || relatedTarget === selectedLabel)) {
+      return;
+    }
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-hover",
+        data: null,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 点击事件处理
+  function handleClick(e) {
+    var target = e.target;
+    if (!target || target === overlay || target === highlightBox || target === tagLabel || target === selectedBox || target === selectedLabel) {
+      return;
+    }
+
+    // 避免处理 html 和 body 元素
+    if (target === document.documentElement || target === document.body) {
+      return;
+    }
+
+    // 检查是否是交互元素，这些元素需要保留默认行为
+    var isInteractiveElement = ['input', 'textarea', 'select', 'button', 'a'].includes(target.tagName.toLowerCase());
+
+    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+    if (highlightEnabled) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var rect = target.getBoundingClientRect();
+    var selector = getElementSelector(target);
+    var text = getElementText(target);
+    var attributes = getElementAttributes(target);
+    console.log("Element clicked:", {
+      tagName: target.tagName,
+      selector: selector,
+      rect: rect
+    });
+
+    // 立即更新选中高亮
+    updateSelectedHighlight(target);
+
+    // 隐藏悬停高亮，因为现在是选中状态
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    var elementInfo = {
+      tagName: target.tagName.toLowerCase(),
+      rect: {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        x: rect.x,
+        y: rect.y
+      },
+      selector: selector,
+      text: text,
+      attributes: attributes,
+      url: window.location.href,
+      path: window.location.pathname,
+      timestamp: Date.now()
+    };
+    try {
+      window.parent.postMessage({
+        type: "iframe-element-click",
+        data: elementInfo,
+        source: "iframe-highlight-injector"
+      }, "*");
+    } catch (error) {
+      console.warn("无法发送消息到父窗口:", error);
+    }
+  }
+
+  // 监听来自父窗口的消息
+  function handleParentMessage(event) {
+    console.log("Received message from parent:", event.data);
+    if (event.data.type === "iframe-highlight-toggle") {
+      var enabled = event.data.enabled;
+      console.log("Highlight toggle:", enabled);
+      if (enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "enable-iframe-highlight") {
+      console.log("Enable iframe highlight");
+      enableHighlight();
+    } else if (event.data.type === "disable-iframe-highlight") {
+      console.log("Disable iframe highlight");
+      disableHighlight();
+    } else if (event.data.type === "toggle-iframe-highlight") {
+      var _enabled = event.data.enabled !== undefined ? event.data.enabled : !highlightEnabled;
+      console.log("Toggle iframe highlight to:", _enabled);
+      if (_enabled) {
+        enableHighlight();
+      } else {
+        disableHighlight();
+      }
+    } else if (event.data.type === "update-selected-element") {
+      var selector = event.data.selector;
+      console.log("Update selected element with selector:", selector);
+      if (selector) {
+        try {
+          var element = document.querySelector(selector);
+          console.log("Found element by selector:", element);
+          updateSelectedHighlight(element);
+        } catch (error) {
+          console.warn("Failed to select element:", error);
+          updateSelectedHighlight(null);
+        }
+      } else {
+        updateSelectedHighlight(null);
+      }
+    } else if (event.data.type === "clear-selected-element") {
+      console.log("Clear selected element");
+      updateSelectedHighlight(null);
+    }
+  }
+
+  // 启用高亮功能
+  function enableHighlight() {
+    console.log("Enabling highlight");
+    document.addEventListener("mouseover", handleMouseOver, true);
+    document.addEventListener("mouseout", handleMouseOut, true);
+    document.addEventListener("click", handleClick, true);
+    highlightEnabled = true;
+    overlay.style.display = "block";
+  }
+
+  // 禁用高亮功能
+  function disableHighlight() {
+    console.log("Disabling highlight");
+    highlightEnabled = false;
+    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+    // 这样可以保留选中状态的显示
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+  }
+
+  // 完全禁用高亮功能（移除所有监听器）
+  function fullyDisableHighlight() {
+    console.log("Fully disabling highlight");
+    highlightEnabled = false;
+    document.removeEventListener("mouseover", handleMouseOver, true);
+    document.removeEventListener("mouseout", handleMouseOut, true);
+    document.removeEventListener("click", handleClick, true);
+    overlay.style.display = "none";
+    highlightBox.style.display = "none";
+    tagLabel.style.display = "none";
+    selectedBox.style.display = "none";
+    selectedLabel.style.display = "none";
+  }
+
+  // 添加事件监听
+  enableHighlight();
+  window.addEventListener("message", handleParentMessage);
+
+  // 暴露全局函数供外部调用
+  window.__iframeHighlightControl = {
+    enable: enableHighlight,
+    disable: disableHighlight,
+    fullyDisable: fullyDisableHighlight,
+    isEnabled: function isEnabled() {
+      return highlightEnabled;
+    },
+    getSelectedElement: function getSelectedElement() {
+      return selectedElement;
+    },
+    updateSelected: updateSelectedHighlight,
+    // 通过消息发送开关控制
+    sendToggleMessage: function sendToggleMessage(enabled) {
+      window.parent.postMessage({
+        type: 'iframe-highlight-status',
+        enabled: enabled || highlightEnabled,
+        source: 'iframe-highlight-injector'
+      }, '*');
+    }
+  };
+
+  // 通知父窗口脚本已加载
+  try {
+    window.parent.postMessage({
+      type: "iframe-highlight-ready",
+      data: {
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        timestamp: Date.now()
+      },
+      source: "iframe-highlight-injector"
+    }, "*");
+  } catch (error) {
+    console.warn("无法发送就绪消息到父窗口:", error);
+  }
+
+  // 清理函数
+  window.__iframeHighlightCleanup = function () {
+    fullyDisableHighlight();
+    window.removeEventListener("message", handleParentMessage);
+    if (overlay.parentElement) {
+      overlay.parentElement.removeChild(overlay);
+    }
+    delete window.__iframeHighlightInitialized;
+    delete window.__iframeHighlightCleanup;
+  };
+})();
+
+</script>
 </body>
 </html>
