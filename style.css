@@ -61,6 +61,10 @@
 
 html { scroll-behavior: smooth; font-size: 16px; }
 
+/* ═══════════════════════════════════════════════════════════════
+   UNIFIED PARTICLE & GLOW SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+
 body {
   font-family: 'Crimson Text', Georgia, serif;
   background: var(--void);
@@ -69,9 +73,26 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   position: relative;
+  z-index: 1;
 }
 
-/* Global animated particles - full page coverage */
+/* Three.js Canvas - Main 3D Particles */
+#particles-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes particleFloatUp {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { transform: translateY(-300px) translateX(60px); opacity: 0; }
+}
+
+/* Global animated particles CSS */
 .particles-bg {
   position: fixed;
   top: 0;
@@ -121,12 +142,12 @@ body {
     radial-gradient(2px 2px at 1050px 500px, rgba(255,215,0,0.8), transparent),
     radial-gradient(4px 4px at 1250px 480px, rgba(255,215,0,1), transparent);
   background-size: 1500px 600px;
-  animation: globalParticleFloat 40s linear infinite;
+  animation: particleFloatUp 60s linear infinite;
 }
 
 .particles-bg::after {
-  animation: globalParticleFloat 30s linear infinite reverse;
-  opacity: 0.8;
+  animation: particleFloatDown 45s linear infinite reverse;
+  opacity: 1;
   background-image: 
     radial-gradient(2px 2px at 80px 100px, rgba(255,215,0,0.9), transparent),
     radial-gradient(3px 3px at 180px 200px, rgba(255,215,0,1), transparent),
@@ -152,24 +173,57 @@ body {
   animation-delay: -15s;
 }
 
-@keyframes globalParticleFloat {
+@keyframes particleFloatUp {
+  0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { transform: translateY(-300px) translateX(60px); opacity: 0; }
+}
+
+@keyframes particleFloatDown {
   0% { transform: translateY(-100px) translateX(0); opacity: 0; }
   5% { opacity: 1; }
   95% { opacity: 1; }
-  100% { transform: translateY(calc(100vh + 200px)) translateX(100px); opacity: 0; }
+  100% { transform: translateY(calc(100vh + 100px)) translateX(-60px); opacity: 0; }
 }
 
-/* Ensure main content is above particles */
+/* Hero unified glow */
+.hero-glow {
+  position: absolute;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(255,215,0,.15) 0%, rgba(255,215,0,.05) 40%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  animation: heroGlowPulse 8s ease-in-out infinite;
+  z-index: 0;
+}
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: .6; transform: translate(-50%,-50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%,-50%) scale(1.15); }
+}
+
+/* Hero Background Pattern */
+.hero-bg-pattern {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: transparent;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Ornamental decorations */
+.hero-ornament-top, .hero-ornament-bottom { position: absolute; left: 0; right: 0; pointer-events: none; z-index: 1; }
+.hero-ornament-top { top: 0; }
+.hero-ornament-bottom { bottom: 0; }
+.hero-ornament-top svg, .hero-ornament-bottom svg { width: 100%; display: block; }
+.hero-ornament-top circle { transform-origin: center; }
+
+/* All content sections sit above particles */
 header, main, section, footer, .hero {
   position: relative;
   z-index: 1;
-  background: transparent;
-}
-
-/* Hero specific adjustments */
-.hero {
-  position: relative;
-  z-index: 1;
+  background: transparent !important;
 }
 
 /* Scrollbar Styling */
@@ -238,7 +292,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
   align-items: center; justify-content: center;
   text-align: center;
   padding: 60px 24px;
-  background: var(--deep);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -454,7 +508,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
    ═══════════════════════════════════════════════════════════════ */
 .how-section {
   padding: 120px 0;
-  background: linear-gradient(180deg, var(--purple-mid) 0%, var(--purple-deep) 100%);
+  background: transparent;
   border-top: 1px solid rgba(255,215,0,.08);
 }
 
@@ -517,7 +571,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
 /* ═══════════════════════════════════════════════════════════════
    LIVE SECTION
    ═══════════════════════════════════════════════════════════════ */
-.live-section { padding: 120px 0; background: var(--void); }
+.live-section { padding: 120px 0; background: transparent; }
 
 .live-link {
   color: var(--gold); text-decoration: none; font-family: 'Cinzel', serif;
@@ -587,7 +641,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
    ═══════════════════════════════════════════════════════════════ */
 .shop-section {
   padding: 120px 0 100px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(26,20,53,.6) 0%, var(--void) 70%);
+  background: transparent;
 }
 
 .shop-title-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 56px; }
@@ -976,7 +1030,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--gold); line-height: 1.2;
    FOOTER - Enhanced
    ═══════════════════════════════════════════════════════════════ */
 .footer {
-  background: var(--deep);
+  background: transparent;
   border-top: 1px solid rgba(255,215,0,.1);
   position: relative; overflow: hidden;
 }

@@ -23,17 +23,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Global Animated Particles -->
+  <!-- Three.js 3D Particles Canvas -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Global Animated Particles CSS -->
   <div class="particles-bg"></div>
 
   <!-- HERO -->
   <header class="hero">
-    <div class="hero-bg-pattern"></div>
     <div class="hero-glow"></div>
+    <div class="hero-bg-pattern"></div>
     <div class="hero-ornament-top">
       <svg viewBox="0 0 400 20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
         <path d="M0 10 Q50 0 100 10 T200 10 T300 10 T400 10" stroke="#ffd700" stroke-width="0.5" fill="none" opacity=".5"/>
