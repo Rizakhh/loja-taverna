@@ -15,6 +15,9 @@ let totalPaginas = 1;
 let filtroAtivo = 'all';
 let historicoPrecos = {}; // { id: [ {data, preco, desconto}, ... ] }
 
+// ── Helpers ─────────────────────────────────────────────────
+function fmtDesc(d) { return d % 1 === 0 ? d.toString() : d.toFixed(1); }
+
 // ── Twitch Player ────────────────────────────────────────────
 let isLive = false;
 let clipIndex = 0;
@@ -100,14 +103,33 @@ function loadOfflineClip() {
 
 // ── Histórico de preços ─────────────────────────────────────
 function carregarHistorico() {
+  // Try loading from inline script first
   const script = document.getElementById('preco-history-data');
-  if (!script) return;
-  try {
-    historicoPrecos = JSON.parse(script.textContent || '{}');
-    console.log('[Loja] Historico carregado:', Object.keys(historicoPrecos).length, 'itens');
-  } catch (e) {
-    historicoPrecos = {};
+  if (script) {
+    try {
+      const data = JSON.parse(script.textContent || '{}');
+      if (Object.keys(data).length > 0) {
+        historicoPrecos = data;
+        console.log('[Loja] Historico carregado (inline):', Object.keys(historicoPrecos).length, 'itens');
+        return;
+      }
+    } catch (e) {}
   }
+  
+  // Fallback: fetch preco_history.json
+  fetch('preco_history.json')
+    .then(r => {
+      if (!r.ok) throw new Error('Not found');
+      return r.json();
+    })
+    .then(data => {
+      historicoPrecos = data;
+      console.log('[Loja] Historico carregado (json):', Object.keys(historicoPrecos).length, 'itens');
+    })
+    .catch(() => {
+      historicoPrecos = {};
+      console.log('[Loja] Historico: arquivo nao encontrado');
+    });
 }
 
 // ── Carregar produtos ───────────────────────────────────────
@@ -289,7 +311,7 @@ function cardHTML(p) {
         <span class="price-current">${fmt(p.precoFinal)}</span>
       </div>
       <span class="price-original">${fmt(p.preco)}</span>
-      <span class="price-badge">-${p.desconto}%</span>
+      <span class="price-badge">-${fmtDesc(p.desconto)}%</span>
     </div>`;
   } else {
     precoHtml = `<div class="card-price">
@@ -387,7 +409,7 @@ function toggleHistory(id) {
   const rows = ultimas.map(e => {
     const data = e.data || '—';
     const preco = (e.preco || 0).toLocaleString('pt-BR');
-    const off = e.desconto > 0 ? ` <span class="hist-off">(${e.desconto}% off)</span>` : '';
+    const off = e.desconto > 0 ? ` <span class="hist-off">(${fmtDesc(e.desconto)}% off)</span>` : '';
     return `<tr><td class="hist-data">${data}</td><td class="hist-preco">${preco}${off}</td></tr>`;
   }).join('');
 
@@ -1159,7 +1181,7 @@ function openProductModal(id) {
     priceHtml = `<div class="modal-price">
       <span class="modal-price-current">${fmt(p.precoFinal)}</span>
       <span class="modal-price-original">${fmt(p.preco)}</span>
-      <span class="modal-price-badge">-${p.desconto}%</span>
+      <span class="modal-price-badge">-${fmtDesc(p.desconto)}%</span>
     </div>`;
   } else {
     priceHtml = `<div class="modal-price">
