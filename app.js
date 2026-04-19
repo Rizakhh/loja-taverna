@@ -408,8 +408,11 @@ function toggleHistory(id) {
 
   const rows = ultimas.map(e => {
     const data = e.data || '—';
-    const preco = (e.preco || 0).toLocaleString('pt-BR');
-    const off = e.desconto > 0 ? ` <span class="hist-off">(${fmtDesc(e.desconto)}% off)</span>` : '';
+    const precoBruto = e.preco || 0;
+    const desconto = e.desconto || 0;
+    const precoFinal = desconto > 0 ? Math.ceil(precoBruto * (1 - desconto / 100)) : precoBruto;
+    const preco = precoFinal.toLocaleString('pt-BR');
+    const off = desconto > 0 ? ` <span class="hist-off">(${fmtDesc(desconto)}% off)</span>` : '';
     return `<tr><td class="hist-data">${data}</td><td class="hist-preco">${preco}${off}</td></tr>`;
   }).join('');
 
