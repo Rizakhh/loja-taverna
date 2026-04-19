@@ -2099,7 +2099,7 @@ h3 {
   color: var(--cream-dim);
 }
 .sold-info {
-  color: var(--gray-sold);
+  color: var(--cream-dim);
   background: rgba(255, 255, 255, 0.03);
   padding: 4px 10px;
   border-radius: 6px;
