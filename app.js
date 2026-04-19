@@ -144,7 +144,7 @@ function carregarProdutos() {
     todosProdutos = dados.map(p => Object.assign({}, p, {
       vendido:  p.estoque === 0 || p.status === 'vendido',
       isNovo:   p.isNovo && !p.vendido,
-      isSale:   p.desconto > 0 && !p.vendido
+      isSale:   Number(p.desconto) > 0 && !p.vendido
     }));
 
     todosProdutos.sort(cmpProdutos);
