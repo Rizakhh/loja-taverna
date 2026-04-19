@@ -1462,12 +1462,33 @@ function initContactForm() {
       return;
     }
     
-    // Simulate sending (in real implementation, send to backend)
-    mostrarToast('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-    form.reset();
-    
-    // Remove valid classes
-    form.querySelectorAll('.valid').forEach(el => el.classList.remove('valid'));
+    // Enviar via Formspree
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Enviando...';
+    submitBtn.disabled = true;
+
+    fetch('https://formspree.io/f/mqewbybg', {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (response.ok) {
+        mostrarToast('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        form.reset();
+        form.querySelectorAll('.valid').forEach(el => el.classList.remove('valid'));
+      } else {
+        mostrarToast('Erro ao enviar. Tente novamente mais tarde.');
+      }
+    })
+    .catch(() => {
+      mostrarToast('Erro de conexao. Tente novamente mais tarde.');
+    })
+    .finally(() => {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    });
   });
 }
 
