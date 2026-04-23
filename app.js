@@ -25,6 +25,7 @@ function escHtml(s) {
 let isLive = false;
 let clipIndex = 0;
 let lastKnownStatus = null;
+let currentIframeSrc = "";
 
 const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost",
@@ -60,7 +61,7 @@ async function carregarClipsDinamicos() {
   }
 }
 
-// Obtém URL de um clip
+// Obtém URL de um clip (dinâmico ou fallback)
 function getClipUrl(index) {
   const parent = window.location.hostname || "localhost";
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
@@ -79,16 +80,21 @@ function prevClip() {
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
   clipIndex = (clipIndex - 1 + lista.length) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
+  if (!iframe) return;
+  const novaUrl = getClipUrl(clipIndex);
+  if (iframe.src !== novaUrl) iframe.src = novaUrl;
 }
 
 function nextClip() {
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
   clipIndex = (clipIndex + 1) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
+  if (!iframe) return;
+  const novaUrl = getClipUrl(clipIndex);
+  if (iframe.src !== novaUrl) iframe.src = novaUrl;
 }
 
+// Obtém status real da Twitch
 async function obterStatusLive() {
   try {
     const response = await fetch(
@@ -98,7 +104,9 @@ async function obterStatusLive() {
     const text = (await response.text()).trim().toLowerCase();
     if (text === "online") return true;
     if (text === "offline") return false;
-    console.warn("[Twitch] Status inesperado:", text);
+    if (text && text !== "online" && text !== "offline") {
+      console.warn("[Twitch] Status inesperado:", text);
+    }
     return false;
   } catch (error) {
     console.error("[Twitch] Erro ao consultar status:", error);
@@ -111,7 +119,6 @@ async function verificarEAtualizarPlayer() {
   if (!iframe) return;
 
   const currentlyLive = await obterStatusLive();
-
   if (currentlyLive === lastKnownStatus) return;
   lastKnownStatus = currentlyLive;
 
@@ -122,7 +129,11 @@ async function verificarEAtualizarPlayer() {
 
   if (currentlyLive) {
     const parent = window.location.hostname || "localhost";
-    iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
+    const liveUrl = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
+    if (iframe.src !== liveUrl) {
+      iframe.src = liveUrl;
+      currentIframeSrc = liveUrl;
+    }
     setLiveBadge(true);
     showClipNav(false);
     if (window.clipTimer) clearInterval(window.clipTimer);
@@ -131,7 +142,7 @@ async function verificarEAtualizarPlayer() {
   }
 }
 
-// Carrega um clip aleatório (modo offline)
+// Carrega um clip aleatório
 async function loadOfflineClip() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
@@ -141,7 +152,11 @@ async function loadOfflineClip() {
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
   if (!lista.length) return;
   clipIndex = Math.floor(Math.random() * lista.length);
-  iframe.src = getClipUrl(clipIndex);
+  const novaUrl = getClipUrl(clipIndex);
+  if (iframe.src !== novaUrl) {
+    iframe.src = novaUrl;
+    currentIframeSrc = novaUrl;
+  }
   setLiveBadge(false);
   showClipNav(true);
 
@@ -151,6 +166,7 @@ async function loadOfflineClip() {
   }, 45000);
 }
 
+// UI helpers
 function setLiveBadge(live) {
   const badge = document.getElementById("player-badge");
   if (!badge) return;
@@ -179,15 +195,17 @@ function showClipNav(show) {
   if (next) next.style.display = show ? "flex" : "none";
 }
 
-// Inicialização do Twitch Player
 function initTwitchPlayer() {
   carregarClipsDinamicos();
-  verificarEAtualizarPlayer();
+  setTimeout(() => {
+    verificarEAtualizarPlayer();
+  }, 500);
   setInterval(verificarEAtualizarPlayer, 120000);
   setInterval(carregarClipsDinamicos, 600000);
 }
 
 // HISTÓRICO DE PREÇOS
+
 function carregarHistorico() {
   const script = document.getElementById("preco-history-data");
   if (script) {
@@ -225,6 +243,7 @@ function carregarHistorico() {
 }
 
 // PRODUTOS
+
 function carregarProdutos() {
   console.log("[Loja] Iniciando carregarProdutos...");
   const script = document.getElementById("produtos-data");
@@ -270,6 +289,7 @@ function cmpProdutos(a, b) {
 }
 
 // FILTROS
+
 function configurarFiltros() {
   document.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -300,6 +320,7 @@ function filtrar(lista) {
 }
 
 // RENDERIZAÇÃO
+
 function renderizarPagina() {
   const filtrado = filtrarProdutos();
   totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
@@ -379,6 +400,7 @@ function scrollToShop() {
 }
 
 // CARD HTML
+
 function cardHTML(p) {
   let tags = "";
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
@@ -503,6 +525,7 @@ function cardHTML(p) {
 }
 
 // HISTÓRICO
+
 function toggleHistory(id) {
   const existing = document.getElementById("hist-modal-" + id);
   if (existing) {
@@ -535,7 +558,7 @@ function toggleHistory(id) {
     .join("");
 
   const tbody =
-    rows || '<tr><td colspan="2" class="hist-empty">Sem registros</td></tr>';
+    rows || '<td><td colspan="2" class="hist-empty">Sem registros</td></tr>';
 
   const modal = document.createElement("div");
   modal.id = "hist-modal-" + id;
@@ -598,6 +621,7 @@ function mostrarFeedback(btn) {
 }
 
 // TOAST
+
 let toastTimer = null;
 function mostrarToast(msg) {
   const t = document.getElementById("toast");
@@ -609,6 +633,7 @@ function mostrarToast(msg) {
 }
 
 // STATS E FILTROS
+
 function atualizarStats(produtos) {
   const disp = produtos.filter((p) => !p.vendido);
   const promo = disp.filter((p) => p.isSale);
@@ -664,7 +689,9 @@ function mostrarEmpty() {
   if (pgCtrl) pgCtrl.style.display = "none";
   if (pgInfo) pgInfo.style.display = "none";
 }
+
 // 3D CARD TILT
+
 function applyCardTiltToContainer(container) {
   if (!container) return;
   const cards = container.querySelectorAll(".product-card");
@@ -699,6 +726,7 @@ function initCardTilt() {
 }
 
 // BUSCA AVANÇADA
+
 let searchQuery = "";
 let priceMin = 0;
 let priceMax = 1000000;
@@ -767,6 +795,7 @@ function filtrarProdutos() {
 }
 
 // FORMULÁRIO DE CONTATO
+
 function initContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return;
@@ -1249,9 +1278,134 @@ function initAnimatedGradients() {
       });
   }
 }
-
+// MOBILE MENU DRAWER (mantido intacto)
 function initMobileMenu() {
-  /* mantido do original – não alterado para não quebrar */
+  const existingToggle = document.querySelector(".mobile-menu-toggle");
+  if (!existingToggle) {
+    const header = document.querySelector(".hero-header");
+    if (header) {
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "mobile-menu-toggle";
+      toggleBtn.setAttribute("aria-label", "Menu");
+      toggleBtn.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      `;
+      header.appendChild(toggleBtn);
+    }
+  }
+
+  const existingDrawer = document.querySelector(".mobile-drawer");
+  if (!existingDrawer) {
+    const drawer = document.createElement("div");
+    drawer.className = "mobile-drawer";
+    drawer.innerHTML = `
+      <div class="drawer-content">
+        <button class="drawer-close" aria-label="Fechar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <nav class="drawer-nav">
+          <a href="#loja">Loja</a>
+          <a href="#como-participar">Como Participar</a>
+          <a href="#live">Live</a>
+        </nav>
+      </div>
+    `;
+    document.body.appendChild(drawer);
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .mobile-menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        color: var(--gold);
+        cursor: pointer;
+        padding: 8px;
+        z-index: 1001;
+      }
+      @media (max-width: 768px) {
+        .mobile-menu-toggle { display: block; }
+        .hero-header nav { display: none; }
+      }
+      .mobile-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(6, 5, 15, 0.95);
+        backdrop-filter: blur(20px);
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .mobile-drawer.open {
+        transform: translateX(0);
+      }
+      .drawer-content {
+        padding: 40px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .drawer-close {
+        align-self: flex-end;
+        background: transparent;
+        border: none;
+        color: var(--gold);
+        cursor: pointer;
+        padding: 12px;
+        margin-bottom: 40px;
+      }
+      .drawer-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .drawer-nav a {
+        font-family: 'Cinzel', serif;
+        font-size: 1.5rem;
+        color: var(--gold);
+        text-decoration: none;
+        transition: var(--transition);
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      .mobile-drawer.open .drawer-nav a {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .mobile-drawer.open .drawer-nav a:nth-child(1) { transition-delay: 0.1s; }
+      .mobile-drawer.open .drawer-nav a:nth-child(2) { transition-delay: 0.2s; }
+      .mobile-drawer.open .drawer-nav a:nth-child(3) { transition-delay: 0.3s; }
+      .drawer-nav a:hover {
+        color: var(--gold-light);
+        transform: translateX(10px);
+      }
+    `;
+    document.head.appendChild(style);
+
+    const toggle = document.querySelector(".mobile-menu-toggle");
+    const closeBtn = document.querySelector(".drawer-close");
+    const drawerEl = document.querySelector(".mobile-drawer");
+
+    if (toggle && closeBtn && drawerEl) {
+      toggle.addEventListener("click", () => drawerEl.classList.add("open"));
+      closeBtn.addEventListener("click", () =>
+        drawerEl.classList.remove("open"),
+      );
+      drawerEl.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => drawerEl.classList.remove("open"));
+      });
+    }
+  }
 }
 
 // INICIALIZAÇÃO
