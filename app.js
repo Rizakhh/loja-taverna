@@ -102,42 +102,40 @@ async function verificarEAtualizarPlayer() {
   if (!iframe) return;
 
   try {
-    // Checa o status da live usando o endpoint de uptime do DecAPI
+    // Usa endpoint 'status' que retorna exatamente 'online' ou 'offline'
     const response = await fetch(
-      `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`,
+      `https://decapi.me/twitch/status/${TWITCH_CHANNEL}?_=${Date.now()}`,
+      { cache: "no-store" }
     );
-    const text = await response.text();
-    const currentlyLive = !text.includes("Offline") && !text.includes("Error");
+    const text = (await response.text()).trim().toLowerCase();
+    const currentlyLive = text === "online";
 
-    // Comportamento para o carregamento inicial da página
+    console.log("[Twitch] status:", text, "-> live?", currentlyLive);
+
     if (!iframe.src || iframe.src === window.location.href) {
       if (currentlyLive) {
         const parent = window.location.hostname || "localhost";
-        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
         setLiveBadge(true);
         showClipNav(false);
       } else {
-        loadOfflineClip();
+        await loadOfflineClip();
       }
       return;
     }
 
-    // Transição dinâmica: O canal entrou Online enquanto a pessoa via os clipes
     if (currentlyLive && !isLive) {
       const parent = window.location.hostname || "localhost";
-      iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+      iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
       setLiveBadge(true);
       showClipNav(false);
-    }
-    // Transição dinâmica: O canal ficou Offline enquanto a pessoa assistia
-    else if (!currentlyLive && isLive) {
-      loadOfflineClip();
+    } else if (!currentlyLive && isLive) {
+      await loadOfflineClip();
     }
   } catch (error) {
-    console.error("[Loja] Falha ao verificar o status da Twitch:", error);
-    // Fallback: se der erro de rede no primeiro load, prioriza tocar os clipes
-    if (!iframe.src || iframe.src === window.location.href) {
-      loadOfflineClip();
+    console.error("[Loja] Falha ao verificar status da Twitch:", error);
+    if (!iframe.src || iframe.src === window.location.href || isLive) {
+      await loadOfflineClip();
     }
   }
 }
