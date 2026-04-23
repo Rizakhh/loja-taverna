@@ -1,13 +1,12 @@
-/* ════════════════════════════════════════════════════════════
+/* ============================================================
    Taverna do Rizakh — app.js
    - Fonte: dados embutidos no HTML (produtos-data)
    - Paginação (9/página), ordenação, filtros
    - Cards: id, nome, preço, tags, video, data, comprador, steam
    - Histórico de preços no hover
-   ════════════════════════════════════════════════════════════ */
+   ============================================================ */
 
 const ITEMS_PER_PAGE = 9;
-const TWITCH_CHANNEL = "rizakh";
 
 let todosProdutos = [];
 let paginaAtual = 1;
@@ -15,14 +14,17 @@ let totalPaginas = 1;
 let filtroAtivo = "all";
 let historicoPrecos = {}; // { id: [ {data, preco, desconto}, ... ] }
 
-// ── Helpers ─────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------
 function fmtDesc(d) {
   return d % 1 === 0 ? d.toString() : d.toFixed(1);
 }
 
-// ── Twitch Player ────────────────────────────────────────────
+// -- Twitch Player --
 let isLive = false;
 let clipIndex = 0;
+
+const TWITCH_CHANNEL = "rizakh";
+const CLIPS_API = "https://falling-cake-b5d5.rizakh-rph.workers.dev/clips";
 
 const OFFLINE_CLIPS = [
   "https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost",
@@ -33,13 +35,34 @@ const OFFLINE_CLIPS = [
   "https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost",
 ];
 
+let dynamicClips = [];
+
+async function carregarClipsDinamicos() {
+  try {
+    const res = await fetch(`${CLIPS_API}?_=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const urls = await res.json();
+    if (Array.isArray(urls) && urls.length) {
+      dynamicClips = urls;
+      console.log("[Twitch] Clips dinamicos carregados:", dynamicClips.length);
+    }
+  } catch (e) {
+    console.warn("[Twitch] Falha ao buscar clips dinamicos, usando fallback:", e);
+    dynamicClips = [];
+  }
+}
+
 function getClipUrl(index) {
   const parent = window.location.hostname || "localhost";
-  const clip = OFFLINE_CLIPS[index % OFFLINE_CLIPS.length];
-  return (
-    clip.replace("parent=localhost", "parent=" + parent) +
-    "&autoplay=true&muted=false"
-  );
+  const lista = dynamicClips.length ? dynamicClips : OFFLINE_CLIPS;
+  let clip = lista[index % lista.length];
+  clip = clip.replace(/parent=[^&]+/g, "parent=" + parent);
+  if (!clip.includes("parent=")) {
+    clip += (clip.includes("?") ? "&" : "?") + "parent=" + parent;
+  }
+  if (!clip.includes("autoplay=")) clip += "&autoplay=true";
+  if (!clip.includes("muted=")) clip += "&muted=true";
+  return clip;
 }
 
 function setLiveBadge(live) {
@@ -51,6 +74,10 @@ function setLiveBadge(live) {
     : '<span class="offline-dot"></span>Offline';
   badge.style.background = live ? "var(--crimson)" : "#555570";
   updateTwitchLiveIndicator(live);
+  if (live && window.clipTimer) {
+    clearInterval(window.clipTimer);
+    window.clipTimer = null;
+  }
 }
 
 function updateTwitchLiveIndicator(live) {
@@ -76,90 +103,89 @@ function showClipNav(show) {
 }
 
 function prevClip() {
-  clipIndex = (clipIndex - 1 + OFFLINE_CLIPS.length) % OFFLINE_CLIPS.length;
+  const lista = dynamicClips.length ? dynamicClips : OFFLINE_CLIPS;
+  clipIndex = (clipIndex - 1 + lista.length) % lista.length;
   const iframe = document.getElementById("twitch-player");
   if (iframe) iframe.src = getClipUrl(clipIndex);
 }
 
 function nextClip() {
-  clipIndex = (clipIndex + 1) % OFFLINE_CLIPS.length;
+  const lista = dynamicClips.length ? dynamicClips : OFFLINE_CLIPS;
+  clipIndex = (clipIndex + 1) % lista.length;
   const iframe = document.getElementById("twitch-player");
   if (iframe) iframe.src = getClipUrl(clipIndex);
 }
-
-// function initTwitchPlayer() {
-//   const iframe = document.getElementById('twitch-player');
-//   if (!iframe) return;
-//   const parent = window.location.hostname || 'localhost';
-// O embed da Twitch detecta live/offline automaticamente — sem CORS
-//   iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
-//   setLiveBadge(false); // Assume offline até o player indicar
-//   showClipNav(true);
-// }
 
 async function verificarEAtualizarPlayer() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
 
   try {
-    // Checa o status da live usando o endpoint de uptime do DecAPI
     const response = await fetch(
-      `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`,
+      `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}?_=${Date.now()}`,
+      { cache: "no-store" }
     );
-    const text = await response.text();
-    const currentlyLive = !text.includes("Offline") && !text.includes("Error");
+    const text = (await response.text()).trim();
+    const lower = text.toLowerCase();
+    const currentlyLive = !lower.includes("offline") && !lower.includes("error") && lower !== "";
 
-    // Comportamento para o carregamento inicial da página
+    console.log("[Twitch] status:", text, "-> live?", currentlyLive);
+
     if (!iframe.src || iframe.src === window.location.href) {
       if (currentlyLive) {
         const parent = window.location.hostname || "localhost";
-        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
         setLiveBadge(true);
         showClipNav(false);
       } else {
-        loadOfflineClip();
+        await loadOfflineClip();
       }
       return;
     }
 
-    // Transição dinâmica: O canal entrou Online enquanto a pessoa via os clipes
     if (currentlyLive && !isLive) {
       const parent = window.location.hostname || "localhost";
-      iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
+      iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
       setLiveBadge(true);
       showClipNav(false);
-    }
-    // Transição dinâmica: O canal ficou Offline enquanto a pessoa assistia
-    else if (!currentlyLive && isLive) {
-      loadOfflineClip();
+    } else if (!currentlyLive && isLive) {
+      await loadOfflineClip();
     }
   } catch (error) {
-    console.error("[Loja] Falha ao verificar o status da Twitch:", error);
-    // Fallback: se der erro de rede no primeiro load, prioriza tocar os clipes
-    if (!iframe.src || iframe.src === window.location.href) {
-      loadOfflineClip();
+    console.error("[Loja] Falha ao verificar status da Twitch:", error);
+    if (!iframe.src || iframe.src === window.location.href || isLive) {
+      await loadOfflineClip();
     }
   }
 }
 
 function initTwitchPlayer() {
-  // Executa a primeira checagem imediatamente no load
+  carregarClipsDinamicos();
   verificarEAtualizarPlayer();
-
-  // Configura um loop para checar mudanças de status a cada 2 minutos (120000 ms)
   setInterval(verificarEAtualizarPlayer, 120000);
+  setInterval(carregarClipsDinamicos, 600000);
 }
 
-function loadOfflineClip() {
+async function loadOfflineClip() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
-  clipIndex = Math.floor(Math.random() * OFFLINE_CLIPS.length);
+  if (!dynamicClips.length) {
+    await carregarClipsDinamicos();
+  }
+  const lista = dynamicClips.length ? dynamicClips : OFFLINE_CLIPS;
+  clipIndex = Math.floor(Math.random() * lista.length);
   iframe.src = getClipUrl(clipIndex);
   setLiveBadge(false);
   showClipNav(true);
+
+  if (window.clipTimer) clearInterval(window.clipTimer);
+  window.clipTimer = setInterval(() => {
+    if (!isLive) nextClip();
+  }, 45000);
 }
 
-// ── Histórico de preços ─────────────────────────────────────
+
+// -- Histórico de preços -------------------------------------
 function carregarHistorico() {
   // Try loading from inline script first
   const script = document.getElementById("preco-history-data");
@@ -198,7 +224,7 @@ function carregarHistorico() {
     });
 }
 
-// ── Carregar produtos ───────────────────────────────────────
+// -- Carregar produtos ---------------------------------------
 function carregarProdutos() {
   console.log("[Loja] Iniciando carregarProdutos...");
   const script = document.getElementById("produtos-data");
@@ -243,7 +269,7 @@ function cmpProdutos(a, b) {
   return 0;
 }
 
-// ── Filtros ─────────────────────────────────────────────────
+// -- Filtros -------------------------------------------------
 function configurarFiltros() {
   document.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -273,7 +299,7 @@ function filtrar(lista) {
   }
 }
 
-// ── Renderização ────────────────────────────────────────────
+// -- Renderização --------------------------------------------
 function renderizarPagina() {
   const filtrado = filtrar(todosProdutos);
   totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
@@ -347,7 +373,7 @@ function scrollToShop() {
   if (shop) shop.scrollIntoView({ behavior: "smooth" });
 }
 
-// ── Card HTML ───────────────────────────────────────────────
+// -- Card HTML -----------------------------------------------
 function cardHTML(p) {
   let tags = "";
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
@@ -483,7 +509,7 @@ function cardHTML(p) {
   </div>`;
 }
 
-// ── Toggle histórico de preços (modal) ───────────────────────
+// -- Toggle histórico de preços (modal) -----------------------
 function toggleHistory(id) {
   const existing = document.getElementById("hist-modal-" + id);
   if (existing) {
@@ -543,7 +569,7 @@ document.addEventListener("click", (e) => {
   if (e.target.classList.contains("hist-modal")) e.target.remove();
 });
 
-// ── Copiar comando ───────────────────────────────────────────
+// -- Copiar comando -------------------------------------------
 function copiarComando(btn) {
   const cmd = btn.dataset.cmd;
   if (!cmd) return;
@@ -580,7 +606,7 @@ function mostrarFeedback(btn) {
   }, 2500);
 }
 
-// ── Toast ───────────────────────────────────────────────────
+// -- Toast ---------------------------------------------------
 let toastTimer = null;
 function mostrarToast(msg) {
   const t = document.getElementById("toast");
@@ -591,7 +617,7 @@ function mostrarToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3500);
 }
 
-// ── Stats ───────────────────────────────────────────────────
+// -- Stats ---------------------------------------------------
 function atualizarStats(produtos) {
   const disp = produtos.filter((p) => !p.vendido);
   const promo = disp.filter((p) => p.isSale);
@@ -608,7 +634,7 @@ function atualizarStats(produtos) {
   if (em && menor !== Infinity) em.textContent = menor;
 }
 
-// ── Filtros ─────────────────────────────────────────────────
+// -- Filtros -------------------------------------------------
 function atualizarFiltros() {
   const total = todosProdutos.length;
   const disp = todosProdutos.filter((p) => !p.vendido).length;
@@ -630,7 +656,7 @@ function atualizarFiltros() {
   });
 }
 
-// ── Empty state ─────────────────────────────────────────────
+// -- Empty state ---------------------------------------------
 function mostrarEmpty() {
   const grid = document.getElementById("shop-grid");
   const empty = document.getElementById("empty-state");
@@ -652,7 +678,7 @@ function mostrarEmpty() {
   if (pgInfo) pgInfo.style.display = "none";
 }
 
-// ── Util ─────────────────────────────────────────────────────
+// -- Util -----------------------------------------------------
 function escHtml(s) {
   if (!s) return "";
   return String(s)
@@ -662,9 +688,9 @@ function escHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // THREE.JS 3D PARTICLES
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initThreeParticles() {
   const canvas = document.getElementById("particles-canvas");
   if (!canvas || !window.THREE) return;
@@ -789,9 +815,9 @@ function initThreeParticles() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // GSAP SCROLL ANIMATIONS
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initGSAPScrollAnimations() {
   if (!window.gsap || !window.ScrollTrigger) return;
 
@@ -937,9 +963,9 @@ function initGSAPScrollAnimations() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // ANIMATED GRADIENT BACKGROUNDS
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initAnimatedGradients() {
   // Hero gradient animation
   const hero = document.querySelector(".hero");
@@ -1026,9 +1052,9 @@ function initAnimatedGradients() {
   document.head.appendChild(style);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // 3D CARD TILT EFFECT
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initCardTilt() {
   const cards = document.querySelectorAll(".product-card");
 
@@ -1057,9 +1083,9 @@ function initCardTilt() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // PARALLAX SCROLL EFFECT
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initParallaxScroll() {
   if (!window.gsap || !window.ScrollTrigger) return;
 
@@ -1143,9 +1169,9 @@ function initParallaxScroll() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // MOBILE MENU DRAWER
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initMobileMenu() {
   // Create mobile menu button if not exists
   const existingToggle = document.querySelector(".mobile-menu-toggle");
@@ -1286,9 +1312,9 @@ function initMobileMenu() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // PRODUCT DETAIL MODAL
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function openProductModal(id) {
   const p = todosProdutos.find((prod) => prod.id == id);
   if (!p) return;
@@ -1387,9 +1413,9 @@ function closeProductModal() {
 }
 
 // Update cardHTML to add click handler for modal
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // ADVANCED SEARCH SYSTEM
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 let searchQuery = "";
 let priceMin = 0;
 let priceMax = 1000000;
@@ -1546,9 +1572,9 @@ renderizarPagina = function () {
   }
 };
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // CONTACT FORM
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return;
@@ -1641,9 +1667,9 @@ function initContactForm() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 // VISUAL ENHANCEMENTS - All premium effects
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initVisualEnhancements() {
   if (window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
