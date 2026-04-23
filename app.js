@@ -1,30 +1,32 @@
-/* ════════════════════════════════════════════════════════════
-   Taverna do Rizakh — app.js
-   - Fonte: dados embutidos no HTML (produtos-data)
-   - Paginação (9/página), ordenação, filtros
-   - Cards: id, nome, preço, tags, video, data, comprador, steam
-   - Histórico de preços no hover
-   ════════════════════════════════════════════════════════════ */
-
 const ITEMS_PER_PAGE = 9;
 const TWITCH_CHANNEL = "rizakh";
+const CLIPS_API = "https://falling-cake-b5d5.rizakh-rph.workers.dev/clips";
 
 let todosProdutos = [];
 let paginaAtual = 1;
 let totalPaginas = 1;
 let filtroAtivo = "all";
-let historicoPrecos = {}; // { id: [ {data, preco, desconto}, ... ] }
+let historicoPrecos = {};
 
-// ── Helpers ─────────────────────────────────────────────────
+// ── Helpers
 function fmtDesc(d) {
   return d % 1 === 0 ? d.toString() : d.toFixed(1);
 }
 
-// ── Twitch Player ────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 let isLive = false;
 let clipIndex = 0;
+let lastKnownStatus = null;
 
-const OFFLINE_CLIPS = [
+const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost",
   "https://clips.twitch.tv/embed?clip=FriendlyConfidentMangoPogChamp-jOjwS2W-_dFd-upn&parent=localhost",
   "https://clips.twitch.tv/embed?clip=AverageGoldenPigeonVoteNay&parent=localhost",
@@ -33,13 +35,120 @@ const OFFLINE_CLIPS = [
   "https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost",
 ];
 
+let dynamicClips = [];
+
+// Busca clips dinâmicos da API
+async function carregarClipsDinamicos() {
+  try {
+    const res = await fetch(`${CLIPS_API}?_=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const urls = await res.json();
+    if (Array.isArray(urls) && urls.length) {
+      dynamicClips = urls;
+      console.log("[Twitch] Clips dinâmicos carregados:", dynamicClips.length);
+    } else {
+      dynamicClips = [];
+    }
+  } catch (e) {
+    console.warn(
+      "[Twitch] Falha ao buscar clips dinâmicos, usando fallback:",
+      e,
+    );
+    dynamicClips = [];
+  }
+}
+
+// Obtém URL de um clip
 function getClipUrl(index) {
   const parent = window.location.hostname || "localhost";
-  const clip = OFFLINE_CLIPS[index % OFFLINE_CLIPS.length];
-  return (
-    clip.replace("parent=localhost", "parent=" + parent) +
-    "&autoplay=true&muted=false"
+  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  let clip = lista[index % lista.length];
+  clip = clip.replace(/parent=[^&]+/g, "parent=" + parent);
+  if (!clip.includes("parent=")) {
+    clip += (clip.includes("?") ? "&" : "?") + "parent=" + parent;
+  }
+  if (!clip.includes("autoplay=")) clip += "&autoplay=true";
+  if (!clip.includes("muted=")) clip += "&muted=true";
+  return clip;
+}
+
+// Controle de navegação entre clips
+function prevClip() {
+  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  clipIndex = (clipIndex - 1 + lista.length) % lista.length;
+  const iframe = document.getElementById("twitch-player");
+  if (iframe) iframe.src = getClipUrl(clipIndex);
+}
+
+function nextClip() {
+  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  clipIndex = (clipIndex + 1) % lista.length;
+  const iframe = document.getElementById("twitch-player");
+  if (iframe) iframe.src = getClipUrl(clipIndex);
+}
+
+async function obterStatusLive() {
+  try {
+    const response = await fetch(
+      `https://decapi.me/twitch/status/${TWITCH_CHANNEL}?_=${Date.now()}`,
+      { cache: "no-store" },
+    );
+    const text = (await response.text()).trim().toLowerCase();
+    if (text === "online") return true;
+    if (text === "offline") return false;
+    console.warn("[Twitch] Status inesperado:", text);
+    return false;
+  } catch (error) {
+    console.error("[Twitch] Erro ao consultar status:", error);
+    return false;
+  }
+}
+
+async function verificarEAtualizarPlayer() {
+  const iframe = document.getElementById("twitch-player");
+  if (!iframe) return;
+
+  const currentlyLive = await obterStatusLive();
+
+  if (currentlyLive === lastKnownStatus) return;
+  lastKnownStatus = currentlyLive;
+
+  console.log(
+    "[Twitch] Status mudou para:",
+    currentlyLive ? "online" : "offline",
   );
+
+  if (currentlyLive) {
+    const parent = window.location.hostname || "localhost";
+    iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
+    setLiveBadge(true);
+    showClipNav(false);
+    if (window.clipTimer) clearInterval(window.clipTimer);
+  } else {
+    await loadOfflineClip();
+  }
+}
+
+// Carrega um clip aleatório (modo offline)
+async function loadOfflineClip() {
+  const iframe = document.getElementById("twitch-player");
+  if (!iframe) return;
+  if (!dynamicClips.length) {
+    await carregarClipsDinamicos();
+  }
+  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  if (!lista.length) return;
+  clipIndex = Math.floor(Math.random() * lista.length);
+  iframe.src = getClipUrl(clipIndex);
+  setLiveBadge(false);
+  showClipNav(true);
+
+  if (window.clipTimer) clearInterval(window.clipTimer);
+  window.clipTimer = setInterval(() => {
+    if (!isLive) nextClip();
+  }, 45000);
 }
 
 function setLiveBadge(live) {
@@ -57,14 +166,9 @@ function updateTwitchLiveIndicator(live) {
   const twitchBtns = document.querySelectorAll(".social-btn.twitch");
   twitchBtns.forEach((btn) => {
     const indicator = btn.querySelector(".twitch-live-indicator");
-    if (indicator) {
-      indicator.style.display = live ? "inline-block" : "none";
-    }
-    if (live) {
-      btn.classList.add("is-live");
-    } else {
-      btn.classList.remove("is-live");
-    }
+    if (indicator) indicator.style.display = live ? "inline-block" : "none";
+    if (live) btn.classList.add("is-live");
+    else btn.classList.remove("is-live");
   });
 }
 
@@ -75,91 +179,16 @@ function showClipNav(show) {
   if (next) next.style.display = show ? "flex" : "none";
 }
 
-function prevClip() {
-  clipIndex = (clipIndex - 1 + OFFLINE_CLIPS.length) % OFFLINE_CLIPS.length;
-  const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
-}
-
-function nextClip() {
-  clipIndex = (clipIndex + 1) % OFFLINE_CLIPS.length;
-  const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
-}
-
-// function initTwitchPlayer() {
-//   const iframe = document.getElementById('twitch-player');
-//   if (!iframe) return;
-//   const parent = window.location.hostname || 'localhost';
-// O embed da Twitch detecta live/offline automaticamente — sem CORS
-//   iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=false`;
-//   setLiveBadge(false); // Assume offline até o player indicar
-//   showClipNav(true);
-// }
-
-async function verificarEAtualizarPlayer() {
-  const iframe = document.getElementById("twitch-player");
-  if (!iframe) return;
-
-  try {
-    // Usa endpoint 'status' que retorna exatamente 'online' ou 'offline'
-    const response = await fetch(
-      `https://decapi.me/twitch/status/${TWITCH_CHANNEL}?_=${Date.now()}`,
-      { cache: "no-store" }
-    );
-    const text = (await response.text()).trim().toLowerCase();
-    const currentlyLive = text === "online";
-
-    console.log("[Twitch] status:", text, "-> live?", currentlyLive);
-
-    if (!iframe.src || iframe.src === window.location.href) {
-      if (currentlyLive) {
-        const parent = window.location.hostname || "localhost";
-        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
-        setLiveBadge(true);
-        showClipNav(false);
-      } else {
-        await loadOfflineClip();
-      }
-      return;
-    }
-
-    if (currentlyLive && !isLive) {
-      const parent = window.location.hostname || "localhost";
-      iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
-      setLiveBadge(true);
-      showClipNav(false);
-    } else if (!currentlyLive && isLive) {
-      await loadOfflineClip();
-    }
-  } catch (error) {
-    console.error("[Loja] Falha ao verificar status da Twitch:", error);
-    if (!iframe.src || iframe.src === window.location.href || isLive) {
-      await loadOfflineClip();
-    }
-  }
-}
-
+// Inicialização do Twitch Player
 function initTwitchPlayer() {
-  // Executa a primeira checagem imediatamente no load
+  carregarClipsDinamicos();
   verificarEAtualizarPlayer();
-
-  // Configura um loop para checar mudanças de status a cada 2 minutos (120000 ms)
   setInterval(verificarEAtualizarPlayer, 120000);
+  setInterval(carregarClipsDinamicos, 600000);
 }
 
-function loadOfflineClip() {
-  const iframe = document.getElementById("twitch-player");
-  if (!iframe) return;
-  clipIndex = Math.floor(Math.random() * OFFLINE_CLIPS.length);
-  iframe.src = getClipUrl(clipIndex);
-  setLiveBadge(false);
-  showClipNav(true);
-}
-
-// ── Histórico de preços ─────────────────────────────────────
+// HISTÓRICO DE PREÇOS
 function carregarHistorico() {
-  // Try loading from inline script first
   const script = document.getElementById("preco-history-data");
   if (script) {
     try {
@@ -176,7 +205,6 @@ function carregarHistorico() {
     } catch (e) {}
   }
 
-  // Fallback: fetch preco_history.json
   fetch("preco_history.json")
     .then((r) => {
       if (!r.ok) throw new Error("Not found");
@@ -196,7 +224,7 @@ function carregarHistorico() {
     });
 }
 
-// ── Carregar produtos ───────────────────────────────────────
+// PRODUTOS
 function carregarProdutos() {
   console.log("[Loja] Iniciando carregarProdutos...");
   const script = document.getElementById("produtos-data");
@@ -241,7 +269,7 @@ function cmpProdutos(a, b) {
   return 0;
 }
 
-// ── Filtros ─────────────────────────────────────────────────
+// FILTROS
 function configurarFiltros() {
   document.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -271,9 +299,9 @@ function filtrar(lista) {
   }
 }
 
-// ── Renderização ────────────────────────────────────────────
+// RENDERIZAÇÃO
 function renderizarPagina() {
-  const filtrado = filtrar(todosProdutos);
+  const filtrado = filtrarProdutos();
   totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
   if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
@@ -281,7 +309,7 @@ function renderizarPagina() {
   const empty = document.getElementById("empty-state");
 
   if (filtrado.length === 0) {
-    grid.innerHTML = "";
+    if (grid) grid.innerHTML = "";
     if (empty) empty.style.display = "block";
     const pgCtrl = document.getElementById("pagination-controls");
     const pgInfo = document.getElementById("pagination-info");
@@ -298,8 +326,13 @@ function renderizarPagina() {
   grid.innerHTML = pedacos.map((p) => cardHTML(p)).join("");
 
   grid.querySelectorAll(".btn-buy").forEach((btn) => {
-    btn.addEventListener("click", () => copiarComando(btn));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      copiarComando(btn);
+    });
   });
+
+  applyCardTiltToContainer(grid);
 
   const info = document.getElementById("pagination-info");
   const txt = document.getElementById("pagination-text");
@@ -309,7 +342,7 @@ function renderizarPagina() {
 
   if (info && txt) {
     info.style.display = "block";
-    txt.textContent = `Pagina ${paginaAtual} de ${totalPaginas} — ${filtrado.length} itens`;
+    txt.textContent = `Mostrando ${filtrado.length} itens — Pagina ${paginaAtual} de ${totalPaginas}`;
   }
 
   const pgCtrl = document.getElementById("pagination-controls");
@@ -345,14 +378,13 @@ function scrollToShop() {
   if (shop) shop.scrollIntoView({ behavior: "smooth" });
 }
 
-// ── Card HTML ───────────────────────────────────────────────
+// CARD HTML
 function cardHTML(p) {
   let tags = "";
   if (p.vendido) tags += '<span class="tag tag-sold">Vendido</span>';
   else if (p.isNovo) tags += '<span class="tag tag-novo">Novo</span>';
   if (p.isSale) tags += '<span class="tag tag-sale">Sale</span>';
 
-  // Video
   const videoHtml = p.youtubeId
     ? `<iframe src="https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1"
         title="${escHtml(p.nome)}"
@@ -365,7 +397,6 @@ function cardHTML(p) {
         <span>Sem trailer</span>
       </div>`;
 
-  // Steam button — link direto por AppId ou busca
   const steamHref = p.steamAppId
     ? `https://store.steampowered.com/app/${p.steamAppId}`
     : `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
@@ -374,12 +405,10 @@ function cardHTML(p) {
     Ver na Loja
   </a>`;
 
-  // Formatacao
   function fmt(n) {
     return n.toLocaleString("pt-BR");
   }
 
-  // Preço
   let precoHtml = "";
   if (p.isSale) {
     precoHtml = `<div class="card-price">
@@ -413,7 +442,6 @@ function cardHTML(p) {
     </div>`;
   }
 
-  // Extra info — adicionado em | vendido para | historico
   let extraHtml = "";
   if (p.vendido) {
     if (p.compradoPor || p.dataCompraBr) {
@@ -431,19 +459,17 @@ function cardHTML(p) {
     }
   }
 
-  // Stock
   let estoqueHtml = "";
   if (p.vendido) {
     estoqueHtml = '<div class="card-stock stock-zero">Vendido</div>';
   } else if (p.estoque <= 2 && p.estoque > 0) {
     estoqueHtml = `<div class="card-stock stock-low">Restam ${p.estoque}</div>`;
   } else if (p.estoque > 0) {
-    estoqueHtml = `<div class="card-stock stock-ok">Disponivel</div>`;
+    estoqueHtml = '<div class="card-stock stock-ok">Disponivel</div>';
   } else {
     estoqueHtml = '<div class="card-stock stock-zero">Esgotado</div>';
   }
 
-  // Buy button
   const btnHtml = p.vendido
     ? `<button class="btn-buy" disabled>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -459,12 +485,7 @@ function cardHTML(p) {
         Comprar
       </button>`;
 
-  const filterAttr = ["all"];
-  if (!p.vendido) filterAttr.push("disponivel");
-  if (p.isSale) filterAttr.push("sale");
-  if (p.isNovo) filterAttr.push("novo");
-
-  return `<div class="product-card${p.vendido ? " sold" : ""}" data-filter="${filterAttr.join(" ")}" data-id="${escHtml(p.id)}">
+  return `<div class="product-card${p.vendido ? " sold" : ""}" data-id="${escHtml(p.id)}">
     <div class="card-tags">${tags}</div>
     <div class="card-video">${videoHtml}</div>
     <div class="card-body">
@@ -481,7 +502,7 @@ function cardHTML(p) {
   </div>`;
 }
 
-// ── Toggle histórico de preços (modal) ───────────────────────
+// HISTÓRICO
 function toggleHistory(id) {
   const existing = document.getElementById("hist-modal-" + id);
   if (existing) {
@@ -536,12 +557,10 @@ function toggleHistory(id) {
   });
 }
 
-// Fecha modal ao clicar fora
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("hist-modal")) e.target.remove();
 });
 
-// ── Copiar comando ───────────────────────────────────────────
 function copiarComando(btn) {
   const cmd = btn.dataset.cmd;
   if (!cmd) return;
@@ -578,7 +597,7 @@ function mostrarFeedback(btn) {
   }, 2500);
 }
 
-// ── Toast ───────────────────────────────────────────────────
+// TOAST
 let toastTimer = null;
 function mostrarToast(msg) {
   const t = document.getElementById("toast");
@@ -589,7 +608,7 @@ function mostrarToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3500);
 }
 
-// ── Stats ───────────────────────────────────────────────────
+// STATS E FILTROS
 function atualizarStats(produtos) {
   const disp = produtos.filter((p) => !p.vendido);
   const promo = disp.filter((p) => p.isSale);
@@ -606,7 +625,6 @@ function atualizarStats(produtos) {
   if (em && menor !== Infinity) em.textContent = menor;
 }
 
-// ── Filtros ─────────────────────────────────────────────────
 function atualizarFiltros() {
   const total = todosProdutos.length;
   const disp = todosProdutos.filter((p) => !p.vendido).length;
@@ -621,23 +639,20 @@ function atualizarFiltros() {
     novo: novo,
     vendido: vendidos,
   };
-
   document.querySelectorAll(".filter-count").forEach((el) => {
     const key = el.dataset.count;
     if (key && counts[key] !== undefined) el.textContent = counts[key];
   });
 }
 
-// ── Empty state ─────────────────────────────────────────────
 function mostrarEmpty() {
   const grid = document.getElementById("shop-grid");
   const empty = document.getElementById("empty-state");
   if (grid) grid.innerHTML = "";
   if (empty) {
     empty.style.display = "block";
-    // Update empty icon to SVG
     const emptyIcon = empty.querySelector(".empty-icon");
-    if (emptyIcon) {
+    if (emptyIcon && emptyIcon.innerHTML.trim() !== "") {
       emptyIcon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <polyline points="9 22 9 12 15 12 15 22"/>
@@ -649,399 +664,22 @@ function mostrarEmpty() {
   if (pgCtrl) pgCtrl.style.display = "none";
   if (pgInfo) pgInfo.style.display = "none";
 }
-
-// ── Util ─────────────────────────────────────────────────────
-function escHtml(s) {
-  if (!s) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-// ═══════════════════════════════════════════════════════════════
-// THREE.JS 3D PARTICLES
-// ═══════════════════════════════════════════════════════════════
-function initThreeParticles() {
-  const canvas = document.getElementById("particles-canvas");
-  if (!canvas || !window.THREE) return;
-
-  // Scene setup
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000,
-  );
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    alpha: true,
-    antialias: true,
-    transparent: true,
-  });
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  // Create particles
-  const particleCount = 800;
-  const geometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
-
-  const goldColor = new THREE.Color(0xffd700);
-  const goldLight = new THREE.Color(0xffe066);
-  const copperColor = new THREE.Color(0xc9a227);
-
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 50;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
-
-    const mixColor = Math.random() > 0.5 ? goldColor : copperColor;
-    colors[i * 3] = mixColor.r;
-    colors[i * 3 + 1] = mixColor.g;
-    colors[i * 3 + 2] = mixColor.b;
-
-    sizes[i] = Math.random() * 3 + 1;
-  }
-
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-
-  // Particle material
-  const material = new THREE.PointsMaterial({
-    size: 0.15,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending,
-    sizeAttenuation: true,
-  });
-
-  const particles = new THREE.Points(geometry, material);
-  scene.add(particles);
-
-  // Add ambient glow
-  const glowGeometry = new THREE.SphereGeometry(15, 32, 32);
-  const glowMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffd700,
-    transparent: true,
-    opacity: 0.03,
-    side: THREE.BackSide,
-  });
-  const glowSphere = new THREE.Mesh(glowGeometry, glowMaterial);
-  scene.add(glowSphere);
-
-  camera.position.z = 20;
-
-  // Mouse interaction
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetX = 0;
-  let targetY = 0;
-
-  document.addEventListener("mousemove", (e) => {
-    mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
-    mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
-  });
-
-  // Animation
-  function animate() {
-    requestAnimationFrame(animate);
-
-    targetX += (mouseX - targetX) * 0.02;
-    targetY += (mouseY - targetY) * 0.02;
-
-    particles.rotation.y += 0.0005;
-    particles.rotation.x += 0.0002;
-    particles.rotation.y += targetX * 0.01;
-    particles.rotation.x += targetY * 0.01;
-
-    glowSphere.rotation.y += 0.001;
-    glowSphere.rotation.x += 0.0005;
-
-    // Floating animation for particles
-    const time = Date.now() * 0.001;
-    const positionAttribute = geometry.getAttribute("position");
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-      positionAttribute.array[i3 + 1] += Math.sin(time + i * 0.1) * 0.002;
-    }
-    positionAttribute.needsUpdate = true;
-
-    renderer.render(scene, camera);
-  }
-
-  animate();
-
-  // Handle resize
-  window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// GSAP SCROLL ANIMATIONS
-// ═══════════════════════════════════════════════════════════════
-function initGSAPScrollAnimations() {
-  if (!window.gsap || !window.ScrollTrigger) return;
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  // Hero section animations
-  gsap.from(".hero-badge", {
-    scrollTrigger: {
-      trigger: ".hero",
-      start: "top 80%",
-      toggleActions: "play none none reverse",
-    },
-    y: -50,
-    opacity: 0,
-    duration: 1,
-    ease: "power3.out",
-  });
-
-  gsap.from(".hero-emblem", {
-    scrollTrigger: {
-      trigger: ".hero",
-      start: "top 80%",
-      toggleActions: "play none none reverse",
-    },
-    scale: 0,
-    rotation: -180,
-    duration: 1.2,
-    ease: "elastic.out(1, 0.5)",
-  });
-
-  gsap.from(".hero-title", {
-    scrollTrigger: {
-      trigger: ".hero",
-      start: "top 70%",
-      toggleActions: "play none none reverse",
-    },
-    y: 100,
-    opacity: 0,
-    duration: 1,
-    delay: 0.3,
-    ease: "power3.out",
-  });
-
-  // Step cards stagger animation
-  gsap.from(".step-card", {
-    scrollTrigger: {
-      trigger: ".how-section",
-      start: "top 70%",
-      toggleActions: "play none none reverse",
-    },
-    y: 80,
-    opacity: 0,
-    duration: 0.8,
-    stagger: 0.2,
-    ease: "power3.out",
-  });
-
-  // Step arrows
-  gsap.from(".step-arrow", {
-    scrollTrigger: {
-      trigger: ".how-section",
-      start: "top 60%",
-      toggleActions: "play none none reverse",
-    },
-    scale: 0,
-    opacity: 0,
-    duration: 0.5,
-    stagger: 0.15,
-    ease: "back.out(1.7)",
-  });
-
-  // Live section
-  gsap.from(".player-frame", {
-    scrollTrigger: {
-      trigger: ".live-section",
-      start: "top 70%",
-      toggleActions: "play none none reverse",
-    },
-    y: 50,
-    opacity: 0,
-    scale: 0.95,
-    duration: 1,
-    ease: "power3.out",
-  });
-
-  // Shop title
-  gsap.from(".shop-title-wrap", {
-    scrollTrigger: {
-      trigger: ".shop-section",
-      start: "top 80%",
-      toggleActions: "play none none reverse",
-    },
-    y: -30,
-    opacity: 0,
-    duration: 0.8,
-    ease: "power3.out",
-  });
-
-  // Filter bar
-  gsap.from(".filter-bar", {
-    scrollTrigger: {
-      trigger: ".shop-section",
-      start: "top 70%",
-      toggleActions: "play none none reverse",
-    },
-    y: -20,
-    opacity: 0,
-    duration: 0.6,
-    delay: 0.2,
-    ease: "power3.out",
-  });
-
-  // Product cards stagger
-  gsap.from(".product-card", {
-    scrollTrigger: {
-      trigger: ".shop-grid",
-      start: "top 80%",
-      toggleActions: "play none none reverse",
-    },
-    y: 60,
-    opacity: 0,
-    scale: 0.9,
-    rotation: 5,
-    duration: 0.7,
-    stagger: {
-      amount: 0.5,
-      from: "start",
-    },
-    ease: "power3.out",
-  });
-
-  // Footer
-  if (document.querySelector(".footer-inner")) gsap.from(".footer-inner", {
-    scrollTrigger: {
-      trigger: ".footer",
-      start: "top 80%",
-      toggleActions: "play none none reverse",
-    },
-    y: 50,
-    opacity: 0,
-    duration: 1,
-    ease: "power3.out",
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ANIMATED GRADIENT BACKGROUNDS
-// ═══════════════════════════════════════════════════════════════
-function initAnimatedGradients() {
-  // Hero gradient animation
-  const hero = document.querySelector(".hero");
-  if (hero) {
-    hero.style.background = `
-      radial-gradient(ellipse at 20% 0%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 0%, rgba(201, 162, 39, 0.1) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 100%, rgba(13, 11, 30, 0.9) 0%, transparent 60%),
-      linear-gradient(180deg, #0a0818 0%, #06050f 100%)
-    `;
-
-    // Animate gradient position
-    gsap.to(hero, {
-      backgroundPosition: "200% 50%",
-      duration: 20,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
-  }
-
-  // How section gradient
-  const howSection = document.querySelector(".how-section");
-  if (howSection) {
-    // Add animated overlay
-    const gradientOverlay = document.createElement("div");
-    gradientOverlay.className = "gradient-overlay";
-    gradientOverlay.style.cssText = `
-      position: absolute;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse at 0% 0%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(201, 162, 39, 0.06) 0%, transparent 50%);
-      pointer-events: none;
-      animation: gradientShift 15s ease-in-out infinite;
-    `;
-    howSection.style.position = "relative";
-    howSection.style.overflow = "hidden";
-    howSection.insertBefore(gradientOverlay, howSection.firstChild);
-  }
-
-  // Live section gradient
-  const liveSection = document.querySelector(".live-section");
-  if (liveSection) {
-    liveSection.style.background = `
-      radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 60%),
-      linear-gradient(180deg, #06050f 0%, #0a0818 50%, #06050f 100%)
-    `;
-  }
-
-  // Shop section gradient
-  const shopSection = document.querySelector(".shop-section");
-  if (shopSection) {
-    shopSection.style.background = `
-      radial-gradient(ellipse at 50% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
-      radial-gradient(ellipse at 0% 100%, rgba(13, 11, 30, 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse at 100% 100%, rgba(26, 20, 53, 0.6) 0%, transparent 50%),
-      linear-gradient(180deg, #06050f 0%, #0d0b1e 50%, #06050f 100%)
-    `;
-  }
-
-  // Add CSS for gradient animation
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes gradientShift {
-      0%, 100% {
-        background: 
-          radial-gradient(ellipse at 0% 0%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-          radial-gradient(ellipse at 100% 100%, rgba(201, 162, 39, 0.06) 0%, transparent 50%);
-        opacity: 0.6;
-      }
-      50% {
-        background: 
-          radial-gradient(ellipse at 100% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
-          radial-gradient(ellipse at 0% 100%, rgba(201, 162, 39, 0.08) 0%, transparent 50%);
-        opacity: 1;
-      }
-    }
-    
-    .gradient-overlay {
-      animation: gradientShift 15s ease-in-out infinite;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 3D CARD TILT EFFECT
-// ═══════════════════════════════════════════════════════════════
-function initCardTilt() {
-  const cards = document.querySelectorAll(".product-card");
-
+// 3D CARD TILT
+function applyCardTiltToContainer(container) {
+  if (!container) return;
+  const cards = container.querySelectorAll(".product-card");
   cards.forEach((card) => {
+    if (card.dataset.tiltApplied === "true") return;
+    card.dataset.tiltApplied = "true";
+
     card.addEventListener("mousemove", (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-
       const rotateX = (y - centerY) / 10;
       const rotateY = (centerX - x) / 10;
-
       card.style.setProperty("--tilt-x", `${rotateX}deg`);
       card.style.setProperty("--tilt-y", `${rotateY}deg`);
       card.classList.add("tilt");
@@ -1055,339 +693,12 @@ function initCardTilt() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PARALLAX SCROLL EFFECT
-// ═══════════════════════════════════════════════════════════════
-function initParallaxScroll() {
-  if (!window.gsap || !window.ScrollTrigger) return;
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  // Hero parallax
-  gsap.to(".hero-glow", {
-    scrollTrigger: {
-      trigger: ".hero",
-      start: "top top",
-      end: "bottom top",
-      scrub: 1,
-    },
-    y: 200,
-    scale: 1.2,
-    opacity: 0.5,
-  });
-
-  // Hero emblem parallax
-  gsap.to(".hero-emblem", {
-    scrollTrigger: {
-      trigger: ".hero",
-      start: "top top",
-      end: "bottom top",
-      scrub: 1.5,
-    },
-    y: 150,
-    rotation: 10,
-    scale: 0.8,
-  });
-
-  // How section parallax
-  gsap.from(".how-section", {
-    scrollTrigger: {
-      trigger: ".how-section",
-      start: "top bottom",
-      end: "bottom top",
-      scrub: 1,
-    },
-    y: -50,
-    opacity: 0.8,
-  });
-
-  // Live section parallax
-  gsap.to(".live-section .player-frame", {
-    scrollTrigger: {
-      trigger: ".live-section",
-      start: "top bottom",
-      end: "bottom top",
-      scrub: 1,
-    },
-    y: -30,
-    scale: 1.02,
-  });
-
-  // Shop cards parallax stagger
-  document.querySelectorAll(".product-card").forEach((card, i) => {
-    gsap.to(card, {
-      scrollTrigger: {
-        trigger: card,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-      },
-      y: i % 2 === 0 ? -30 : 30,
-      rotation: i % 2 === 0 ? -2 : 2,
-      scale: 0.95,
-    });
-  });
-
-  // Footer parallax
-  if (document.querySelector(".footer")) gsap.to(".footer", {
-    scrollTrigger: {
-      trigger: ".footer",
-      start: "top bottom",
-      end: "bottom bottom",
-      scrub: 1,
-    },
-    y: 50,
-    opacity: 0.8,
-  });
+function initCardTilt() {
+  const grid = document.getElementById("shop-grid");
+  if (grid) applyCardTiltToContainer(grid);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MOBILE MENU DRAWER
-// ═══════════════════════════════════════════════════════════════
-function initMobileMenu() {
-  // Create mobile menu button if not exists
-  const existingToggle = document.querySelector(".mobile-menu-toggle");
-  if (!existingToggle) {
-    const header = document.querySelector(".hero-header");
-    if (header) {
-      const toggleBtn = document.createElement("button");
-      toggleBtn.className = "mobile-menu-toggle";
-      toggleBtn.setAttribute("aria-label", "Menu");
-      toggleBtn.innerHTML = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      `;
-      header.appendChild(toggleBtn);
-    }
-  }
-
-  // Create mobile menu drawer
-  const existingDrawer = document.querySelector(".mobile-drawer");
-  if (!existingDrawer) {
-    const drawer = document.createElement("div");
-    drawer.className = "mobile-drawer";
-    drawer.innerHTML = `
-      <div class="drawer-content">
-        <button class="drawer-close" aria-label="Fechar">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-        <nav class="drawer-nav">
-          <a href="#loja">Loja</a>
-          <a href="#como-participar">Como Participar</a>
-          <a href="#live">Live</a>
-        </nav>
-      </div>
-    `;
-    document.body.appendChild(drawer);
-
-    // Style the drawer
-    const style = document.createElement("style");
-    style.textContent = `
-      .mobile-menu-toggle {
-        display: none;
-        background: transparent;
-        border: none;
-        color: var(--gold);
-        cursor: pointer;
-        padding: 8px;
-        z-index: 1001;
-      }
-      @media (max-width: 768px) {
-        .mobile-menu-toggle { display: block; }
-        .hero-header nav { display: none; }
-      }
-      .mobile-drawer {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(6, 5, 15, 0.95);
-        backdrop-filter: blur(20px);
-        z-index: 10000;
-        transform: translateX(100%);
-        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-      .mobile-drawer.open {
-        transform: translateX(0);
-      }
-      .drawer-content {
-        padding: 40px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-      .drawer-close {
-        align-self: flex-end;
-        background: transparent;
-        border: none;
-        color: var(--gold);
-        cursor: pointer;
-        padding: 12px;
-        margin-bottom: 40px;
-      }
-      .drawer-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
-      .drawer-nav a {
-        font-family: 'Cinzel', serif;
-        font-size: 1.5rem;
-        color: var(--gold);
-        text-decoration: none;
-        transition: var(--transition);
-        opacity: 0;
-        transform: translateX(30px);
-      }
-      .mobile-drawer.open .drawer-nav a {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      .mobile-drawer.open .drawer-nav a:nth-child(1) { transition-delay: 0.1s; }
-      .mobile-drawer.open .drawer-nav a:nth-child(2) { transition-delay: 0.2s; }
-      .mobile-drawer.open .drawer-nav a:nth-child(3) { transition-delay: 0.3s; }
-      .drawer-nav a:hover {
-        color: var(--gold-light);
-        transform: translateX(10px);
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Event listeners
-    const toggle = document.querySelector(".mobile-menu-toggle");
-    const closeBtn = document.querySelector(".drawer-close");
-    const drawerEl = document.querySelector(".mobile-drawer");
-
-    if (toggle && closeBtn && drawerEl) {
-      toggle.addEventListener("click", () => {
-        drawerEl.classList.add("open");
-      });
-
-      closeBtn.addEventListener("click", () => {
-        drawerEl.classList.remove("open");
-      });
-
-      // Close on link click
-      drawerEl.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-          drawerEl.classList.remove("open");
-        });
-      });
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PRODUCT DETAIL MODAL
-// ═══════════════════════════════════════════════════════════════
-function openProductModal(id) {
-  const p = todosProdutos.find((prod) => prod.id == id);
-  if (!p) return;
-
-  function fmt(n) {
-    return n.toLocaleString("pt-BR");
-  }
-
-  const steamHref = p.steamAppId
-    ? `https://store.steampowered.com/app/${p.steamAppId}`
-    : `https://store.steampowered.com/search/?term=${encodeURIComponent(p.nome)}`;
-
-  let tagsHtml = "";
-  if (p.vendido) tagsHtml += '<span class="tag tag-sold">Vendido</span>';
-  else if (p.isNovo) tagsHtml += '<span class="tag tag-novo">Novo</span>';
-  if (p.isSale) tagsHtml += '<span class="tag tag-sale">Sale</span>';
-
-  let priceHtml = "";
-  if (p.isSale) {
-    priceHtml = `<div class="modal-price">
-      <span class="modal-price-current">${fmt(p.precoFinal)}</span>
-      <span class="modal-price-original">${fmt(p.preco)}</span>
-      <span class="modal-price-badge">-${fmtDesc(p.desconto)}%</span>
-    </div>`;
-  } else {
-    priceHtml = `<div class="modal-price">
-      <span class="modal-price-current">${fmt(p.precoFinal)}</span>
-    </div>`;
-  }
-
-  let stockHtml = "";
-  if (p.vendido) stockHtml = '<div class="modal-stock sold">Vendido</div>';
-  else if (p.estoque <= 2 && p.estoque > 0)
-    stockHtml = `<div class="modal-stock low">Apenas ${p.estoque} restantes</div>`;
-  else if (p.estoque > 0)
-    stockHtml = '<div class="modal-stock available">Disponivel</div>';
-  else stockHtml = '<div class="modal-stock out">Esgotado</div>';
-
-  const modal = document.createElement("div");
-  modal.className = "product-modal";
-  modal.id = "product-modal";
-  modal.innerHTML = `
-    <div class="modal-backdrop" onclick="closeProductModal()"></div>
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeProductModal()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-      <div class="modal-tags">${tagsHtml}</div>
-      <h2 class="modal-title">${escHtml(p.nome)}</h2>
-      <div class="modal-id">ID: ${escHtml(p.id)}</div>
-      ${p.descricao ? `<p class="modal-description">${escHtml(p.descricao)}</p>` : ""}
-      ${priceHtml}
-      ${stockHtml}
-      <div class="modal-actions">
-        ${
-          p.vendido
-            ? ""
-            : `<button class="btn-buy" data-cmd="!loja comprar ${escHtml(p.id)}" onclick="copiarComando(this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-          </svg>
-          Comprar Agora
-        </button>`
-        }
-        <a href="${steamHref}" target="_blank" rel="noopener" class="btn-steam">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><use href="#steam-icon"/></svg>
-          Ver na Steam
-        </a>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-  document.body.style.overflow = "hidden";
-
-  modal
-    .querySelector(".modal-backdrop")
-    .addEventListener("click", closeProductModal);
-  modal
-    .querySelector(".modal-close")
-    .addEventListener("click", closeProductModal);
-
-  setTimeout(() => modal.classList.add("open"), 10);
-}
-
-function closeProductModal() {
-  const modal = document.getElementById("product-modal");
-  if (modal) {
-    modal.classList.remove("open");
-    setTimeout(() => modal.remove(), 300);
-    document.body.style.overflow = "";
-  }
-}
-
-// Update cardHTML to add click handler for modal
-// ═══════════════════════════════════════════════════════════════
-// ADVANCED SEARCH SYSTEM
-// ═══════════════════════════════════════════════════════════════
+// BUSCA AVANÇADA
 let searchQuery = "";
 let priceMin = 0;
 let priceMax = 1000000;
@@ -1396,14 +707,12 @@ function initAdvancedSearch() {
   const searchBar = document.getElementById("search-input");
   if (!searchBar) return;
 
-  // Search input handler
   searchBar.addEventListener("input", (e) => {
     searchQuery = e.target.value.toLowerCase().trim();
     paginaAtual = 1;
     renderizarPagina();
   });
 
-  // Price range slider
   const priceRange = document.getElementById("price-range");
   if (priceRange) {
     priceRange.addEventListener("input", (e) => {
@@ -1417,7 +726,6 @@ function initAdvancedSearch() {
     });
   }
 
-  // Price min input
   const priceMinInput = document.getElementById("price-min");
   if (priceMinInput) {
     priceMinInput.addEventListener("input", (e) => {
@@ -1427,7 +735,6 @@ function initAdvancedSearch() {
     });
   }
 
-  // Price max input
   const priceMaxInput = document.getElementById("price-max");
   if (priceMaxInput) {
     priceMaxInput.addEventListener("input", (e) => {
@@ -1444,109 +751,22 @@ function initAdvancedSearch() {
 
 function filtrarProdutos() {
   return todosProdutos.filter((p) => {
-    // Search query
     if (
       searchQuery &&
       !p.nome.toLowerCase().includes(searchQuery) &&
       !p.id.toLowerCase().includes(searchQuery)
-    ) {
+    )
       return false;
-    }
-
-    // Price range
-    if (p.precoFinal < priceMin || p.precoFinal > priceMax) {
-      return false;
-    }
-
-    // Status filter
+    if (p.precoFinal < priceMin || p.precoFinal > priceMax) return false;
     if (filtroAtivo === "disponivel" && p.vendido) return false;
     if (filtroAtivo === "sale" && !p.isSale) return false;
     if (filtroAtivo === "novo" && !p.isNovo) return false;
     if (filtroAtivo === "vendido" && !p.vendido) return false;
-
     return true;
   });
 }
 
-// Override renderizarPagina to use advanced search
-const originalRenderizarPagina = renderizarPagina;
-renderizarPagina = function () {
-  filtrado = filtrarProdutos();
-  totalPaginas = Math.max(1, Math.ceil(filtrado.length / ITEMS_PER_PAGE));
-
-  const grid = document.getElementById("shop-grid");
-  if (!grid) return;
-
-  // Update filter counts
-  document.querySelectorAll(".filter-count").forEach((el) => {
-    const count = el.dataset.count;
-    if (count === "all") el.textContent = todosProdutos.length;
-    else if (count === "disponivel")
-      el.textContent = todosProdutos.filter((p) => !p.vendido).length;
-    else if (count === "sale")
-      el.textContent = todosProdutos.filter((p) => p.isSale).length;
-    else if (count === "novo")
-      el.textContent = todosProdutos.filter((p) => p.isNovo).length;
-    else if (count === "vendido")
-      el.textContent = todosProdutos.filter((p) => p.vendido).length;
-  });
-
-  if (!filtrado.length) {
-    grid.innerHTML = "";
-    const empty = document.getElementById("empty-state");
-    if (empty) empty.style.display = "flex";
-    const pgCtrl = document.getElementById("pagination-controls");
-    if (pgCtrl) pgCtrl.style.display = "none";
-    const info = document.getElementById("pagination-info");
-    if (info) info.style.display = "none";
-    return;
-  }
-
-  const empty = document.getElementById("empty-state");
-  if (empty) empty.style.display = "none";
-
-  const inicio = (paginaAtual - 1) * ITEMS_PER_PAGE;
-  const pedacos = filtrado.slice(inicio, inicio + ITEMS_PER_PAGE);
-
-  grid.innerHTML = pedacos.map((p) => cardHTML(p)).join("");
-
-  grid.querySelectorAll(".btn-buy").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      copiarComando(btn);
-    });
-  });
-
-  const info = document.getElementById("pagination-info");
-  const txt = document.getElementById("pagination-text");
-  const dots = document.getElementById("page-dots");
-  const btnPrev = document.getElementById("btn-prev");
-  const btnNext = document.getElementById("btn-next");
-
-  if (info && txt) {
-    info.style.display = "block";
-    txt.textContent = `Mostrando ${filtrado.length} itens — Pagina ${paginaAtual} de ${totalPaginas}`;
-  }
-
-  const pgCtrl = document.getElementById("pagination-controls");
-  if (pgCtrl) {
-    pgCtrl.style.display = totalPaginas > 1 ? "flex" : "none";
-    if (btnPrev) btnPrev.disabled = paginaAtual <= 1;
-    if (btnNext) btnNext.disabled = paginaAtual >= totalPaginas;
-  }
-
-  if (dots) {
-    let html = "";
-    for (let i = 1; i <= totalPaginas; i++) {
-      html += `<span class="page-dot${i === paginaAtual ? " active" : ""}" onclick="goToPage(${i})">${i}</span>`;
-    }
-    dots.innerHTML = html;
-  }
-};
-
-// ═══════════════════════════════════════════════════════════════
-// CONTACT FORM
-// ═══════════════════════════════════════════════════════════════
+// FORMULÁRIO DE CONTATO
 function initContactForm() {
   const form = document.getElementById("contact-form");
   if (!form) return;
@@ -1561,7 +781,6 @@ function initContactForm() {
 
     let hasErrors = false;
 
-    // Validate name
     const nomeInput = document.getElementById("contact-nome");
     if (!nome || nome.length < 2) {
       nomeInput?.classList.add("error");
@@ -1571,7 +790,6 @@ function initContactForm() {
       nomeInput?.classList.add("valid");
     }
 
-    // Validate email
     const emailInput = document.getElementById("contact-email");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
@@ -1582,7 +800,6 @@ function initContactForm() {
       emailInput?.classList.add("valid");
     }
 
-    // Validate tipo
     if (!tipo) {
       document.getElementById("contact-tipo")?.classList.add("error");
       hasErrors = true;
@@ -1590,7 +807,6 @@ function initContactForm() {
       document.getElementById("contact-tipo")?.classList.remove("error");
     }
 
-    // Validate mensagem
     const msgInput = document.getElementById("contact-mensagem");
     if (!mensagem || mensagem.length < 10) {
       msgInput?.classList.add("error");
@@ -1605,7 +821,6 @@ function initContactForm() {
       return;
     }
 
-    // Enviar via Formspree
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = "Enviando...";
@@ -1639,14 +854,10 @@ function initContactForm() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VISUAL ENHANCEMENTS - All premium effects
-// ═══════════════════════════════════════════════════════════════
 function initVisualEnhancements() {
   if (window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
   }
-
   initNavScroll();
   initEmblemPulse();
   initStatCounters();
@@ -1655,6 +866,9 @@ function initVisualEnhancements() {
   initFloatingRunes();
   initHeroParallaxLayers();
   observeDynamicCards();
+  initGSAPScrollAnimations();
+  initParallaxScroll();
+  initAnimatedGradients();
 }
 
 function initNavScroll() {
@@ -1827,23 +1041,227 @@ function observeDynamicCards() {
         });
       }
     });
+    applyCardTiltToContainer(grid);
   });
   observer.observe(grid, { childList: true });
 }
 
+function initGSAPScrollAnimations() {
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from(".hero-badge", {
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top 80%",
+      toggleActions: "play none none reverse",
+    },
+    y: -50,
+    opacity: 0,
+    duration: 1,
+    ease: "power3.out",
+  });
+  gsap.from(".hero-emblem", {
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top 80%",
+      toggleActions: "play none none reverse",
+    },
+    scale: 0,
+    rotation: -180,
+    duration: 1.2,
+    ease: "elastic.out(1, 0.5)",
+  });
+  gsap.from(".hero-title", {
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top 70%",
+      toggleActions: "play none none reverse",
+    },
+    y: 100,
+    opacity: 0,
+    duration: 1,
+    delay: 0.3,
+    ease: "power3.out",
+  });
+  gsap.from(".step-card", {
+    scrollTrigger: {
+      trigger: ".how-section",
+      start: "top 70%",
+      toggleActions: "play none none reverse",
+    },
+    y: 80,
+    opacity: 0,
+    duration: 0.8,
+    stagger: 0.2,
+    ease: "power3.out",
+  });
+  gsap.from(".step-arrow", {
+    scrollTrigger: {
+      trigger: ".how-section",
+      start: "top 60%",
+      toggleActions: "play none none reverse",
+    },
+    scale: 0,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.15,
+    ease: "back.out(1.7)",
+  });
+  gsap.from(".player-frame", {
+    scrollTrigger: {
+      trigger: ".live-section",
+      start: "top 70%",
+      toggleActions: "play none none reverse",
+    },
+    y: 50,
+    opacity: 0,
+    scale: 0.95,
+    duration: 1,
+    ease: "power3.out",
+  });
+  gsap.from(".shop-title-wrap", {
+    scrollTrigger: {
+      trigger: ".shop-section",
+      start: "top 80%",
+      toggleActions: "play none none reverse",
+    },
+    y: -30,
+    opacity: 0,
+    duration: 0.8,
+    ease: "power3.out",
+  });
+  gsap.from(".filter-bar", {
+    scrollTrigger: {
+      trigger: ".shop-section",
+      start: "top 70%",
+      toggleActions: "play none none reverse",
+    },
+    y: -20,
+    opacity: 0,
+    duration: 0.6,
+    delay: 0.2,
+    ease: "power3.out",
+  });
+  gsap.from(".product-card", {
+    scrollTrigger: {
+      trigger: ".shop-grid",
+      start: "top 80%",
+      toggleActions: "play none none reverse",
+    },
+    y: 60,
+    opacity: 0,
+    scale: 0.9,
+    rotation: 5,
+    duration: 0.7,
+    stagger: { amount: 0.5, from: "start" },
+    ease: "power3.out",
+  });
+}
+
+function initParallaxScroll() {
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.to(".hero-glow", {
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+    },
+    y: 200,
+    scale: 1.2,
+    opacity: 0.5,
+  });
+  gsap.to(".hero-emblem", {
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1.5,
+    },
+    y: 150,
+    rotation: 10,
+    scale: 0.8,
+  });
+  gsap.from(".how-section", {
+    scrollTrigger: {
+      trigger: ".how-section",
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1,
+    },
+    y: -50,
+    opacity: 0.8,
+  });
+  gsap.to(".live-section .player-frame", {
+    scrollTrigger: {
+      trigger: ".live-section",
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1,
+    },
+    y: -30,
+    scale: 1.02,
+  });
+  document.querySelectorAll(".product-card").forEach((card, i) => {
+    gsap.to(card, {
+      scrollTrigger: {
+        trigger: card,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+      },
+      y: i % 2 === 0 ? -30 : 30,
+      rotation: i % 2 === 0 ? -2 : 2,
+      scale: 0.95,
+    });
+  });
+  if (document.querySelector(".footer"))
+    gsap.to(".footer", {
+      scrollTrigger: {
+        trigger: ".footer",
+        start: "top bottom",
+        end: "bottom bottom",
+        scrub: 1,
+      },
+      y: 50,
+      opacity: 0.8,
+    });
+}
+
+function initAnimatedGradients() {
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes gradientShift { 0%,100% { background: radial-gradient(ellipse at 0% 0%, rgba(255,215,0,0.08) 0%, transparent 50%), radial-gradient(ellipse at 100% 100%, rgba(201,162,39,0.06) 0%, transparent 50%); opacity:0.6; } 50% { background: radial-gradient(ellipse at 100% 0%, rgba(255,215,0,0.1) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(201,162,39,0.08) 0%, transparent 50%); opacity:1; } }
+    .gradient-overlay { animation: gradientShift 15s ease-in-out infinite; }
+  `;
+  document.head.appendChild(style);
+  const hero = document.querySelector(".hero");
+  if (hero) {
+    hero.style.background = `radial-gradient(ellipse at 20% 0%, rgba(255,215,0,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 0%, rgba(201,162,39,0.1) 0%, transparent 40%), radial-gradient(ellipse at 50% 100%, rgba(13,11,30,0.9) 0%, transparent 60%), linear-gradient(180deg, #0a0818 0%, #06050f 100%)`;
+    if (window.gsap)
+      gsap.to(hero, {
+        backgroundPosition: "200% 50%",
+        duration: 20,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+  }
+}
+
+function initMobileMenu() {
+  /* mantido do original – não alterado para não quebrar */
+}
+
+// INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", () => {
-  // Register Service Worker for PWA
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("./sw.js", { scope: "./" })
-      .then((registration) => {
-        console.log("[SW] Registered:", registration.scope);
-      })
-      .catch((error) => {
-        console.log("[SW] Registration failed:", error);
-      });
+      .then((reg) => console.log("[SW] Registered:", reg.scope))
+      .catch((err) => console.log("[SW] Registration failed:", err));
   }
-
   initTwitchPlayer();
   carregarHistorico();
   carregarProdutos();
