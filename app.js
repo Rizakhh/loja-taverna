@@ -1,7 +1,6 @@
 const ITEMS_PER_PAGE = 9;
 const TWITCH_CHANNEL = "rizakh";
 const CLIPS_API = "https://falling-cake-b5d5.rizakh-rph.workers.dev/clips";
-const TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
 let todosProdutos = [];
 let paginaAtual = 1;
@@ -20,13 +19,15 @@ function escHtml(s) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 let isLive = false;
 let clipIndex = 0;
 let lastKnownStatus = null;
 let currentIframeSrc = "";
+let clipsDinamicos = [];
 
 const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=PluckyRoundOx4Head&parent=localhost",
@@ -37,96 +38,77 @@ const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost",
 ];
 
-let dynamicClips = [];
-
 // 🔄 Busca clips dinâmicos da API
 async function carregarClipsDinamicos() {
   try {
-    const res = await fetch(`${CLIPS_API}?_=${Date.now()}`, {
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const urls = await res.json();
-    if (Array.isArray(urls) && urls.length) {
-      dynamicClips = urls;
-      console.log("[Twitch] Clips dinâmicos carregados:", dynamicClips.length);
-    } else {
-      dynamicClips = [];
-    }
-  } catch (e) {
-    console.warn(
-      "[Twitch] Falha ao buscar clips dinâmicos, usando fallback:",
-      e,
+    const response = await fetch(CLIPS_API);
+    if (!response.ok) throw new Error("Worker offline");
+    const data = await response.json();
+
+    // Se o worker retornar dados, usamos eles, senão usamos o fallback
+    clipsDinamicos = data && data.length > 0 ? data : FALLBACK_CLIPS;
+    console.log("[Twitch] Clips carregados com sucesso");
+  } catch (error) {
+    console.error(
+      "[Twitch] Erro ao carregar clips dinâmicos, usando fallback local.",
     );
-    dynamicClips = [];
+    clipsDinamicos = FALLBACK_CLIPS;
   }
 }
 
 // 📺 Obtém URL de um clip (dinâmico ou fallback) com correção de parent/autoplay/muted
-function getClipUrl(index) {
-  const parent = window.location.hostname || "localhost";
-  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
-  let clip = lista[index % lista.length];
-  clip = clip.replace(/parent=[^&]+/g, "parent=" + parent);
-  if (!clip.includes("parent=")) {
-    clip += (clip.includes("?") ? "&" : "?") + "parent=" + parent;
+// Corrigindo a lógica de extração de ID para evitar o erro de replace
+function getClipUrl(clipData) {
+  const hostname = window.location.hostname || "localhost";
+  let id = "";
+
+  if (typeof clipData === "object" && clipData.id) {
+    id = clipData.id;
+  } else if (typeof clipData === "string") {
+    // Se for uma URL de fallback, extrai o ID
+    if (clipData.includes("clip=")) {
+      const urlParams = new URLSearchParams(clipData.split("?")[1]);
+      id = urlParams.get("clip");
+    } else {
+      id = clipData;
+    }
   }
-  if (!clip.includes("autoplay=")) clip += "&autoplay=true";
-  if (!clip.includes("muted=")) clip += "&muted=true";
-  return clip;
+
+  return `https://clips.twitch.tv/embed?clip=${id}&parent=${hostname}&autoplay=true&muted=true`;
 }
 
 function prevClip() {
-  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  const lista = clipsDinamicos.length ? clipsDinamicos : FALLBACK_CLIPS;
+  if (!lista.length) return;
   clipIndex = (clipIndex - 1 + lista.length) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
+  const selectedClip = lista[clipIndex];
+  if (iframe) iframe.src = getClipUrl(selectedClip);
 }
 
 function nextClip() {
-  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  const lista = clipsDinamicos.length ? clipsDinamicos : FALLBACK_CLIPS;
+  if (!lista.length) return;
   clipIndex = (clipIndex + 1) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (iframe) iframe.src = getClipUrl(clipIndex);
+  const selectedClip = lista[clipIndex];
+  if (iframe) iframe.src = getClipUrl(selectedClip);
 }
 
-// ✅ Obtém status real da Twitch usando API oficial (sem autenticação)
-async function obterStatusLive() {
-  // Tentativa 1: API oficial da Twitch (helix)
+async function carregarClipsDoWorker() {
   try {
-    const response = await fetch(
-      `https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL}`,
-      {
-        headers: {
-          "Client-ID": TWITCH_CLIENT_ID,
-        },
-        cache: "no-store",
-      },
-    );
-    if (response.ok) {
-      const data = await response.json();
-      const isOnline = data.data && data.data.length > 0;
-      console.log(`[Twitch] API oficial: ${isOnline ? "online" : "offline"}`);
-      return isOnline;
-    }
-  } catch (e) {
-    console.warn("[Twitch] Falha na API oficial, tentando fallback:", e);
-  }
+    // CLIPS_API já termina com "/clips"; evitar gerar ".../clips/clips"
+    const endpoint = CLIPS_API.replace(/\/+$/, "");
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
 
-  // Tentativa 2: fallback via decapi.me (uptime)
-  try {
-    const response = await fetch(
-      `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}?_=${Date.now()}`,
-      { cache: "no-store" },
-    );
-    const text = (await response.text()).trim().toLowerCase();
-    // Se o retorno for "offline" ou vazio, está offline. Qualquer outra string (ex: "1h 2m") significa online
-    const isOnline = !(text === "offline" || text === "");
-    console.log(`[Twitch] Decapi (uptime): ${text} → online? ${isOnline}`);
-    return isOnline;
+    // Armazena os objetos completos ou IDs
+    clipsDinamicos = data && data.length > 0 ? data : FALLBACK_CLIPS;
+    console.log("[Twitch] Clips carregados:", clipsDinamicos.length);
   } catch (error) {
-    console.error("[Twitch] Erro no fallback de status:", error);
-    return false;
+    console.warn("[Twitch] Erro ao buscar clips, usando fallback.");
+    clipsDinamicos = FALLBACK_CLIPS;
   }
 }
 
@@ -135,27 +117,42 @@ async function verificarEAtualizarPlayer() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
 
-  const currentlyLive = await obterStatusLive();
-  if (currentlyLive === lastKnownStatus) return;
-  lastKnownStatus = currentlyLive;
+  // SUBSTITUA PELA URL DO SEU WORKER RECÉM CRIADO
+  const WORKER_URL = "https://dawn-fire-8475.rizakh-rph.workers.dev";
 
-  console.log(
-    "[Twitch] Status mudou para:",
-    currentlyLive ? "online" : "offline",
-  );
+  try {
+    const response = await fetch(WORKER_URL);
+    const data = await response.json();
 
-  if (currentlyLive) {
-    const parent = window.location.hostname || "localhost";
-    const liveUrl = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&autoplay=true&muted=true`;
-    if (iframe.src !== liveUrl) {
-      iframe.src = liveUrl;
-      currentIframeSrc = liveUrl;
+    const liveAgora = data.is_live; // O Worker retorna true ou false
+
+    console.log(`[Twitch Worker] Status: ${liveAgora ? "ONLINE" : "OFFLINE"}`);
+
+    if (
+      liveAgora !== isLive ||
+      !iframe.src ||
+      iframe.src === window.location.href
+    ) {
+      isLive = liveAgora;
+      const hostname = window.location.hostname || "localhost";
+
+      if (isLive) {
+        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${hostname}&autoplay=true&muted=true`;
+        setLiveBadge(true);
+        showClipNav(false);
+      } else {
+        // Se estiver offline, carrega um clip aleatório da sua lista
+        //const randomClip =
+        //FALLBACK_CLIPS[Math.floor(Math.random() * FALLBACK_CLIPS.length)];
+        //iframe.src = `https://clips.twitch.tv/embed?clip=${randomClip}&parent=${hostname}&autoplay=true&muted=true`;
+        if (clipsDinamicos.length === 0) await carregarClipsDinamicos();
+        nextClip(); // Isso vai chamar a função que usa o getClipUrl corrigido
+        setLiveBadge(false);
+        showClipNav(true);
+      }
     }
-    setLiveBadge(true);
-    showClipNav(false);
-    if (window.clipTimer) clearInterval(window.clipTimer);
-  } else {
-    await loadOfflineClip();
+  } catch (error) {
+    console.error("[Twitch] Erro ao consultar Worker:", error);
   }
 }
 
@@ -163,13 +160,14 @@ async function verificarEAtualizarPlayer() {
 async function loadOfflineClip() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
-  if (!dynamicClips.length) {
+  if (!clipsDinamicos.length) {
     await carregarClipsDinamicos();
   }
-  const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
+  const lista = clipsDinamicos.length ? clipsDinamicos : FALLBACK_CLIPS;
   if (!lista.length) return;
   clipIndex = Math.floor(Math.random() * lista.length);
-  const novaUrl = getClipUrl(clipIndex);
+  const selectedClip = lista[clipIndex];
+  const novaUrl = getClipUrl(selectedClip);
   if (iframe.src !== novaUrl) {
     iframe.src = novaUrl;
     currentIframeSrc = novaUrl;
@@ -492,7 +490,7 @@ function cardHTML(p) {
     const addedLine = p.dataAdicBr
       ? `<span class="added-info">Adicionado ${p.dataAdicBr}</span>`
       : "";
-    const histBtn = `<button class="hist-btn" onclick="toggleHistory('${p.id}')">Histórico</button>`;
+    const histBtn = `<button class="hist-btn" type="button" data-history-id="${escHtml(p.id)}">Histórico</button>`;
     if (addedLine || histBtn) {
       extraHtml = `<div class="card-footer-row">${addedLine}${histBtn}</div>`;
     }
@@ -575,7 +573,7 @@ function toggleHistory(id) {
     .join("");
 
   const tbody =
-    rows || '<td><td colspan="2" class="hist-empty">Sem registros</td></tr>';
+    rows || '<tr><td colspan="2" class="hist-empty">Sem registros</td></tr>';
 
   const modal = document.createElement("div");
   modal.id = "hist-modal-" + id;
@@ -584,7 +582,7 @@ function toggleHistory(id) {
     <div class="hist-modal-content">
       <div class="hist-modal-header">
         <span>Histórico de Preços — ${escHtml(p.nome)}</span>
-        <button class="hist-modal-close" onclick="toggleHistory('${id}')">×</button>
+        <button class="hist-modal-close" type="button" data-history-id="${escHtml(id)}">×</button>
       </div>
       <table class="hist-table">
         <thead><tr><th>Data</th><th>Preço</th></tr></thead>
@@ -598,6 +596,21 @@ function toggleHistory(id) {
 }
 
 document.addEventListener("click", (e) => {
+  // Abrir histórico
+  const histBtn = e.target.closest(".hist-btn");
+  if (histBtn && histBtn.dataset.historyId) {
+    toggleHistory(histBtn.dataset.historyId);
+    return;
+  }
+
+  // Fechar modal
+  const closeBtn = e.target.closest(".hist-modal-close");
+  if (closeBtn && closeBtn.dataset.historyId) {
+    toggleHistory(closeBtn.dataset.historyId);
+    return;
+  }
+
+  // Clique no backdrop (mantém comportamento antigo)
   if (e.target.classList.contains("hist-modal")) e.target.remove();
 });
 
@@ -1429,9 +1442,9 @@ function initMobileMenu() {
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("./sw.js", { scope: "./" })
-      .then((reg) => console.log("[SW] Registered:", reg.scope))
-      .catch((err) => console.log("[SW] Registration failed:", err));
+      .register("./sw.js") // O './' é essencial
+      .then((reg) => console.log("[PWA] Service Worker registrado!"))
+      .catch((err) => console.log("[PWA] Erro ao registrar:", err));
   }
   initTwitchPlayer();
   carregarHistorico();
@@ -1444,3 +1457,4 @@ document.addEventListener("DOMContentLoaded", () => {
   initContactForm();
   initVisualEnhancements();
 });
+
