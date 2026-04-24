@@ -1,6 +1,7 @@
 const ITEMS_PER_PAGE = 9;
 const TWITCH_CHANNEL = "rizakh";
 const CLIPS_API = "https://falling-cake-b5d5.rizakh-rph.workers.dev/clips";
+const TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
 let todosProdutos = [];
 let paginaAtual = 1;
@@ -38,7 +39,7 @@ const FALLBACK_CLIPS = [
 
 let dynamicClips = [];
 
-// Busca clips dinâmicos da API
+// 🔄 Busca clips dinâmicos da API
 async function carregarClipsDinamicos() {
   try {
     const res = await fetch(`${CLIPS_API}?_=${Date.now()}`, {
@@ -61,7 +62,7 @@ async function carregarClipsDinamicos() {
   }
 }
 
-// Obtém URL de um clip (dinâmico ou fallback)
+// 📺 Obtém URL de um clip (dinâmico ou fallback) com correção de parent/autoplay/muted
 function getClipUrl(index) {
   const parent = window.location.hostname || "localhost";
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
@@ -75,45 +76,61 @@ function getClipUrl(index) {
   return clip;
 }
 
-// Controle de navegação entre clips
 function prevClip() {
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
   clipIndex = (clipIndex - 1 + lista.length) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (!iframe) return;
-  const novaUrl = getClipUrl(clipIndex);
-  if (iframe.src !== novaUrl) iframe.src = novaUrl;
+  if (iframe) iframe.src = getClipUrl(clipIndex);
 }
 
 function nextClip() {
   const lista = dynamicClips.length ? dynamicClips : FALLBACK_CLIPS;
   clipIndex = (clipIndex + 1) % lista.length;
   const iframe = document.getElementById("twitch-player");
-  if (!iframe) return;
-  const novaUrl = getClipUrl(clipIndex);
-  if (iframe.src !== novaUrl) iframe.src = novaUrl;
+  if (iframe) iframe.src = getClipUrl(clipIndex);
 }
 
-// Obtém status real da Twitch
+// ✅ Obtém status real da Twitch usando API oficial (sem autenticação)
 async function obterStatusLive() {
+  // Tentativa 1: API oficial da Twitch (helix)
   try {
     const response = await fetch(
-      `https://decapi.me/twitch/status/${TWITCH_CHANNEL}?_=${Date.now()}`,
+      `https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL}`,
+      {
+        headers: {
+          "Client-ID": TWITCH_CLIENT_ID,
+        },
+        cache: "no-store",
+      },
+    );
+    if (response.ok) {
+      const data = await response.json();
+      const isOnline = data.data && data.data.length > 0;
+      console.log(`[Twitch] API oficial: ${isOnline ? "online" : "offline"}`);
+      return isOnline;
+    }
+  } catch (e) {
+    console.warn("[Twitch] Falha na API oficial, tentando fallback:", e);
+  }
+
+  // Tentativa 2: fallback via decapi.me (uptime)
+  try {
+    const response = await fetch(
+      `https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}?_=${Date.now()}`,
       { cache: "no-store" },
     );
     const text = (await response.text()).trim().toLowerCase();
-    if (text === "online") return true;
-    if (text === "offline") return false;
-    if (text && text !== "online" && text !== "offline") {
-      console.warn("[Twitch] Status inesperado:", text);
-    }
-    return false;
+    // Se o retorno for "offline" ou vazio, está offline. Qualquer outra string (ex: "1h 2m") significa online
+    const isOnline = !(text === "offline" || text === "");
+    console.log(`[Twitch] Decapi (uptime): ${text} → online? ${isOnline}`);
+    return isOnline;
   } catch (error) {
-    console.error("[Twitch] Erro ao consultar status:", error);
+    console.error("[Twitch] Erro no fallback de status:", error);
     return false;
   }
 }
 
+// 🔄 Verifica e atualiza o player SOMENTE se o status mudou
 async function verificarEAtualizarPlayer() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
@@ -142,7 +159,7 @@ async function verificarEAtualizarPlayer() {
   }
 }
 
-// Carrega um clip aleatório
+// 💤 Carrega um clip aleatório (modo offline)
 async function loadOfflineClip() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
@@ -166,7 +183,7 @@ async function loadOfflineClip() {
   }, 45000);
 }
 
-// UI helpers
+// 🎛️ UI helpers (mantidos iguais)
 function setLiveBadge(live) {
   const badge = document.getElementById("player-badge");
   if (!badge) return;
@@ -195,11 +212,11 @@ function showClipNav(show) {
   if (next) next.style.display = show ? "flex" : "none";
 }
 
+// 🚀 Inicialização do Twitch Player
 function initTwitchPlayer() {
   carregarClipsDinamicos();
-  setTimeout(() => {
-    verificarEAtualizarPlayer();
-  }, 500);
+  // Primeira verificação com pequeno delay para garantir que o DOM está pronto
+  setTimeout(() => verificarEAtualizarPlayer(), 500);
   setInterval(verificarEAtualizarPlayer, 120000);
   setInterval(carregarClipsDinamicos, 600000);
 }
