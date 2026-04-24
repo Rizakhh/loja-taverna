@@ -8,7 +8,7 @@ let totalPaginas = 1;
 let filtroAtivo = "all";
 let historicoPrecos = {};
 
-// ── Helpers
+// â”€â”€ Helpers
 function fmtDesc(d) {
   return d % 1 === 0 ? d.toString() : d.toFixed(1);
 }
@@ -23,10 +23,12 @@ function escHtml(s) {
     .replace(/'/g, "&#39;");
 }
 
+function fmt(n) {
+  return Number(n).toLocaleString("pt-BR");
+}
+
 let isLive = false;
 let clipIndex = 0;
-let lastKnownStatus = null;
-let currentIframeSrc = "";
 let clipsDinamicos = [];
 
 const FALLBACK_CLIPS = [
@@ -38,43 +40,71 @@ const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost",
 ];
 
-// 🔄 Busca clips dinâmicos da API
+// ðŸ”„ Busca clips dinÃ¢micos da API
 async function carregarClipsDinamicos() {
   try {
     const response = await fetch(CLIPS_API);
     if (!response.ok) throw new Error("Worker offline");
     const data = await response.json();
 
-    // Se o worker retornar dados, usamos eles, senão usamos o fallback
+    // Se o worker retornar dados, usamos eles, senÃ£o usamos o fallback
     clipsDinamicos = data && data.length > 0 ? data : FALLBACK_CLIPS;
     console.log("[Twitch] Clips carregados com sucesso");
   } catch (error) {
     console.error(
-      "[Twitch] Erro ao carregar clips dinâmicos, usando fallback local.",
+      "[Twitch] Erro ao carregar clips dinÃ¢micos, usando fallback local.",
     );
     clipsDinamicos = FALLBACK_CLIPS;
   }
 }
 
-// 📺 Obtém URL de um clip (dinâmico ou fallback) com correção de parent/autoplay/muted
-// Corrigindo a lógica de extração de ID para evitar o erro de replace
+// ðŸ“º ObtÃ©m URL de um clip (dinÃ¢mico ou fallback) com correÃ§Ã£o de parent/autoplay/muted
+// Corrigindo a lÃ³gica de extraÃ§Ã£o de ID para evitar o erro de replace
 function getClipUrl(clipData) {
   const hostname = window.location.hostname || "localhost";
+  // Adiciona 127.0.0.1 como parent fallback para garantir compatibilidade em localhost
+  const parentString = hostname === "localhost" || hostname === "127.0.0.1" 
+    ? "&parent=localhost&parent=127.0.0.1" 
+    : `&parent=${hostname}`;
+  
   let id = "";
 
-  if (typeof clipData === "object" && clipData.id) {
+  if (typeof clipData === "object" && clipData?.id) {
     id = clipData.id;
   } else if (typeof clipData === "string") {
-    // Se for uma URL de fallback, extrai o ID
     if (clipData.includes("clip=")) {
-      const urlParams = new URLSearchParams(clipData.split("?")[1]);
-      id = urlParams.get("clip");
+      try {
+        const url = new URL(clipData);
+        id = url.searchParams.get("clip") || "";
+      } catch {
+        const parts = clipData.split("?");
+        id = parts[1]
+          ? new URLSearchParams(parts[1]).get("clip") || ""
+          : clipData;
+      }
     } else {
       id = clipData;
     }
   }
 
-  return `https://clips.twitch.tv/embed?clip=${id}&parent=${hostname}&autoplay=true&muted=true`;
+  return id
+    ? `https://clips.twitch.tv/embed?clip=${id}${parentString}&autoplay=true&muted=true`
+    : "";
+}
+
+function setIframeSrc(iframe, src) {
+  try {
+    // Check if it's the first time loading to prevent history manipulation
+    if (!iframe.src || iframe.src === window.location.href || iframe.src === "about:blank") {
+      iframe.contentWindow.location.replace(src);
+    } else {
+      // se ja tiver algo usa o src normal
+      iframe.src = src;
+    }
+  } catch (e) {
+    // Fallback: captura erros de Cross-Origin (DOMException) e atribui o src
+    iframe.src = src;
+  }
 }
 
 function prevClip() {
@@ -83,7 +113,7 @@ function prevClip() {
   clipIndex = (clipIndex - 1 + lista.length) % lista.length;
   const iframe = document.getElementById("twitch-player");
   const selectedClip = lista[clipIndex];
-  if (iframe) iframe.src = getClipUrl(selectedClip);
+  if (iframe) setIframeSrc(iframe, getClipUrl(selectedClip));
 }
 
 function nextClip() {
@@ -92,32 +122,15 @@ function nextClip() {
   clipIndex = (clipIndex + 1) % lista.length;
   const iframe = document.getElementById("twitch-player");
   const selectedClip = lista[clipIndex];
-  if (iframe) iframe.src = getClipUrl(selectedClip);
+  if (iframe) setIframeSrc(iframe, getClipUrl(selectedClip));
 }
 
-async function carregarClipsDoWorker() {
-  try {
-    // CLIPS_API já termina com "/clips"; evitar gerar ".../clips/clips"
-    const endpoint = CLIPS_API.replace(/\/+$/, "");
-    const res = await fetch(endpoint);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    // Armazena os objetos completos ou IDs
-    clipsDinamicos = data && data.length > 0 ? data : FALLBACK_CLIPS;
-    console.log("[Twitch] Clips carregados:", clipsDinamicos.length);
-  } catch (error) {
-    console.warn("[Twitch] Erro ao buscar clips, usando fallback.");
-    clipsDinamicos = FALLBACK_CLIPS;
-  }
-}
-
-// 🔄 Verifica e atualiza o player SOMENTE se o status mudou
+// ðŸ”„ Verifica e atualiza o player SOMENTE se o status mudou
 async function verificarEAtualizarPlayer() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
 
-  // SUBSTITUA PELA URL DO SEU WORKER RECÉM CRIADO
+  // SUBSTITUA PELA URL DO SEU WORKER RECÃ‰M CRIADO
   const WORKER_URL = "https://dawn-fire-8475.rizakh-rph.workers.dev";
 
   try {
@@ -131,24 +144,35 @@ async function verificarEAtualizarPlayer() {
     if (
       liveAgora !== isLive ||
       !iframe.src ||
-      iframe.src === window.location.href
+      iframe.src === window.location.href ||
+      iframe.src === "about:blank"
     ) {
-      isLive = liveAgora;
       const hostname = window.location.hostname || "localhost";
+      const parentString = hostname === "localhost" || hostname === "127.0.0.1" 
+        ? "&parent=localhost&parent=127.0.0.1" 
+        : `&parent=${hostname}`;
 
-      if (isLive) {
-        iframe.src = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${hostname}&autoplay=true&muted=true`;
+      if (liveAgora) {
+        setIframeSrc(iframe, `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}${parentString}&autoplay=true&muted=true`);
         setLiveBadge(true);
         showClipNav(false);
+        if (window.clipTimer) {
+          clearInterval(window.clipTimer);
+          window.clipTimer = null;
+        }
       } else {
-        // Se estiver offline, carrega um clip aleatório da sua lista
+        // Se estiver offline, carrega um clip aleatÃ³rio da sua lista
         //const randomClip =
         //FALLBACK_CLIPS[Math.floor(Math.random() * FALLBACK_CLIPS.length)];
         //iframe.src = `https://clips.twitch.tv/embed?clip=${randomClip}&parent=${hostname}&autoplay=true&muted=true`;
         if (clipsDinamicos.length === 0) await carregarClipsDinamicos();
-        nextClip(); // Isso vai chamar a função que usa o getClipUrl corrigido
+        nextClip();
         setLiveBadge(false);
         showClipNav(true);
+        if (window.clipTimer) clearInterval(window.clipTimer);
+        window.clipTimer = setInterval(() => {
+          if (!isLive) nextClip();
+        }, 45000);
       }
     }
   } catch (error) {
@@ -156,32 +180,7 @@ async function verificarEAtualizarPlayer() {
   }
 }
 
-// 💤 Carrega um clip aleatório (modo offline)
-async function loadOfflineClip() {
-  const iframe = document.getElementById("twitch-player");
-  if (!iframe) return;
-  if (!clipsDinamicos.length) {
-    await carregarClipsDinamicos();
-  }
-  const lista = clipsDinamicos.length ? clipsDinamicos : FALLBACK_CLIPS;
-  if (!lista.length) return;
-  clipIndex = Math.floor(Math.random() * lista.length);
-  const selectedClip = lista[clipIndex];
-  const novaUrl = getClipUrl(selectedClip);
-  if (iframe.src !== novaUrl) {
-    iframe.src = novaUrl;
-    currentIframeSrc = novaUrl;
-  }
-  setLiveBadge(false);
-  showClipNav(true);
-
-  if (window.clipTimer) clearInterval(window.clipTimer);
-  window.clipTimer = setInterval(() => {
-    if (!isLive) nextClip();
-  }, 45000);
-}
-
-// 🎛️ UI helpers (mantidos iguais)
+// ðŸŽ›ï¸ UI helpers (mantidos iguais)
 function setLiveBadge(live) {
   const badge = document.getElementById("player-badge");
   if (!badge) return;
@@ -210,16 +209,53 @@ function showClipNav(show) {
   if (next) next.style.display = show ? "flex" : "none";
 }
 
-// 🚀 Inicialização do Twitch Player
+// ðŸš€ InicializaÃ§Ã£o do Twitch Player
+//async function initTwitchPlayer() {
+////  await carregarClipsDinamicos();
+// Primeira verificaÃ§Ã£o apÃ³s carregar clips
+////  verificarEAtualizarPlayer();
+////  setInterval(verificarEAtualizarPlayer, 120000);
+////  setInterval(carregarClipsDinamicos, 600000);
+////}
 function initTwitchPlayer() {
   carregarClipsDinamicos();
-  // Primeira verificação com pequeno delay para garantir que o DOM está pronto
-  setTimeout(() => verificarEAtualizarPlayer(), 500);
-  setInterval(verificarEAtualizarPlayer, 120000);
-  setInterval(carregarClipsDinamicos, 600000);
+
+  // Usa IntersectionObserver para carregar apenas quando visível
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          console.log("[Twitch] Player visível, iniciando...");
+          if (document.hidden) {
+            document.addEventListener('visibilitychange', function onVisibilityChange() {
+              if (!document.hidden) {
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+                verificarEAtualizarPlayer();
+              }
+            });
+          } else {
+            verificarEAtualizarPlayer();
+          }
+          // Para de observar após o primeiro carregamento
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 },
+  ); // Carrega quando 50% do player estiver na tela
+
+  const playerFrame = document.querySelector(".player-frame");
+  if (playerFrame) {
+    observer.observe(playerFrame);
+  }
+
+  // Mantém a verificação de status a cada 2 min se já estiver carregado
+  setInterval(() => {
+    if (isLive) verificarEAtualizarPlayer();
+  }, 120000);
 }
 
-// HISTÓRICO DE PREÇOS
+// HISTÃ“RICO DE PREÃ‡OS
 
 function carregarHistorico() {
   const script = document.getElementById("preco-history-data");
@@ -319,22 +355,7 @@ function configurarFiltros() {
   });
 }
 
-function filtrar(lista) {
-  switch (filtroAtivo) {
-    case "disponivel":
-      return lista.filter((p) => !p.vendido);
-    case "sale":
-      return lista.filter((p) => p.isSale);
-    case "novo":
-      return lista.filter((p) => p.isNovo);
-    case "vendido":
-      return lista.filter((p) => p.vendido);
-    default:
-      return lista;
-  }
-}
-
-// RENDERIZAÇÃO
+// RENDERIZAÃ‡ÃƒO
 
 function renderizarPagina() {
   const filtrado = filtrarProdutos();
@@ -378,7 +399,7 @@ function renderizarPagina() {
 
   if (info && txt) {
     info.style.display = "block";
-    txt.textContent = `Mostrando ${filtrado.length} itens — Pagina ${paginaAtual} de ${totalPaginas}`;
+    txt.textContent = `Mostrando ${filtrado.length} itens â€” Pagina ${paginaAtual} de ${totalPaginas}`;
   }
 
   const pgCtrl = document.getElementById("pagination-controls");
@@ -426,7 +447,7 @@ function cardHTML(p) {
     ? `<iframe src="https://www.youtube.com/embed/${p.youtubeId}?rel=0&modestbranding=1"
         title="${escHtml(p.nome)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowfullscreen loading="eager"></iframe>`
+        loading="eager"></iframe>`
     : `<div class="video-placeholder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <polygon points="5 3 19 12 5 21 5 3"/>
@@ -441,10 +462,6 @@ function cardHTML(p) {
     <svg class="steam-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><use href="#steam-icon"/></svg>
     Ver na Loja
   </a>`;
-
-  function fmt(n) {
-    return n.toLocaleString("pt-BR");
-  }
 
   let precoHtml = "";
   if (p.isSale) {
@@ -490,7 +507,7 @@ function cardHTML(p) {
     const addedLine = p.dataAdicBr
       ? `<span class="added-info">Adicionado ${p.dataAdicBr}</span>`
       : "";
-    const histBtn = `<button class="hist-btn" type="button" data-history-id="${escHtml(p.id)}">Histórico</button>`;
+    const histBtn = `<button class="hist-btn" type="button" data-history-id="${escHtml(p.id)}">HistÃ³rico</button>`;
     if (addedLine || histBtn) {
       extraHtml = `<div class="card-footer-row">${addedLine}${histBtn}</div>`;
     }
@@ -539,7 +556,7 @@ function cardHTML(p) {
   </div>`;
 }
 
-// HISTÓRICO
+// HISTÃ“RICO
 
 function toggleHistory(id) {
   const existing = document.getElementById("hist-modal-" + id);
@@ -556,7 +573,7 @@ function toggleHistory(id) {
 
   const rows = ultimas
     .map((e) => {
-      const data = e.data || "—";
+      const data = e.data || "â€”";
       const precoBruto = e.preco || 0;
       const desconto = e.desconto || 0;
       const precoFinal =
@@ -581,11 +598,11 @@ function toggleHistory(id) {
   modal.innerHTML = `
     <div class="hist-modal-content">
       <div class="hist-modal-header">
-        <span>Histórico de Preços — ${escHtml(p.nome)}</span>
-        <button class="hist-modal-close" type="button" data-history-id="${escHtml(id)}">×</button>
+        <span>HistÃ³rico de PreÃ§os â€” ${escHtml(p.nome)}</span>
+        <button class="hist-modal-close" type="button" data-history-id="${escHtml(id)}">Ã—</button>
       </div>
       <table class="hist-table">
-        <thead><tr><th>Data</th><th>Preço</th></tr></thead>
+        <thead><tr><th>Data</th><th>PreÃ§o</th></tr></thead>
         <tbody>${tbody}</tbody>
       </table>
     </div>`;
@@ -596,7 +613,7 @@ function toggleHistory(id) {
 }
 
 document.addEventListener("click", (e) => {
-  // Abrir histórico
+  // Abrir histÃ³rico
   const histBtn = e.target.closest(".hist-btn");
   if (histBtn && histBtn.dataset.historyId) {
     toggleHistory(histBtn.dataset.historyId);
@@ -610,7 +627,7 @@ document.addEventListener("click", (e) => {
     return;
   }
 
-  // Clique no backdrop (mantém comportamento antigo)
+  // Clique no backdrop (mantÃ©m comportamento antigo)
   if (e.target.classList.contains("hist-modal")) e.target.remove();
 });
 
@@ -755,7 +772,7 @@ function initCardTilt() {
   if (grid) applyCardTiltToContainer(grid);
 }
 
-// BUSCA AVANÇADA
+// BUSCA AVANÃ‡ADA
 
 let searchQuery = "";
 let priceMin = 0;
@@ -824,7 +841,7 @@ function filtrarProdutos() {
   });
 }
 
-// FORMULÁRIO DE CONTATO
+// FORMULÃRIO DE CONTATO
 
 function initContactForm() {
   const form = document.getElementById("contact-form");
@@ -1021,7 +1038,7 @@ function initFooterGlow() {
 }
 
 function initFloatingRunes() {
-  const runes = ["✦", "◈", "⬡", "◇", "✧", "⟡", "⬢", "◆"];
+  const runes = ["âœ¦", "â—ˆ", "â¬¡", "â—‡", "âœ§", "âŸ¡", "â¬¢", "â—†"];
   const container = document.createElement("div");
   container.className = "floating-runes";
   container.setAttribute("aria-hidden", "true");
@@ -1111,11 +1128,11 @@ function initGSAPScrollAnimations() {
   gsap.from(".hero-badge", {
     scrollTrigger: {
       trigger: ".hero",
-      start: "top 80%",
+      start: "top 85%",
       toggleActions: "play none none reverse",
     },
     y: -50,
-    opacity: 0,
+    opacity: 0.1,
     duration: 1,
     ease: "power3.out",
   });
@@ -1166,18 +1183,7 @@ function initGSAPScrollAnimations() {
     stagger: 0.15,
     ease: "back.out(1.7)",
   });
-  gsap.from(".player-frame", {
-    scrollTrigger: {
-      trigger: ".live-section",
-      start: "top 70%",
-      toggleActions: "play none none reverse",
-    },
-    y: 50,
-    opacity: 0,
-    scale: 0.95,
-    duration: 1,
-    ease: "power3.out",
-  });
+
   gsap.from(".shop-title-wrap", {
     scrollTrigger: {
       trigger: ".shop-section",
@@ -1252,16 +1258,7 @@ function initParallaxScroll() {
     y: -50,
     opacity: 0.8,
   });
-  gsap.to(".live-section .player-frame", {
-    scrollTrigger: {
-      trigger: ".live-section",
-      start: "top bottom",
-      end: "bottom top",
-      scrub: 1,
-    },
-    y: -30,
-    scale: 1.02,
-  });
+  
   document.querySelectorAll(".product-card").forEach((card, i) => {
     gsap.to(card, {
       scrollTrigger: {
@@ -1438,11 +1435,11 @@ function initMobileMenu() {
   }
 }
 
-// INICIALIZAÇÃO
+// INICIALIZAÃ‡ÃƒO
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("./sw.js") // O './' é essencial
+      .register("./sw.js") // O './' Ã© essencial
       .then((reg) => console.log("[PWA] Service Worker registrado!"))
       .catch((err) => console.log("[PWA] Erro ao registrar:", err));
   }
@@ -1457,4 +1454,3 @@ document.addEventListener("DOMContentLoaded", () => {
   initContactForm();
   initVisualEnhancements();
 });
-

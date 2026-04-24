@@ -298,7 +298,7 @@
               id="twitch-player"
               src=""
               frameborder="0"
-              allow="autoplay; fullscreen; picture-in-picture"
+              allow="autoplay; picture-in-picture; fullscreen"
             ></iframe>
             <button
               id="clip-prev"
@@ -335,6 +335,7 @@
 
         <div class="shop-controls">
           <div class="search-bar">
+            <label for="search-input" class="sr-only">Buscar produto</label>
             <svg
               class="search-icon"
               viewBox="0 0 24 24"
@@ -350,12 +351,13 @@
               id="search-input"
               placeholder="Buscar produto..."
               class="search-input"
+              autocomplete="off"
             />
           </div>
           <div class="price-filter">
             <div class="price-inputs">
               <div class="price-input-group">
-                <label>De:</label>
+                <label for="price-min">De:</label>
                 <input
                   type="number"
                   id="price-min"
@@ -366,7 +368,7 @@
                 />
               </div>
               <div class="price-input-group">
-                <label>Até:</label>
+                <label for="price-max">Até:</label>
                 <input
                   type="number"
                   id="price-max"
@@ -378,6 +380,7 @@
               </div>
             </div>
             <div class="price-range-wrap">
+              <label for="price-range" class="sr-only">Faixa de Preço</label>
               <input
                 type="range"
                 id="price-range"
@@ -502,26 +505,32 @@
             method="POST"
             class="contact-form-compact"
           >
+            <label for="contact-nome" class="sr-only">Nome</label>
             <input
               type="text"
               id="contact-nome"
               name="nome"
               placeholder="Nome"
+              autocomplete="name"
               required
             />
+            <label for="contact-email" class="sr-only">Email</label>
             <input
               type="email"
               id="contact-email"
               name="email"
               placeholder="Email"
+              autocomplete="email"
               required
             />
+            <label for="contact-tipo" class="sr-only">Tipo de Contato</label>
             <select id="contact-tipo" name="tipo" required>
               <option value="">Tipo</option>
               <option value="bug">Bug</option>
               <option value="sugestao">Sugestao</option>
               <option value="contato">Contato</option>
             </select>
+            <label for="contact-mensagem" class="sr-only">Mensagem</label>
             <textarea
               id="contact-mensagem"
               name="mensagem"
