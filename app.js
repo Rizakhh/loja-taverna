@@ -8,7 +8,7 @@ let totalPaginas = 1;
 let filtroAtivo = "all";
 let historicoPrecos = {};
 
-// â”€â”€ Helpers
+// ── Helpers
 function fmtDesc(d) {
   return d % 1 === 0 ? d.toString() : d.toFixed(1);
 }
@@ -40,32 +40,32 @@ const FALLBACK_CLIPS = [
   "https://clips.twitch.tv/embed?clip=IronicElegantSwordBIRB-siQqnUubLgBG82Hq&parent=localhost",
 ];
 
-// ðŸ”„ Busca clips dinÃ¢micos da API
+// 🔄 Busca clips dinâmicos da API
 async function carregarClipsDinamicos() {
   try {
     const response = await fetch(CLIPS_API);
     if (!response.ok) throw new Error("Worker offline");
     const data = await response.json();
 
-    // Se o worker retornar dados, usamos eles, senÃ£o usamos o fallback
+    // Se o worker retornar dados, usamos eles, senão usamos o fallback
     clipsDinamicos = data && data.length > 0 ? data : FALLBACK_CLIPS;
     console.log("[Twitch] Clips carregados com sucesso");
   } catch (error) {
     console.error(
-      "[Twitch] Erro ao carregar clips dinÃ¢micos, usando fallback local.",
+      "[Twitch] Erro ao carregar clips dinâmicos, usando fallback local.",
     );
     clipsDinamicos = FALLBACK_CLIPS;
   }
 }
 
-// ðŸ“º ObtÃ©m URL de um clip (dinÃ¢mico ou fallback) com correÃ§Ã£o de parent/autoplay/muted
-// Corrigindo a lÃ³gica de extraÃ§Ã£o de ID para evitar o erro de replace
+// 📺 Obtém URL de um clip (dinâmico ou fallback) com correção de parent/autoplay/muted
+// Corrigindo a lógica de extração de ID para evitar o erro de replace
 function getClipUrl(clipData) {
   const hostname = window.location.hostname || "localhost";
   // Adiciona 127.0.0.1 como parent fallback para garantir compatibilidade em localhost
-  const parentString = hostname === "localhost" || hostname === "127.0.0.1" 
-    ? "&parent=localhost&parent=127.0.0.1" 
-    : `&parent=${hostname}`;
+  const parentString = hostname === "localhost" || hostname === "127.0.0.1"
+    ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
+    : `&parent=${hostname}&parent=trae.ai`;
   
   let id = "";
 
@@ -125,12 +125,12 @@ function nextClip() {
   if (iframe) setIframeSrc(iframe, getClipUrl(selectedClip));
 }
 
-// ðŸ”„ Verifica e atualiza o player SOMENTE se o status mudou
+// 🔄 Verifica e atualiza o player SOMENTE se o status mudou
 async function verificarEAtualizarPlayer() {
   const iframe = document.getElementById("twitch-player");
   if (!iframe) return;
 
-  // SUBSTITUA PELA URL DO SEU WORKER RECÃ‰M CRIADO
+  // SUBSTITUA PELA URL DO SEU WORKER RECÉM CRIADO
   const WORKER_URL = "https://dawn-fire-8475.rizakh-rph.workers.dev";
 
   try {
@@ -148,9 +148,9 @@ async function verificarEAtualizarPlayer() {
       iframe.src === "about:blank"
     ) {
       const hostname = window.location.hostname || "localhost";
-      const parentString = hostname === "localhost" || hostname === "127.0.0.1" 
-        ? "&parent=localhost&parent=127.0.0.1" 
-        : `&parent=${hostname}`;
+      const parentString = hostname === "localhost" || hostname === "127.0.0.1"
+        ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
+        : `&parent=${hostname}&parent=trae.ai`;
 
       if (liveAgora) {
         setIframeSrc(iframe, `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}${parentString}&autoplay=true&muted=true`);
@@ -161,7 +161,7 @@ async function verificarEAtualizarPlayer() {
           window.clipTimer = null;
         }
       } else {
-        // Se estiver offline, carrega um clip aleatÃ³rio da sua lista
+        // Se estiver offline, carrega um clip aleatório da sua lista
         //const randomClip =
         //FALLBACK_CLIPS[Math.floor(Math.random() * FALLBACK_CLIPS.length)];
         //iframe.src = `https://clips.twitch.tv/embed?clip=${randomClip}&parent=${hostname}&autoplay=true&muted=true`;
@@ -180,7 +180,7 @@ async function verificarEAtualizarPlayer() {
   }
 }
 
-// ðŸŽ›ï¸ UI helpers (mantidos iguais)
+// 🎛️ UI helpers (mantidos iguais)
 function setLiveBadge(live) {
   const badge = document.getElementById("player-badge");
   if (!badge) return;
@@ -209,10 +209,10 @@ function showClipNav(show) {
   if (next) next.style.display = show ? "flex" : "none";
 }
 
-// ðŸš€ InicializaÃ§Ã£o do Twitch Player
+// 🚀 Inicialização do Twitch Player
 //async function initTwitchPlayer() {
 ////  await carregarClipsDinamicos();
-// Primeira verificaÃ§Ã£o apÃ³s carregar clips
+// Primeira verificação após carregar clips
 ////  verificarEAtualizarPlayer();
 ////  setInterval(verificarEAtualizarPlayer, 120000);
 ////  setInterval(carregarClipsDinamicos, 600000);
@@ -220,33 +220,22 @@ function showClipNav(show) {
 function initTwitchPlayer() {
   carregarClipsDinamicos();
 
-  // Usa IntersectionObserver para carregar apenas quando visível
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          console.log("[Twitch] Player visível, iniciando...");
-          if (document.hidden) {
-            document.addEventListener('visibilitychange', function onVisibilityChange() {
-              if (!document.hidden) {
-                document.removeEventListener('visibilitychange', onVisibilityChange);
-                verificarEAtualizarPlayer();
-              }
-            });
-          } else {
-            verificarEAtualizarPlayer();
-          }
-          // Para de observar após o primeiro carregamento
-          observer.unobserve(entry.target);
+  console.log("[Twitch] Player iniciando...");
+  if (document.hidden) {
+    document.addEventListener(
+      "visibilitychange",
+      function onVisibilityChange() {
+        if (!document.hidden) {
+          document.removeEventListener(
+            "visibilitychange",
+            onVisibilityChange,
+          );
+          verificarEAtualizarPlayer();
         }
-      });
-    },
-    { threshold: 0.5 },
-  ); // Carrega quando 50% do player estiver na tela
-
-  const playerFrame = document.querySelector(".player-frame");
-  if (playerFrame) {
-    observer.observe(playerFrame);
+      },
+    );
+  } else {
+    verificarEAtualizarPlayer();
   }
 
   // Mantém a verificação de status a cada 2 min se já estiver carregado
@@ -255,7 +244,7 @@ function initTwitchPlayer() {
   }, 120000);
 }
 
-// HISTÃ“RICO DE PREÃ‡OS
+// HISTÓRICO DE PREÇOS
 
 function carregarHistorico() {
   const script = document.getElementById("preco-history-data");
@@ -355,7 +344,7 @@ function configurarFiltros() {
   });
 }
 
-// RENDERIZAÃ‡ÃƒO
+// RENDERIZAÇÃO
 
 function renderizarPagina() {
   const filtrado = filtrarProdutos();
@@ -399,12 +388,21 @@ function renderizarPagina() {
 
   if (info && txt) {
     info.style.display = "block";
-    txt.textContent = `Mostrando ${filtrado.length} itens â€” Pagina ${paginaAtual} de ${totalPaginas}`;
+    info.style.textAlign = "center";
+    info.style.width = "100%";
+    info.style.margin = "0 auto 32px";
+    txt.textContent = `Mostrando ${filtrado.length} itens — Página ${paginaAtual} de ${totalPaginas}`;
   }
 
   const pgCtrl = document.getElementById("pagination-controls");
   if (pgCtrl) {
     pgCtrl.style.display = totalPaginas > 1 ? "flex" : "none";
+    if (totalPaginas > 1) {
+      pgCtrl.style.justifyContent = "center";
+      pgCtrl.style.alignItems = "center";
+      pgCtrl.style.width = "100%";
+      pgCtrl.style.margin = "60px auto 0";
+    }
     if (btnPrev) btnPrev.disabled = paginaAtual <= 1;
     if (btnNext) btnNext.disabled = paginaAtual >= totalPaginas;
   }
@@ -412,7 +410,7 @@ function renderizarPagina() {
   if (dots) {
     let html = "";
     for (let i = 1; i <= totalPaginas; i++) {
-      html += `<span class="page-dot${i === paginaAtual ? " active" : ""}" onclick="goToPage(${i})">${i}</span>`;
+      html += `<button type="button" class="page-dot${i === paginaAtual ? " active" : ""}" onclick="goToPage(${i})" aria-label="Ir para a página ${i}">${i}</button>`;
     }
     dots.innerHTML = html;
   }
@@ -507,7 +505,7 @@ function cardHTML(p) {
     const addedLine = p.dataAdicBr
       ? `<span class="added-info">Adicionado ${p.dataAdicBr}</span>`
       : "";
-    const histBtn = `<button class="hist-btn" type="button" data-history-id="${escHtml(p.id)}">HistÃ³rico</button>`;
+    const histBtn = `<button class="hist-btn" type="button" data-history-id="${escHtml(p.id)}">Histórico</button>`;
     if (addedLine || histBtn) {
       extraHtml = `<div class="card-footer-row">${addedLine}${histBtn}</div>`;
     }
@@ -519,7 +517,7 @@ function cardHTML(p) {
   } else if (p.estoque <= 2 && p.estoque > 0) {
     estoqueHtml = `<div class="card-stock stock-low">Restam ${p.estoque}</div>`;
   } else if (p.estoque > 0) {
-    estoqueHtml = '<div class="card-stock stock-ok">Disponivel</div>';
+    estoqueHtml = '<div class="card-stock stock-ok">Disponível</div>';
   } else {
     estoqueHtml = '<div class="card-stock stock-zero">Esgotado</div>';
   }
@@ -556,7 +554,7 @@ function cardHTML(p) {
   </div>`;
 }
 
-// HISTÃ“RICO
+// HISTÓRICO
 
 function toggleHistory(id) {
   const existing = document.getElementById("hist-modal-" + id);
@@ -573,7 +571,7 @@ function toggleHistory(id) {
 
   const rows = ultimas
     .map((e) => {
-      const data = e.data || "â€”";
+      const data = e.data || "—";
       const precoBruto = e.preco || 0;
       const desconto = e.desconto || 0;
       const precoFinal =
@@ -598,11 +596,11 @@ function toggleHistory(id) {
   modal.innerHTML = `
     <div class="hist-modal-content">
       <div class="hist-modal-header">
-        <span>HistÃ³rico de PreÃ§os â€” ${escHtml(p.nome)}</span>
-        <button class="hist-modal-close" type="button" data-history-id="${escHtml(id)}">Ã—</button>
+        <span>Histórico de Preços — ${escHtml(p.nome)}</span>
+        <button class="hist-modal-close" type="button" aria-label="Fechar" data-history-id="${escHtml(id)}">×</button>
       </div>
       <table class="hist-table">
-        <thead><tr><th>Data</th><th>PreÃ§o</th></tr></thead>
+        <thead><tr><th>Data</th><th>Preço</th></tr></thead>
         <tbody>${tbody}</tbody>
       </table>
     </div>`;
@@ -613,7 +611,7 @@ function toggleHistory(id) {
 }
 
 document.addEventListener("click", (e) => {
-  // Abrir histÃ³rico
+  // Abrir histórico
   const histBtn = e.target.closest(".hist-btn");
   if (histBtn && histBtn.dataset.historyId) {
     toggleHistory(histBtn.dataset.historyId);
@@ -627,7 +625,7 @@ document.addEventListener("click", (e) => {
     return;
   }
 
-  // Clique no backdrop (mantÃ©m comportamento antigo)
+  // Clique no backdrop (mantém comportamento antigo)
   if (e.target.classList.contains("hist-modal")) e.target.remove();
 });
 
@@ -772,7 +770,7 @@ function initCardTilt() {
   if (grid) applyCardTiltToContainer(grid);
 }
 
-// BUSCA AVANÃ‡ADA
+// BUSCA AVANÇADA
 
 let searchQuery = "";
 let priceMin = 0;
@@ -841,7 +839,7 @@ function filtrarProdutos() {
   });
 }
 
-// FORMULÃRIO DE CONTATO
+// FORMULíRIO DE CONTATO
 
 function initContactForm() {
   const form = document.getElementById("contact-form");
@@ -899,7 +897,7 @@ function initContactForm() {
 
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
-    submitBtn.textContent = "Enviando...";
+    submitBtn.textContent = "Enviando…";
     submitBtn.disabled = true;
 
     fetch("https://formspree.io/f/mqewbybg", {
@@ -940,6 +938,7 @@ function initVisualEnhancements() {
   initStepStagger();
   initFooterGlow();
   initFloatingRunes();
+  initEmbers();
   initHeroParallaxLayers();
   observeDynamicCards();
   initGSAPScrollAnimations();
@@ -1038,7 +1037,7 @@ function initFooterGlow() {
 }
 
 function initFloatingRunes() {
-  const runes = ["âœ¦", "â—ˆ", "â¬¡", "â—‡", "âœ§", "âŸ¡", "â¬¢", "â—†"];
+  const runes = ["✦", "◈", "⬡", "◇", "✧", "⟡", "⬢", "◆"];
   const container = document.createElement("div");
   container.className = "floating-runes";
   container.setAttribute("aria-hidden", "true");
@@ -1053,6 +1052,32 @@ function initFloatingRunes() {
     rune.style.fontSize = 0.6 + Math.random() * 0.8 + "rem";
     rune.style.opacity = 0.03 + Math.random() * 0.06;
     container.appendChild(rune);
+  }
+}
+
+function initEmbers() {
+  const container = document.createElement("div");
+  container.className = "floating-embers";
+  container.setAttribute("aria-hidden", "true");
+  document.body.appendChild(container);
+  
+  for (let i = 0; i < 30; i++) {
+    const ember = document.createElement("span");
+    ember.className = "ember-particle";
+    
+    // random positions and timings
+    const left = Math.random() * 100;
+    const duration = 4 + Math.random() * 8;
+    const delay = Math.random() * 5;
+    const size = 2 + Math.random() * 4;
+    
+    ember.style.left = `${left}%`;
+    ember.style.width = `${size}px`;
+    ember.style.height = `${size}px`;
+    ember.style.animationDuration = `${duration}s`;
+    ember.style.animationDelay = `${delay}s`;
+    
+    container.appendChild(ember);
   }
 }
 
@@ -1435,11 +1460,11 @@ function initMobileMenu() {
   }
 }
 
-// INICIALIZAÃ‡ÃƒO
+// INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("./sw.js") // O './' Ã© essencial
+      .register("./sw.js") // O './' é essencial
       .then((reg) => console.log("[PWA] Service Worker registrado!"))
       .catch((err) => console.log("[PWA] Erro ao registrar:", err));
   }

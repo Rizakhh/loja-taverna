@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#ffd700" />
     <meta
       name="description"
-      content="Twitch Guild Shop - Troque pontos de stream por recompensas epicas"
+      content="Twitch Guild Shop - Troque pontos de stream por recompensas épicas"
     />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -42,7 +42,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <link rel="stylesheet" href="style.css" />
+    <!-- Cache Buster -->
+    <link rel="stylesheet" href="style.css?v=2.1" />
   </head>
   <body>
     <!-- NAVIGATION -->
@@ -119,7 +120,7 @@
         </h1>
         <p class="hero-tagline">
           <span class="rune">✦</span>
-          Troque seus pontos de stream por recompensas epicas
+          Troque seus pontos de stream por recompensas épicas
           <span class="rune">✦</span>
         </p>
 
@@ -131,22 +132,18 @@
           <div class="stat-sep">◆</div>
           <div class="stat-item">
             <span class="stat-value" id="stat-promocoes">--</span>
-            <span class="stat-label">Promocoes</span>
+            <span class="stat-label">Promoções</span>
           </div>
           <div class="stat-sep">◆</div>
           <div class="stat-item">
             <span class="stat-value" id="stat-pts-min">--</span>
-            <span class="stat-label">Menor Preco</span>
+            <span class="stat-label">Menor Preço</span>
           </div>
         </div>
 
-        <button
+        <a
+          href="#shop"
           class="btn-hero-scroll"
-          onclick="
-            document
-              .getElementById('shop')
-              .scrollIntoView({ behavior: 'smooth' })
-          "
         >
           <svg
             class="btn-icon"
@@ -162,7 +159,7 @@
             <polygon points="5 3 19 12 5 21 5 3" />
           </svg>
           Explorar Recompensas
-        </button>
+        </a>
       </div>
 
       <div class="hero-ornament-bottom">
@@ -187,7 +184,7 @@
       <div class="container">
         <h2 class="section-title-decorated">
           <span class="title-line"></span>
-          Sua Jornada Comeca Aqui
+          Sua Jornada Começa Aqui
           <span class="title-line"></span>
         </h2>
         <div class="steps-rpg">
@@ -249,7 +246,7 @@
             </div>
             <h3>Resgatar</h3>
             <div class="step-cmd">!loja comprar &lt;id&gt;</div>
-            <p>Troque sua honra por chaves lendarias</p>
+            <p>Troque sua honra por chaves lendárias</p>
           </div>
           <div class="step-arrow">➤</div>
           <div class="step-card">
@@ -284,7 +281,7 @@
         <h2 class="section-title-decorated">
           <span class="title-line"></span>
           <a href="https://twitch.tv/rizakh" target="_blank" class="live-link"
-            >Transmissao Ao Vivo</a
+            >Transmissão Ao Vivo</a
           >
           <span class="title-line"></span>
         </h2>
@@ -349,7 +346,7 @@
             <input
               type="text"
               id="search-input"
-              placeholder="Buscar produto..."
+              placeholder="Buscar produto…"
               class="search-input"
               autocomplete="off"
             />
@@ -413,12 +410,20 @@
           </button>
         </div>
 
-        <div id="pagination-info" class="pagination-info">
+        <div
+          id="pagination-info"
+          class="pagination-info"
+          style="text-align: center; width: 100%; margin: 0 auto 32px; display: block;"
+        >
           <span id="pagination-text"></span>
         </div>
         <div id="shop-grid" class="shop-grid"></div>
 
-        <div id="pagination-controls" class="pagination-controls">
+        <div
+          id="pagination-controls"
+          class="pagination-controls"
+          style="display: flex; justify-content: center; align-items: center; gap: 20px; width: 100%; margin: 60px auto 0;"
+        >
           <button id="btn-prev" class="btn-page" onclick="goPage(-1)">
             ◄ Anterior
           </button>
@@ -430,7 +435,7 @@
 
         <div id="empty-state" class="empty-state" style="display: none">
           <div class="empty-icon">🏰</div>
-          <p>A taverna esta vazia por enquanto...</p>
+          <p>A taverna está vazia por enquanto…</p>
           <small>Volte em breve!</small>
         </div>
       </div>
@@ -464,7 +469,7 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="site-footer">
+    <footer class="site-footer" id="contato">
       <div class="footer-brand-center">
         <svg
           class="footer-gem"
@@ -490,7 +495,7 @@
       <div class="footer-bottom">
         <!-- Navigation Column -->
         <div class="footer-nav">
-          <h4>Navegacao</h4>
+          <h4>Navegação</h4>
           <a href="#shop">Loja</a>
           <a href="#how">Como Participar</a>
           <a href="#live">Live</a>
@@ -527,7 +532,7 @@
             <select id="contact-tipo" name="tipo" required>
               <option value="">Tipo</option>
               <option value="bug">Bug</option>
-              <option value="sugestao">Sugestao</option>
+              <option value="sugestao">Sugestão</option>
               <option value="contato">Contato</option>
             </select>
             <label for="contact-mensagem" class="sr-only">Mensagem</label>
@@ -552,7 +557,7 @@
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path
-                d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zm-7.143 0H1.072l.001 14.001h1.714V11.43h3.571v7.286h1.714V8.858h1.714v7.287h1.715V8.858h1.715v10.573H8.143zm3.428 0H18v5.143h-1.714zm-5.715 0h1.715v5.143H5.286zm-1.715 7.286h1.715v2.858H3.571zm1.714 2.857h1.715v2.858H5.285zm9.429 2.857h-1.714v-2.858H14.71v2.858zm-1.715-5.715H18v5.143h-1.714zm-1.714-2.571H18v2.571h-1.714zm-1.715 2.571H9.286v-2.571H7.57zm5.144 0H14.71v-2.571h-1.715zm1.715-2.571H18v2.571h-1.715z"
+                d="M2.149 0l-1.612 4.119v16.836h5.731v3.045h3.224l3.045-3.045h4.657l6.806-6.806v-14.149h-21.851zm19.164 13.074l-4.119 4.119h-5.731l-3.045 3.045v-3.045h-4.836v-15.045h17.731v10.926zm-9.492-6.985h2.686v5.373h-2.686v-5.373zm4.836 0h2.686v5.373h-2.686v-5.373z"
               />
             </svg>
             Twitch
@@ -587,7 +592,7 @@
       <div class="footer-copy">© 2026 Taverna do Rizakh — twitch.tv/rizakh</div>
     </footer>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" aria-live="polite" role="status"></div>
 
     <!-- Steam SVG Icon (inline, usado nos cards) -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
@@ -1099,7 +1104,7 @@
     <script id="preco-history-data" type="application/json">
       {}
     </script>
-    <script src="app.js"></script>
+    <script src="app.js?v=2.1"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>
