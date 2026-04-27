@@ -43,7 +43,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Cache Buster -->
-    <link rel="stylesheet" href="style.css?v=2.1" />
+    <link rel="stylesheet" href="style.css?v=2.2" />
   </head>
   <body>
     <!-- NAVIGATION -->
@@ -141,10 +141,7 @@
           </div>
         </div>
 
-        <a
-          href="#shop"
-          class="btn-hero-scroll"
-        >
+        <a href="#shop" class="btn-hero-scroll">
           <svg
             class="btn-icon"
             width="20"
@@ -413,7 +410,12 @@
         <div
           id="pagination-info"
           class="pagination-info"
-          style="text-align: center; width: 100%; margin: 0 auto 32px; display: block;"
+          style="
+            text-align: center;
+            width: 100%;
+            margin: 0 auto 32px;
+            display: block;
+          "
         >
           <span id="pagination-text"></span>
         </div>
@@ -422,7 +424,14 @@
         <div
           id="pagination-controls"
           class="pagination-controls"
-          style="display: flex; justify-content: center; align-items: center; gap: 20px; width: 100%; margin: 60px auto 0;"
+          style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            margin: 60px auto 0;
+          "
         >
           <button id="btn-prev" class="btn-page" onclick="goPage(-1)">
             ◄ Anterior
@@ -1104,7 +1113,7 @@
     <script id="preco-history-data" type="application/json">
       {}
     </script>
-    <script src="app.js?v=2.1"></script>
+    <script src="app.js?v=2.2"></script>
 
     <!-- PWA Service Worker Registration -->
     <script>

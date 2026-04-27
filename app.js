@@ -63,10 +63,11 @@ async function carregarClipsDinamicos() {
 function getClipUrl(clipData) {
   const hostname = window.location.hostname || "localhost";
   // Adiciona 127.0.0.1 como parent fallback para garantir compatibilidade em localhost
-  const parentString = hostname === "localhost" || hostname === "127.0.0.1"
-    ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
-    : `&parent=${hostname}&parent=trae.ai`;
-  
+  const parentString =
+    hostname === "localhost" || hostname === "127.0.0.1"
+      ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
+      : `&parent=${hostname}&parent=trae.ai`;
+
   let id = "";
 
   if (typeof clipData === "object" && clipData?.id) {
@@ -95,7 +96,11 @@ function getClipUrl(clipData) {
 function setIframeSrc(iframe, src) {
   try {
     // Check if it's the first time loading to prevent history manipulation
-    if (!iframe.src || iframe.src === window.location.href || iframe.src === "about:blank") {
+    if (
+      !iframe.src ||
+      iframe.src === window.location.href ||
+      iframe.src === "about:blank"
+    ) {
       iframe.contentWindow.location.replace(src);
     } else {
       // se ja tiver algo usa o src normal
@@ -148,12 +153,16 @@ async function verificarEAtualizarPlayer() {
       iframe.src === "about:blank"
     ) {
       const hostname = window.location.hostname || "localhost";
-      const parentString = hostname === "localhost" || hostname === "127.0.0.1"
-        ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
-        : `&parent=${hostname}&parent=trae.ai`;
+      const parentString =
+        hostname === "localhost" || hostname === "127.0.0.1"
+          ? "&parent=localhost&parent=127.0.0.1&parent=trae.ai"
+          : `&parent=${hostname}&parent=trae.ai`;
 
       if (liveAgora) {
-        setIframeSrc(iframe, `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}${parentString}&autoplay=true&muted=true`);
+        setIframeSrc(
+          iframe,
+          `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}${parentString}&autoplay=true&muted=true`,
+        );
         setLiveBadge(true);
         showClipNav(false);
         if (window.clipTimer) {
@@ -217,19 +226,48 @@ function showClipNav(show) {
 ////  setInterval(verificarEAtualizarPlayer, 120000);
 ////  setInterval(carregarClipsDinamicos, 600000);
 ////}
+let playerIniciado = false;
+
 function initTwitchPlayer() {
   carregarClipsDinamicos();
 
-  console.log("[Twitch] Player iniciando...");
+  console.log("[Twitch] Player aguardando visibilidade...");
+
+  const twitchPlayer = document.getElementById("twitch-player");
+  if (!twitchPlayer) {
+    // Fallback caso não ache a seção
+    iniciarVerificacaoPlayer();
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !playerIniciado) {
+          playerIniciado = true;
+          console.log("[Twitch] Seção visível, iniciando player...");
+          iniciarVerificacaoPlayer();
+          // Desconecta o observer após iniciar
+          observer.disconnect();
+        }
+      });
+    },
+    {
+      rootMargin: "0px",
+      threshold: 0.1, // Pelo menos 10% do iframe visível
+    },
+  );
+
+  observer.observe(twitchPlayer);
+}
+
+function iniciarVerificacaoPlayer() {
   if (document.hidden) {
     document.addEventListener(
       "visibilitychange",
       function onVisibilityChange() {
         if (!document.hidden) {
-          document.removeEventListener(
-            "visibilitychange",
-            onVisibilityChange,
-          );
+          document.removeEventListener("visibilitychange", onVisibilityChange);
           verificarEAtualizarPlayer();
         }
       },
@@ -1060,23 +1098,23 @@ function initEmbers() {
   container.className = "floating-embers";
   container.setAttribute("aria-hidden", "true");
   document.body.appendChild(container);
-  
+
   for (let i = 0; i < 30; i++) {
     const ember = document.createElement("span");
     ember.className = "ember-particle";
-    
+
     // random positions and timings
     const left = Math.random() * 100;
     const duration = 4 + Math.random() * 8;
     const delay = Math.random() * 5;
     const size = 2 + Math.random() * 4;
-    
+
     ember.style.left = `${left}%`;
     ember.style.width = `${size}px`;
     ember.style.height = `${size}px`;
     ember.style.animationDuration = `${duration}s`;
     ember.style.animationDelay = `${delay}s`;
-    
+
     container.appendChild(ember);
   }
 }
@@ -1283,7 +1321,7 @@ function initParallaxScroll() {
     y: -50,
     opacity: 0.8,
   });
-  
+
   document.querySelectorAll(".product-card").forEach((card, i) => {
     gsap.to(card, {
       scrollTrigger: {
