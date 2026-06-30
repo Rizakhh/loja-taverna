@@ -160,28 +160,28 @@
                    "desconto":  60
                }
            ],
-    "7":  [
-              {
-                  "data":  "17/04/26",
-                  "desconto":  15,
-                  "preco":  10000
-              },
-              {
-                  "data":  "11/05/26",
-                  "preco":  10000,
-                  "desconto":  50
-              },
-              {
-                  "data":  "03/06/26",
-                  "preco":  10000,
-                  "desconto":  80
-              },
-              {
-                  "data":  "30/06/26",
-                  "preco":  10000,
-                  "desconto":  90
-              }
-          ],
+    "25":  [
+               {
+                   "data":  "17/04/26",
+                   "desconto":  0,
+                   "preco":  30000
+               },
+               {
+                   "data":  "11/05/26",
+                   "preco":  30000,
+                   "desconto":  35
+               },
+               {
+                   "data":  "03/06/26",
+                   "preco":  30000,
+                   "desconto":  50
+               },
+               {
+                   "data":  "30/06/26",
+                   "preco":  30000,
+                   "desconto":  60
+               }
+           ],
     "44":  [
                {
                    "data":  "03/06/26",
@@ -194,6 +194,28 @@
                    "desconto":  50
                }
            ],
+    "8":  [
+              {
+                  "data":  "17/04/26",
+                  "desconto":  0,
+                  "preco":  15000
+              },
+              {
+                  "data":  "11/05/26",
+                  "preco":  15000,
+                  "desconto":  35
+              },
+              {
+                  "data":  "03/06/26",
+                  "preco":  15000,
+                  "desconto":  65
+              },
+              {
+                  "data":  "30/06/26",
+                  "preco":  15000,
+                  "desconto":  75
+              }
+          ],
     "13":  [
                {
                    "data":  "17/04/26",
@@ -326,18 +348,6 @@
                    "desconto":  50
                }
            ],
-    "42":  [
-               {
-                   "data":  "03/06/26",
-                   "preco":  5000,
-                   "desconto":  0
-               },
-               {
-                   "data":  "30/06/26",
-                   "preco":  5000,
-                   "desconto":  50
-               }
-           ],
     "29":  [
                {
                    "data":  "11/05/26",
@@ -353,33 +363,6 @@
                    "data":  "30/06/26",
                    "preco":  20000,
                    "desconto":  35
-               }
-           ],
-    "23":  [
-               {
-                   "data":  "17/04/26",
-                   "desconto":  0,
-                   "preco":  30000
-               },
-               {
-                   "data":  "19/04/26",
-                   "preco":  30000,
-                   "desconto":  15
-               },
-               {
-                   "data":  "11/05/26",
-                   "preco":  30000,
-                   "desconto":  50
-               },
-               {
-                   "data":  "03/06/26",
-                   "preco":  30000,
-                   "desconto":  75
-               },
-               {
-                   "data":  "30/06/26",
-                   "preco":  30000,
-                   "desconto":  85
                }
            ],
     "19":  [
@@ -426,17 +409,68 @@
                   "desconto":  70
               }
           ],
-    "53":  [
+    "47":  [
                {
                    "data":  "30/06/26",
-                   "preco":  60000,
+                   "preco":  10000,
                    "desconto":  0
                }
            ],
+    "6":  [
+              {
+                  "data":  "17/04/26",
+                  "desconto":  10,
+                  "preco":  22500
+              },
+              {
+                  "data":  "19/04/26",
+                  "preco":  22500,
+                  "desconto":  11.1111
+              },
+              {
+                  "data":  "11/05/26",
+                  "preco":  22500,
+                  "desconto":  33.33
+              }
+          ],
     "49":  [
                {
                    "data":  "30/06/26",
                    "preco":  20000,
+                   "desconto":  0
+               }
+           ],
+    "2":  [
+              {
+                  "data":  "17/04/26",
+                  "desconto":  0,
+                  "preco":  15000
+              },
+              {
+                  "data":  "19/04/26",
+                  "preco":  15000,
+                  "desconto":  33.3333
+              },
+              {
+                  "data":  "11/05/26",
+                  "preco":  15000,
+                  "desconto":  80
+              },
+              {
+                  "data":  "03/06/26",
+                  "preco":  15000,
+                  "desconto":  90
+              },
+              {
+                  "data":  "30/06/26",
+                  "preco":  15000,
+                  "desconto":  95
+              }
+          ],
+    "54":  [
+               {
+                   "data":  "30/06/26",
+                   "preco":  25000,
                    "desconto":  0
                }
            ],
@@ -447,11 +481,31 @@
                    "desconto":  0
                }
            ],
-    "47":  [
+    "23":  [
+               {
+                   "data":  "17/04/26",
+                   "desconto":  0,
+                   "preco":  30000
+               },
+               {
+                   "data":  "19/04/26",
+                   "preco":  30000,
+                   "desconto":  15
+               },
+               {
+                   "data":  "11/05/26",
+                   "preco":  30000,
+                   "desconto":  50
+               },
+               {
+                   "data":  "03/06/26",
+                   "preco":  30000,
+                   "desconto":  75
+               },
                {
                    "data":  "30/06/26",
-                   "preco":  10000,
-                   "desconto":  0
+                   "preco":  30000,
+                   "desconto":  85
                }
            ],
     "40":  [
@@ -466,48 +520,16 @@
                    "desconto":  30
                }
            ],
-    "24":  [
-               {
-                   "data":  "17/04/26",
-                   "desconto":  0,
-                   "preco":  35000
-               },
-               {
-                   "data":  "19/04/26",
-                   "preco":  35000,
-                   "desconto":  15
-               },
-               {
-                   "data":  "11/05/26",
-                   "preco":  35000,
-                   "desconto":  75
-               },
+    "42":  [
                {
                    "data":  "03/06/26",
-                   "preco":  35000,
-                   "desconto":  90
-               }
-           ],
-    "26":  [
-               {
-                   "data":  "17/04/26",
-                   "desconto":  0,
-                   "preco":  15000
-               },
-               {
-                   "data":  "11/05/26",
-                   "preco":  15000,
-                   "desconto":  50
-               },
-               {
-                   "data":  "03/06/26",
-                   "preco":  15000,
-                   "desconto":  75
+                   "preco":  5000,
+                   "desconto":  0
                },
                {
                    "data":  "30/06/26",
-                   "preco":  15000,
-                   "desconto":  85
+                   "preco":  5000,
+                   "desconto":  50
                }
            ],
     "3":  [
@@ -554,16 +576,11 @@
                    "desconto":  90
                }
            ],
-    "37":  [
-               {
-                   "data":  "03/06/26",
-                   "preco":  12500,
-                   "desconto":  0
-               },
+    "53":  [
                {
                    "data":  "30/06/26",
-                   "preco":  12500,
-                   "desconto":  25
+                   "preco":  60000,
+                   "desconto":  0
                }
            ],
     "22":  [
@@ -586,23 +603,6 @@
                    "data":  "30/06/26",
                    "preco":  20000,
                    "desconto":  90
-               }
-           ],
-    "28":  [
-               {
-                   "data":  "11/05/26",
-                   "preco":  10000,
-                   "desconto":  0
-               },
-               {
-                   "data":  "03/06/26",
-                   "preco":  10000,
-                   "desconto":  25
-               },
-               {
-                   "data":  "30/06/26",
-                   "preco":  10000,
-                   "desconto":  45
                }
            ],
     "4":  [
@@ -632,28 +632,55 @@
                   "desconto":  90
               }
           ],
-    "25":  [
-               {
-                   "data":  "17/04/26",
-                   "desconto":  0,
-                   "preco":  30000
-               },
+    "28":  [
                {
                    "data":  "11/05/26",
-                   "preco":  30000,
-                   "desconto":  35
+                   "preco":  10000,
+                   "desconto":  0
                },
                {
                    "data":  "03/06/26",
-                   "preco":  30000,
-                   "desconto":  50
+                   "preco":  10000,
+                   "desconto":  25
                },
                {
                    "data":  "30/06/26",
-                   "preco":  30000,
-                   "desconto":  60
+                   "preco":  10000,
+                   "desconto":  45
                }
            ],
+    "9":  [
+              {
+                  "data":  "17/04/26",
+                  "desconto":  0,
+                  "preco":  35000
+              },
+              {
+                  "data":  "19/04/26",
+                  "preco":  35000,
+                  "desconto":  25
+              },
+              {
+                  "data":  "22/04/26",
+                  "preco":  35000,
+                  "desconto":  42.857142857143
+              },
+              {
+                  "data":  "11/05/26",
+                  "preco":  35000,
+                  "desconto":  75
+              },
+              {
+                  "data":  "03/06/26",
+                  "preco":  35000,
+                  "desconto":  85
+              },
+              {
+                  "data":  "30/06/26",
+                  "preco":  35000,
+                  "desconto":  90
+              }
+          ],
     "33":  [
                {
                    "data":  "11/05/26",
@@ -732,38 +759,40 @@
                    "desconto":  80
                }
            ],
-    "9":  [
-              {
-                  "data":  "17/04/26",
-                  "desconto":  0,
-                  "preco":  35000
-              },
-              {
-                  "data":  "19/04/26",
-                  "preco":  35000,
-                  "desconto":  25
-              },
-              {
-                  "data":  "22/04/26",
-                  "preco":  35000,
-                  "desconto":  42.857142857143
-              },
-              {
-                  "data":  "11/05/26",
-                  "preco":  35000,
-                  "desconto":  75
-              },
-              {
-                  "data":  "03/06/26",
-                  "preco":  35000,
-                  "desconto":  85
-              },
-              {
-                  "data":  "30/06/26",
-                  "preco":  35000,
-                  "desconto":  90
-              }
-          ],
+    "31":  [
+               {
+                   "data":  "11/05/26",
+                   "preco":  25000,
+                   "desconto":  0
+               },
+               {
+                   "data":  "03/06/26",
+                   "preco":  25000,
+                   "desconto":  50
+               }
+           ],
+    "24":  [
+               {
+                   "data":  "17/04/26",
+                   "desconto":  0,
+                   "preco":  35000
+               },
+               {
+                   "data":  "19/04/26",
+                   "preco":  35000,
+                   "desconto":  15
+               },
+               {
+                   "data":  "11/05/26",
+                   "preco":  35000,
+                   "desconto":  75
+               },
+               {
+                   "data":  "03/06/26",
+                   "preco":  35000,
+                   "desconto":  90
+               }
+           ],
     "46":  [
                {
                    "data":  "03/06/26",
@@ -820,13 +849,6 @@
                    "desconto":  70
                }
            ],
-    "51":  [
-               {
-                   "data":  "30/06/26",
-                   "preco":  15000,
-                   "desconto":  0
-               }
-           ],
     "32":  [
                {
                    "data":  "11/05/26",
@@ -844,26 +866,26 @@
                    "desconto":  45
                }
            ],
-    "8":  [
+    "7":  [
               {
                   "data":  "17/04/26",
-                  "desconto":  0,
-                  "preco":  15000
+                  "desconto":  15,
+                  "preco":  10000
               },
               {
                   "data":  "11/05/26",
-                  "preco":  15000,
-                  "desconto":  35
+                  "preco":  10000,
+                  "desconto":  50
               },
               {
                   "data":  "03/06/26",
-                  "preco":  15000,
-                  "desconto":  65
+                  "preco":  10000,
+                  "desconto":  80
               },
               {
                   "data":  "30/06/26",
-                  "preco":  15000,
-                  "desconto":  75
+                  "preco":  10000,
+                  "desconto":  90
               }
           ],
     "43":  [
@@ -885,33 +907,18 @@
                    "desconto":  0
                }
            ],
-    "2":  [
-              {
-                  "data":  "17/04/26",
-                  "desconto":  0,
-                  "preco":  15000
-              },
-              {
-                  "data":  "19/04/26",
-                  "preco":  15000,
-                  "desconto":  33.3333
-              },
-              {
-                  "data":  "11/05/26",
-                  "preco":  15000,
-                  "desconto":  80
-              },
-              {
-                  "data":  "03/06/26",
-                  "preco":  15000,
-                  "desconto":  90
-              },
-              {
-                  "data":  "30/06/26",
-                  "preco":  15000,
-                  "desconto":  95
-              }
-          ],
+    "37":  [
+               {
+                   "data":  "03/06/26",
+                   "preco":  12500,
+                   "desconto":  0
+               },
+               {
+                   "data":  "30/06/26",
+                   "preco":  12500,
+                   "desconto":  25
+               }
+           ],
     "34":  [
                {
                    "data":  "11/05/26",
@@ -936,33 +943,33 @@
                    "desconto":  0
                }
            ],
-    "6":  [
-              {
-                  "data":  "17/04/26",
-                  "desconto":  10,
-                  "preco":  22500
-              },
-              {
-                  "data":  "19/04/26",
-                  "preco":  22500,
-                  "desconto":  11.1111
-              },
-              {
-                  "data":  "11/05/26",
-                  "preco":  22500,
-                  "desconto":  33.33
-              }
-          ],
-    "31":  [
+    "26":  [
+               {
+                   "data":  "17/04/26",
+                   "desconto":  0,
+                   "preco":  15000
+               },
                {
                    "data":  "11/05/26",
-                   "preco":  25000,
-                   "desconto":  0
+                   "preco":  15000,
+                   "desconto":  50
                },
                {
                    "data":  "03/06/26",
-                   "preco":  25000,
-                   "desconto":  50
+                   "preco":  15000,
+                   "desconto":  75
+               },
+               {
+                   "data":  "30/06/26",
+                   "preco":  15000,
+                   "desconto":  85
+               }
+           ],
+    "51":  [
+               {
+                   "data":  "30/06/26",
+                   "preco":  15000,
+                   "desconto":  0
                }
            ]
 }
